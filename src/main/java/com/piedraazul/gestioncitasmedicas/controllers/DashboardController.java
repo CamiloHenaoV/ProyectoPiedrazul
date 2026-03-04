@@ -1,4 +1,4 @@
 package com.piedraazul.gestioncitasmedicas.controllers;
 
-public class MainController {
+public class DashboardController {
 }
