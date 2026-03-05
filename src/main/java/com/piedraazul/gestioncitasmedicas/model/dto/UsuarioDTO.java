@@ -9,7 +9,7 @@ import java.util.UUID;
 public class UsuarioDTO {
     private UUID    id;
     private String  nombreCompleto;
-    private String  login;
+    private String  usuario;
     private String  password;        // solo en creación
     private RolUsuario rol;
     private Boolean activo;
