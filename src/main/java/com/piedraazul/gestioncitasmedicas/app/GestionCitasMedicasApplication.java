@@ -1,6 +1,5 @@
-package com.piedraazul.gestioncitasmedicas;
+package com.piedraazul.gestioncitasmedicas.app;
 
-import org.springframework.boot.SpringApplication;
 import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

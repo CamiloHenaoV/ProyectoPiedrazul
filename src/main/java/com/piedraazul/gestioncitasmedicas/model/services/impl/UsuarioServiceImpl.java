@@ -1,4 +1,5 @@
 package com.piedraazul.gestioncitasmedicas.model.services.impl;
+
 import com.piedraazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedraazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedraazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
@@ -6,7 +7,8 @@ import com.piedraazul.gestioncitasmedicas.model.exceptions.*;
 import com.piedraazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedraazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedraazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.piedraazul.gestioncitasmedicas.observer.AppEvent;
+import com.piedraazul.gestioncitasmedicas.observer.EventBus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +19,17 @@ import java.util.stream.Collectors;
 public class UsuarioServiceImpl implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final IPasswordService passwordService;   // depende de la interfaz
+    private final IPasswordService  passwordService;
+    private final EventBus          eventBus;
 
     public UsuarioServiceImpl(
             UsuarioRepository usuarioRepository,
-            IPasswordService  passwordService              // Spring inyecta BCryptPasswordServiceImpl
+            IPasswordService  passwordService,
+            EventBus          eventBus
     ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordService   = passwordService;
+        this.eventBus          = eventBus;
     }
 
     @Override
@@ -52,13 +57,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
         Usuario usuario = Usuario.builder()
                 .nombreCompleto(dto.getNombreCompleto())
                 .login(dto.getLogin())
-                .passwordHash(passwordService.encriptar(dto.getPassword())) // delega
+                .passwordHash(passwordService.encriptar(dto.getPassword()))
                 .rol(dto.getRol())
                 .activo(true)
                 .build();
 
-        return toDTO(usuarioRepository.save(usuario));
+        UsuarioDTO guardado = toDTO(usuarioRepository.save(usuario));
+        eventBus.publish(AppEvent.USUARIO_CREADO, guardado);
+        return guardado;
     }
+
     @Override
     public UsuarioDTO buscarPorId(UUID id) {
         return usuarioRepository.findById(id)
@@ -69,14 +77,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
     @Override
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll()
-                .stream().map(this::toDTO)
+                .stream()
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UsuarioDTO> listarPorRol(RolUsuario rol) {
         return usuarioRepository.findByRol(rol)
-                .stream().map(this::toDTO)
+                .stream()
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -88,15 +98,19 @@ public class UsuarioServiceImpl implements IUsuarioService {
         usuario.setNombreCompleto(dto.getNombreCompleto());
         usuario.setRol(dto.getRol());
 
-        return toDTO(usuarioRepository.save(usuario));
+        UsuarioDTO actualizado = toDTO(usuarioRepository.save(usuario));
+        eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, actualizado);
+        return actualizado;
     }
 
     @Override
     public void desactivarUsuario(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
+
         usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+        UsuarioDTO desactivado = toDTO(usuarioRepository.save(usuario));
+        eventBus.publish(AppEvent.USUARIO_DESACTIVADO, desactivado);
     }
 
     @Override
@@ -104,7 +118,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
         return usuarioRepository.existsByLogin(login);
     }
 
-    // Conversión entidad → DTO (el controller nunca ve la entidad)
     private UsuarioDTO toDTO(Usuario u) {
         return UsuarioDTO.builder()
                 .id(u.getId())

@@ -1,4 +1,4 @@
-package com.piedraazul.gestioncitasmedicas;
+package com.piedraazul.gestioncitasmedicas.app;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URL;
 
-import com.piedraazul.gestioncitasmedicas.JavaFxApplication.StageReadyEvent;
+import com.piedraazul.gestioncitasmedicas.app.JavaFxApplication.StageReadyEvent;
 
 @Component
 public class StageInitializer implements ApplicationListener<StageReadyEvent> {
