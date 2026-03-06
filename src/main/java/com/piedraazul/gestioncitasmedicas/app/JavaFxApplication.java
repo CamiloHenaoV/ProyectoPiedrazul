@@ -4,10 +4,14 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "com.piedraazul.gestioncitasmedicas")
+@EnableJpaRepositories(basePackages = "com.piedraazul.gestioncitasmedicas.model.repositories")
+@EntityScan(basePackages = "com.piedraazul.gestioncitasmedicas.model.entities")
 public class JavaFxApplication extends Application {
 
     private ConfigurableApplicationContext context;
