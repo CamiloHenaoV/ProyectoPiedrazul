@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.piedrazul.gestioncitasmedicas.controller.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox alignment="CENTER" spacing="16.0"
+      prefHeight="300.0" prefWidth="400.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.LoginController">
 
-</AnchorPane>
+    <padding>
+        <Insets top="40.0" right="60.0" bottom="40.0" left="60.0"/>
+    </padding>
+
+    <Label text="PiedraAzul" alignment="CENTER">
+        <font>
+            <Font name="System Bold" size="24.0"/>
+        </font>
+    </Label>
+
+    <Label text="Gestión de Citas Médicas" alignment="CENTER"/>
+
+    <VBox spacing="6.0">
+        <Label text="Usuario"/>
+        <TextField fx:id="txtLogin" promptText="Ingresa tu usuario"/>
+    </VBox>
+
+    <VBox spacing="6.0">
+        <Label text="Contraseña"/>
+        <PasswordField fx:id="txtPassword" promptText="Ingresa tu contraseña"/>
+    </VBox>
+
+    <Label fx:id="lblError" textFill="RED" visible="false" wrapText="true"/>
+
+    <Button fx:id="btnIngresar" text="Ingresar" onAction="#handleLogin"
+            defaultButton="true" maxWidth="Infinity"/>
+
+</VBox>
