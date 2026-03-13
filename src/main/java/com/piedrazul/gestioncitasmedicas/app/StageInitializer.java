@@ -26,7 +26,7 @@ public class StageInitializer implements ApplicationListener<StageReadyEvent> {
     @Override
     public void onApplicationEvent(StageReadyEvent event) {
         this.primaryStage = event.getStage();
-        cambiarVista("/view/fxml/auth/login.fxml", "MediGest - Iniciar Sesión", 400, 300);
+        cambiarVista("/view/fxml/auth/login.fxml", "Gestión Citas medicas - Iniciar Sesión", 400, 300);
     }
 
     public void cambiarVista(String rutaFxml, String titulo, double ancho, double alto) {
