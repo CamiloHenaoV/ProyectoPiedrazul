@@ -114,6 +114,15 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
+    public void activarUsuario(UUID id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
+        usuario.setActivo(true);
+        usuarioRepository.save(usuario);
+        eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
+    }
+
+    @Override
     public boolean existeLogin(String login) {
         return usuarioRepository.existsByLogin(login);
     }

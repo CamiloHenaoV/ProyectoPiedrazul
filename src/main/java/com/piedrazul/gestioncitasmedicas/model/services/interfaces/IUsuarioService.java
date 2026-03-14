@@ -14,5 +14,6 @@ public interface IUsuarioService {
     List<UsuarioDTO> listarPorRol(RolUsuario rol);
     UsuarioDTO    actualizarUsuario(UUID id, UsuarioDTO dto);
     void          desactivarUsuario(UUID id);
+    void          activarUsuario(UUID id);
     boolean       existeLogin(String login);
 }
