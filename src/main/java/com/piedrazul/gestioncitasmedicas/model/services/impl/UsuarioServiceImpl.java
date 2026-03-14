@@ -14,7 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+/**
+ * Implementación del servicio de gestión de usuarios.
+ * <p>
+ * Centraliza toda la lógica de negocio relacionada con usuarios,
+ * delegando la persistencia al repositorio y la encriptación
+ * al servicio de passwords.
+ */
 @Service
 public class UsuarioServiceImpl implements IUsuarioService {
 
@@ -31,7 +37,23 @@ public class UsuarioServiceImpl implements IUsuarioService {
         this.passwordService   = passwordService;
         this.eventBus          = eventBus;
     }
-
+    /**
+     * Autentica un usuario verificando sus credenciales.
+     * <p>
+     * El orden de validación es:
+     * <ol>
+     *     <li>Verifica que el login exista</li>
+     *     <li>Verifica que el usuario esté activo</li>
+     *     <li>Verifica que la contraseña coincida con el hash</li>
+     * </ol>
+     * Si cualquiera falla lanza la misma excepción para no revelar
+     * cuál validación específica falló.
+     *
+     * @param login    identificador único del usuario
+     * @param password contraseña en texto plano
+     * @return {@link UsuarioDTO} con los datos del usuario autenticado
+     * @throws CredencialesInvalidasException si alguna validación falla
+     */
     @Override
     public UsuarioDTO autenticar(String login, String password) {
         Usuario usuario = usuarioRepository.findByLogin(login)
@@ -47,7 +69,17 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
         return toDTO(usuario);
     }
-
+    /**
+     * Crea un nuevo usuario en el sistema.
+     * <p>
+     * Verifica duplicidad del login antes de persistir.
+     * La contraseña se encripta antes de almacenarse —
+     * nunca se guarda en texto plano.
+     *
+     * @param dto datos del usuario a crear
+     * @return {@link UsuarioDTO} con los datos del usuario creado
+     * @throws LoginDuplicadoException si el login ya está registrado
+     */
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO dto) {
         if (usuarioRepository.existsByLogin(dto.getLogin())) {
@@ -66,14 +98,24 @@ public class UsuarioServiceImpl implements IUsuarioService {
         eventBus.publish(AppEvent.USUARIO_CREADO, guardado);
         return guardado;
     }
-
+    /**
+     * Busca un usuario por su identificador único.
+     *
+     * @param id identificador UUID del usuario
+     * @return {@link UsuarioDTO} con los datos del usuario
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
+     */
     @Override
     public UsuarioDTO buscarPorId(UUID id) {
         return usuarioRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
     }
-
+    /**
+     * Retorna todos los usuarios registrados en el sistema.
+     *
+     * @return lista de {@link UsuarioDTO}, vacía si no hay usuarios
+     */
     @Override
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll()
@@ -81,7 +123,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Retorna todos los usuarios que tienen un rol específico.
+     *
+     * @param rol rol por el que filtrar
+     * @return lista de {@link UsuarioDTO} con ese rol
+     */
     @Override
     public List<UsuarioDTO> listarPorRol(RolUsuario rol) {
         return usuarioRepository.findByRol(rol)
@@ -89,7 +136,17 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Actualiza los datos de un usuario existente.
+     * <p>
+     * Solo permite modificar {@code nombreCompleto} y {@code rol}.
+     * El login y la contraseña no se modifican en esta operación.
+     *
+     * @param id  identificador del usuario a actualizar
+     * @param dto datos nuevos del usuario
+     * @return {@link UsuarioDTO} con los datos actualizados
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
+     */
     @Override
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -102,7 +159,15 @@ public class UsuarioServiceImpl implements IUsuarioService {
         eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, actualizado);
         return actualizado;
     }
-
+    /**
+     * Desactiva un usuario impidiendo que pueda autenticarse.
+     * <p>
+     * La desactivación es lógica — el registro permanece en la BD
+     * pero el usuario no puede iniciar sesión.
+     *
+     * @param id identificador del usuario a desactivar
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
+     */
     @Override
     public void desactivarUsuario(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -112,7 +177,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
         UsuarioDTO desactivado = toDTO(usuarioRepository.save(usuario));
         eventBus.publish(AppEvent.USUARIO_DESACTIVADO, desactivado);
     }
-
+    /**
+     * Reactiva un usuario previamente desactivado.
+     *
+     * @param id identificador del usuario a activar
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
+     */
     @Override
     public void activarUsuario(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -121,12 +191,29 @@ public class UsuarioServiceImpl implements IUsuarioService {
         usuarioRepository.save(usuario);
         eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
     }
+    /**
+     * Verifica si un login ya está registrado en el sistema.
+     * <p>
+     * Útil para validar en la UI antes de intentar crear un usuario
+     * y mostrar un error preventivo al usuario.
+     *
+     * @param login login a verificar
+     * @return {@code true} si el login ya existe, {@code false} si está disponible
+     */
 
     @Override
     public boolean existeLogin(String login) {
         return usuarioRepository.existsByLogin(login);
     }
-
+    /**
+     * Convierte una entidad {@link Usuario} a su representación {@link UsuarioDTO}.
+     * <p>
+     * El {@code passwordHash} nunca se incluye en el DTO para evitar
+     * que llegue a la capa de presentación.
+     *
+     * @param u entidad a convertir
+     * @return DTO con los datos del usuario sin información sensible
+     */
     private UsuarioDTO toDTO(Usuario u) {
         return UsuarioDTO.builder()
                 .id(u.getId())

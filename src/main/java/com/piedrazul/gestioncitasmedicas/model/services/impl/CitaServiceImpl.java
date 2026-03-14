@@ -19,6 +19,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Implementación del servicio de gestión de citas médicas.
+ * <p>
+ * Coordina la lógica de agendamiento validando disponibilidad
+ * del profesional antes de persistir cualquier cita.
+ */
 @Service
 public class CitaServiceImpl implements ICitaService {
 
@@ -44,7 +50,17 @@ public class CitaServiceImpl implements ICitaService {
         this.bloqueoRepository        = bloqueoRepository;
         this.eventBus                 = eventBus;
     }
-
+    /**
+     * Agenda una nueva cita para un paciente con un profesional.
+     * <p>
+     * Delega la validación de disponibilidad a
+     * {@link #isProfesionalDisponible(Integer, ZonedDateTime)}
+     * antes de intentar persistir la cita.
+     *
+     * @param dto datos de la cita a agendar
+     * @return {@link CitaDTO} con los datos de la cita creada
+     * @throws HorarioOcupadoException si el profesional no está disponible
+     */
     @Override
     public CitaDTO agendarCita(CitaDTO dto) {
         if (!isProfesionalDisponible(dto.getProfesionalId(), dto.getFechaHora())) {
@@ -65,14 +81,25 @@ public class CitaServiceImpl implements ICitaService {
         eventBus.publish(AppEvent.CITA_AGENDADA, guardada);
         return guardada;
     }
-
+    /**
+     * Busca una cita por su identificador único.
+     *
+     * @param id identificador UUID de la cita
+     * @return {@link CitaDTO} con los datos de la cita
+     * @throws CitaNoEncontradaException si no existe una cita con ese ID
+     */
     @Override
     public CitaDTO buscarPorId(UUID id) {
         return citaRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
     }
-
+    /**
+     * Retorna todas las citas de un paciente.
+     *
+     * @param pacienteId identificador UUID del paciente
+     * @return lista de {@link CitaDTO}, vacía si no tiene citas
+     */
     @Override
     public List<CitaDTO> listarPorPaciente(UUID pacienteId) {
         return citaRepository.findByPacienteId(pacienteId)
@@ -80,7 +107,12 @@ public class CitaServiceImpl implements ICitaService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Retorna todas las citas asignadas a un profesional.
+     *
+     * @param profesionalId identificador del profesional
+     * @return lista de {@link CitaDTO}, vacía si no tiene citas
+     */
     @Override
     public List<CitaDTO> listarPorProfesional(Integer profesionalId) {
         return citaRepository.findByProfesionalId(profesionalId)
@@ -88,7 +120,25 @@ public class CitaServiceImpl implements ICitaService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Calcula los horarios disponibles de un profesional para una fecha dada.
+     * <p>
+     * El algoritmo funciona en tres pasos:
+     * <ol>
+     *     <li>Obtiene los bloques de disponibilidad semanal del profesional
+     *         para el día de la semana correspondiente a la fecha</li>
+     *     <li>Por cada bloque genera slots de tiempo separados por
+     *         {@code duracionCitaMinutos}</li>
+     *     <li>Filtra los slots que ya tienen cita o están dentro
+     *         de un bloqueo activo</li>
+     * </ol>
+     * Ejemplo: bloque 08:00-10:00 con duración 30min genera
+     * [08:00, 08:30, 09:00, 09:30] antes del filtrado.
+     *
+     * @param profesionalId identificador del profesional
+     * @param fecha         fecha para la que se consulta disponibilidad
+     * @return lista de {@link ZonedDateTime} con los horarios disponibles
+     */
     @Override
     public List<ZonedDateTime> obtenerHorariosDisponibles(Integer profesionalId, LocalDate fecha) {
         int diaSemana = fecha.getDayOfWeek().getValue() % 7;
@@ -112,7 +162,13 @@ public class CitaServiceImpl implements ICitaService {
                 )
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Cancela una cita cambiando su estado a {@link EstadoCita#cancelada}.
+     *
+     * @param id identificador UUID de la cita a cancelar
+     * @return {@link CitaDTO} con el estado actualizado
+     * @throws CitaNoEncontradaException si no existe una cita con ese ID
+     */
     @Override
     public CitaDTO cancelarCita(UUID id) {
         Cita cita = citaRepository.findById(id)
@@ -123,7 +179,14 @@ public class CitaServiceImpl implements ICitaService {
         eventBus.publish(AppEvent.CITA_CANCELADA, cancelada);
         return cancelada;
     }
-
+    /**
+     * Marca una cita como completada cambiando su estado
+     * a {@link EstadoCita#completada}.
+     *
+     * @param id identificador UUID de la cita a completar
+     * @return {@link CitaDTO} con el estado actualizado
+     * @throws CitaNoEncontradaException si no existe una cita con ese ID
+     */
     @Override
     public CitaDTO completarCita(UUID id) {
         Cita cita = citaRepository.findById(id)
@@ -134,7 +197,20 @@ public class CitaServiceImpl implements ICitaService {
         eventBus.publish(AppEvent.CITA_COMPLETADA, completada);
         return completada;
     }
-
+    /**
+     * Verifica si un profesional está disponible en una fecha y hora específica.
+     * <p>
+     * Las tres condiciones que se verifican en orden son:
+     * <ol>
+     *     <li>No existe otra cita en ese horario exacto</li>
+     *     <li>El horario no cae dentro de un bloqueo activo</li>
+     *     <li>El horario está dentro de su disponibilidad semanal</li>
+     * </ol>
+     *
+     * @param profesionalId identificador del profesional
+     * @param fechaHora     fecha y hora a verificar
+     * @return {@code true} si el profesional está disponible
+     */
     private boolean isProfesionalDisponible(Integer profesionalId, ZonedDateTime fechaHora) {
         if (citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, fechaHora)) return false;
         if (bloqueoRepository.existeBloqueoEnFecha(profesionalId, fechaHora)) return false;
@@ -150,7 +226,12 @@ public class CitaServiceImpl implements ICitaService {
                                 !hora.isAfter(d.getHoraFin())
                 );
     }
-
+    /**
+     * Convierte una entidad {@link Cita} a su representación {@link CitaDTO}.
+     *
+     * @param c entidad a convertir
+     * @return DTO con los datos de la cita
+     */
     private CitaDTO toDTO(Cita c) {
         return CitaDTO.builder()
                 .id(c.getId())
