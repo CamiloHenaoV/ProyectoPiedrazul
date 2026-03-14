@@ -60,6 +60,7 @@ public class LoginController {
                 Platform.runLater(() -> mostrarError("Usuario o contraseña incorrectos."));
             } catch (Exception ex) {
                 Platform.runLater(() -> mostrarError("Error inesperado. Intenta de nuevo."));
+                ex.printStackTrace();
             } finally {
                 Platform.runLater(() -> btnIngresar.setDisable(false));
             }

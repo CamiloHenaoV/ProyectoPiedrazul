@@ -42,12 +42,12 @@ public class Usuario {
     @Column(name = "creado_en")
     private ZonedDateTime creadoEn;
 
-    @OneToOne(mappedBy = "usuario")
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Profesional profesional;
 
-    @OneToOne(mappedBy = "usuario")
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Paciente paciente;
 
-    @OneToOne(mappedBy = "usuario")
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Responsable responsable;
 }
