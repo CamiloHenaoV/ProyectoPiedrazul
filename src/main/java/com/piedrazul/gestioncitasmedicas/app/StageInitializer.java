@@ -57,4 +57,26 @@ public class StageInitializer implements ApplicationListener<StageReadyEvent> {
                 primaryStage.getScene().getHeight()
         );
     }
+    public FXMLLoader cambiarVistaConLoader(String rutaFxml, String titulo, double ancho, double alto) {
+        try {
+            URL url = getClass().getResource(rutaFxml);
+
+            if (url == null) {
+                throw new RuntimeException("No se encontró el FXML: " + rutaFxml);
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            loader.setControllerFactory(context::getBean);
+
+            Parent root = loader.load();
+            primaryStage.setScene(new Scene(root, ancho, alto));
+            primaryStage.setTitle(titulo);
+            primaryStage.show();
+
+            return loader;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al cargar la vista: " + rutaFxml, e);
+        }
+    }
 }

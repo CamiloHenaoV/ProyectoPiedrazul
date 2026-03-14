@@ -21,7 +21,7 @@
         </font>
     </Label>
 
-    <Label text="Gestión de Citas Médicas" alignment="CENTER"/>
+    <Label text="Piedrazul" alignment="CENTER"/>
 
     <VBox spacing="6.0">
         <Label text="Usuario"/>
