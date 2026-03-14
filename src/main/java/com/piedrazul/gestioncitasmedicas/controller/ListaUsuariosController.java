@@ -162,7 +162,7 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
 
     private void abrirFormulario(UsuarioDTO usuario) {
         try {
-            URL url = getClass().getResource("/view/fxml/usuarios/form-usuario.fxml");
+            URL url = getClass().getResource("/view/fxml/usuarios/form-usuarios.fxml");
             FXMLLoader loader = new FXMLLoader(url);
             loader.setControllerFactory(
                     clazz -> clazz.equals(FormUsuarioController.class)
