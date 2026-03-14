@@ -2,7 +2,6 @@ package com.piedrazul.gestioncitasmedicas.controller;
 
 import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
-import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import com.piedrazul.gestioncitasmedicas.observer.AppEvent;
 import com.piedrazul.gestioncitasmedicas.observer.EventBus;
@@ -12,9 +11,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,11 +35,22 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
     @FXML private Button                           btnToggleActivo;
     @FXML private Label                            lblEstado;
 
-    @Autowired private IUsuarioService  usuarioService;
-    @Autowired private StageInitializer stageInitializer;
-    @Autowired private EventBus         eventBus;
+    private final IUsuarioService    usuarioService;
+    private final StageInitializer   stageInitializer;
+    private final EventBus           eventBus;
+    private final ApplicationContext context;
 
     private ObservableList<UsuarioDTO> todosLosUsuarios = FXCollections.observableArrayList();
+
+    public ListaUsuariosController(IUsuarioService usuarioService,
+                                   StageInitializer stageInitializer,
+                                   EventBus eventBus,
+                                   ApplicationContext context) {
+        this.usuarioService   = usuarioService;
+        this.stageInitializer = stageInitializer;
+        this.eventBus         = eventBus;
+        this.context          = context;
+    }
 
     @FXML
     public void initialize() {
@@ -109,27 +125,13 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
 
     @FXML
     private void handleNuevo() {
-        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
-                "/view/fxml/usuarios/form-usuario.fxml",
-                "Piedrazul - Nuevo Usuario",
-                500, 450
-        );
-        FormUsuarioController controller = loader.getController();
-        controller.setUsuario(null);
+        abrirFormulario(null);
     }
 
     @FXML
     private void handleEditar() {
         UsuarioDTO seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) return;
-
-        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
-                "/view/fxml/usuarios/form-usuario.fxml",
-                "Piedrazul - Editar Usuario",
-                500, 450
-        );
-        FormUsuarioController controller = loader.getController();
-        controller.setUsuario(seleccionado);
+        if (seleccionado != null) abrirFormulario(seleccionado);
     }
 
     @FXML
@@ -167,5 +169,24 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
         lblEstado.setText("Total: " + todosLosUsuarios.size() + " usuarios");
     }
 
+    private void abrirFormulario(UsuarioDTO usuario) {
+        try {
+            URL url = getClass().getResource("/view/fxml/usuarios/form-usuarios.fxml");
+            FXMLLoader loader = new FXMLLoader(url);
+            loader.setControllerFactory(context::getBean);
 
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.setTitle(usuario == null ? "Nuevo Usuario" : "Editar Usuario");
+            modal.setScene(new Scene(loader.load(), 500, 450));
+
+            FormUsuarioController controller = loader.getController();
+            controller.setUsuario(usuario);
+            modal.show();
+
+        } catch (IOException e) {
+            lblEstado.setText("Error al abrir el formulario.");
+            e.printStackTrace();
+        }
+    }
 }

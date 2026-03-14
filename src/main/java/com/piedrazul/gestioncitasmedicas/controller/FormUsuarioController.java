@@ -12,24 +12,23 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 public class FormUsuarioController {
 
-    @FXML private Label         lblTitulo;
-    @FXML private TextField     txtNombre;
-    @FXML private TextField     txtLogin;
-    @FXML private PasswordField txtPassword;
+    @FXML private Label                lblTitulo;
+    @FXML private TextField            txtNombre;
+    @FXML private TextField            txtLogin;
+    @FXML private PasswordField        txtPassword;
     @FXML private ComboBox<RolUsuario> cbRol;
-    @FXML private Label         lblError;
+    @FXML private Label                lblError;
 
     private final IUsuarioService usuarioService;
     private final EventBus        eventBus;
 
     private UsuarioDTO usuarioEditar;
 
-    public FormUsuarioController(IUsuarioService usuarioService, EventBus eventBus) {
+    public FormUsuarioController(IUsuarioService usuarioService,
+                                 EventBus eventBus) {
         this.usuarioService = usuarioService;
         this.eventBus       = eventBus;
     }
@@ -46,8 +45,8 @@ public class FormUsuarioController {
             lblTitulo.setText("Editar Usuario");
             txtNombre.setText(usuario.getNombreCompleto());
             txtLogin.setText(usuario.getLogin());
-            txtLogin.setDisable(true);         // no se cambia el login
-            txtPassword.setDisable(true);      // no se cambia password aquí
+            txtLogin.setDisable(true);
+            txtPassword.setDisable(true);
             cbRol.setValue(usuario.getRol());
         } else {
             lblTitulo.setText("Nuevo Usuario");
@@ -60,7 +59,6 @@ public class FormUsuarioController {
 
         try {
             if (usuarioEditar == null) {
-                // Crear
                 UsuarioDTO nuevo = UsuarioDTO.builder()
                         .nombreCompleto(txtNombre.getText().trim())
                         .login(txtLogin.getText().trim())
@@ -70,7 +68,6 @@ public class FormUsuarioController {
                         .build();
                 usuarioService.crearUsuario(nuevo);
             } else {
-                // Editar
                 UsuarioDTO actualizado = UsuarioDTO.builder()
                         .id(usuarioEditar.getId())
                         .nombreCompleto(txtNombre.getText().trim())
@@ -80,7 +77,7 @@ public class FormUsuarioController {
                         .build();
                 usuarioService.actualizarUsuario(usuarioEditar.getId(), actualizado);
             }
-            cerrarVentana();
+            cerrarModal();
 
         } catch (LoginDuplicadoException e) {
             mostrarError(e.getMessage());
@@ -92,7 +89,7 @@ public class FormUsuarioController {
 
     @FXML
     private void handleCancelar() {
-        cerrarVentana();
+        cerrarModal();
     }
 
     private boolean validarCampos() {
@@ -120,7 +117,7 @@ public class FormUsuarioController {
         lblError.setVisible(true);
     }
 
-    private void cerrarVentana() {
+    private void cerrarModal() {
         ((Stage) txtNombre.getScene().getWindow()).close();
     }
 }
