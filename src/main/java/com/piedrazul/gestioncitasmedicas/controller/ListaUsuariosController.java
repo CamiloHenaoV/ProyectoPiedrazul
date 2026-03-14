@@ -12,16 +12,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -116,13 +109,27 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
 
     @FXML
     private void handleNuevo() {
-        abrirFormulario(null);
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                "/view/fxml/usuarios/form-usuario.fxml",
+                "Piedrazul - Nuevo Usuario",
+                500, 450
+        );
+        FormUsuarioController controller = loader.getController();
+        controller.setUsuario(null);
     }
 
     @FXML
     private void handleEditar() {
         UsuarioDTO seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) abrirFormulario(seleccionado);
+        if (seleccionado == null) return;
+
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                "/view/fxml/usuarios/form-usuario.fxml",
+                "Piedrazul - Editar Usuario",
+                500, 450
+        );
+        FormUsuarioController controller = loader.getController();
+        controller.setUsuario(seleccionado);
     }
 
     @FXML
@@ -160,32 +167,5 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
         lblEstado.setText("Total: " + todosLosUsuarios.size() + " usuarios");
     }
 
-    private void abrirFormulario(UsuarioDTO usuario) {
-        try {
-            URL url = getClass().getResource("/view/fxml/usuarios/form-usuarios.fxml");
-            FXMLLoader loader = new FXMLLoader(url);
-            loader.setControllerFactory(
-                    clazz -> clazz.equals(FormUsuarioController.class)
-                            ? eventBus != null
-                            ? new FormUsuarioController(usuarioService, eventBus)
-                            : null
-                            : null
-            );
 
-            Stage modal = new Stage();
-            modal.initModality(Modality.APPLICATION_MODAL);
-            modal.setTitle(usuario == null ? "Nuevo Usuario" : "Editar Usuario");
-            modal.setScene(new Scene(loader.load(), 400, 400));
-
-            FormUsuarioController controller = loader.getController();
-            controller.setUsuario(usuario);
-
-            modal.showAndWait();
-            cargarUsuarios();
-
-        } catch (IOException e) {
-            lblEstado.setText("Error al abrir el formulario.");
-            e.printStackTrace();
-        }
-    }
 }
