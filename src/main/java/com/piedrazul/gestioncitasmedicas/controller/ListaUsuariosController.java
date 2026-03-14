@@ -83,8 +83,11 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
         colActivo.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Boolean activo, boolean empty) {
-                super.updateItem(activo, empty);
-                setText(empty || activo == null ? "" : activo ? "Activo" : "Inactivo");
+                if (empty) {
+                    setText("");
+                } else {
+                    setText(activo ? "Activo" : "Inactivo");
+                }
             }
         });
     }
