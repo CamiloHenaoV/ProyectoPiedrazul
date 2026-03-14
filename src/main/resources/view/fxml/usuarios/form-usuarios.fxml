@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.piedrazul.gestioncitasmedicas.controller.FormUsuarioController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.FormUsuarioController"
+      spacing="15"
+      prefWidth="400">
 
-</AnchorPane>
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label fx:id="lblTitulo" text="Nuevo Usuario"/>
+
+    <Label text="Nombre completo"/>
+    <TextField fx:id="txtNombre" promptText="Nombre completo"/>
+
+    <Label text="Login"/>
+    <TextField fx:id="txtLogin" promptText="Login"/>
+
+    <Label text="Contraseña"/>
+    <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
+
+    <Label text="Rol"/>
+    <ComboBox fx:id="cbRol" maxWidth="Infinity"/>
+
+    <Label fx:id="lblError" wrapText="true"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancelar"/>
+        <Button text="Guardar"  onAction="#handleGuardar"/>
+    </HBox>
+
+</VBox>
