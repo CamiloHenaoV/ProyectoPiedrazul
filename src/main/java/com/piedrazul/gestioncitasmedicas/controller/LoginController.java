@@ -12,13 +12,41 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.springframework.stereotype.Component;
-
+/**
+ * Controlador JavaFX para la vista de inicio de sesión ({@code /view/fxml/auth/login.fxml}).
+ *
+ * <p>Gestiona la autenticación del usuario contra {@link IUsuarioService} y redirige
+ * a la vista correspondiente según el rol obtenido. La operación de autenticación se
+ * ejecuta en un hilo secundario para no bloquear el hilo de la interfaz gráfica (JavaFX
+ * Application Thread); los cambios de UI posteriores se despachan con
+ * {@link Platform#runLater(Runnable)}.</p>
+ *
+ * <p>Roles soportados en esta versión:
+ * <ul>
+ *   <li>{@code administrador} → {@code dashboard-admin.fxml} (900 × 600)</li>
+ *   <li>{@code paciente}      → {@code dashboard-paciente.fxml} (900 × 600)</li>
+ * </ul>
+ * Cualquier otro rol muestra un mensaje de error informando que no está disponible.</p>
+ *
+ * <p>El controlador es un bean de Spring ({@link Component}) inyectado por
+ * {@code context::getBean} desde {@link StageInitializer}; recibe sus dependencias
+ * mediante inyección por constructor.</p>
+ *
+ * @see IUsuarioService#autenticar(String, String)
+ * @see StageInitializer#cambiarVistaConLoader(String, String, double, double)
+ */
 @Component
 public class LoginController {
 
     private final IUsuarioService usuarioService;
     private final StageInitializer stageInitializer;
 
+    /**
+     * Construye el controlador con las dependencias requeridas.
+     *
+     * @param usuarioService   servicio de autenticación y gestión de usuarios
+     * @param stageInitializer gestor de navegación entre vistas JavaFX
+     */
     public LoginController(IUsuarioService usuarioService, StageInitializer stageInitializer) {
         this.usuarioService   = usuarioService;
         this.stageInitializer = stageInitializer;
@@ -29,12 +57,35 @@ public class LoginController {
     @FXML private Button        btnIngresar;
     @FXML private Label         lblError;
 
+    /**
+        * Inicializa la vista una vez que el FXML ha sido cargado.
+     *
+     * <p>Oculta la etiqueta de error y registra un atajo de teclado en
+     * {@code txtPassword} para que pulsar {@code Enter} invoque {@link #handleLogin()}
+     * sin necesidad de hacer clic en el botón.</p>
+     */
     @FXML
     public void initialize() {
         lblError.setVisible(false);
         txtPassword.setOnAction(e -> handleLogin());
     }
 
+    /**
+     * Maneja el intento de inicio de sesión iniciado por el usuario.
+     *
+     * <p>Flujo de ejecución:
+     * <ol>
+     *   <li>Valida que ningún campo esté vacío; si alguno lo está muestra un error y aborta.</li>
+     *   <li>Deshabilita {@code btnIngresar} para evitar envíos duplicados.</li>
+     *   <li>Lanza un hilo secundario que llama a {@link IUsuarioService#autenticar(String, String)}.</li>
+     *   <li>En caso de éxito, regresa al JavaFX Application Thread con
+     *       {@link Platform#runLater(Runnable)} y delega en {@link #navegarSegunRol(UsuarioDTO)}.</li>
+     *   <li>En caso de {@link CredencialesInvalidasException}, muestra el mensaje de credenciales
+     *       incorrectas; cualquier otra excepción muestra un error genérico.</li>
+     *   <li>El bloque {@code finally} rehabilita el botón siempre, independientemente del resultado.</li>
+     * </ol>
+     * </p>
+     */
     @FXML
     public void handleLogin() {
         String login    = txtLogin.getText().trim();
@@ -62,6 +113,25 @@ public class LoginController {
             }
         }).start();
     }
+
+    /**
+     * Redirige al dashboard correspondiente según el rol del usuario autenticado.
+     *
+     * <p>Usa {@link StageInitializer#cambiarVistaConLoader(String, String, double, double)} para
+     * obtener el {@link FXMLLoader} tras la carga del FXML y así pasar el {@link UsuarioDTO}
+     * al controlador destino mediante su método {@code setUsuarioActual}.</p>
+     *
+     * <p>Roles y destinos:
+     * <ul>
+     *   <li>{@code administrador} → {@code DashboardAdminController#setUsuarioActual(UsuarioDTO)}</li>
+     *   <li>{@code paciente}      → {@code DashboardPacienteController#setUsuarioActual(UsuarioDTO)}</li>
+     *   <li>Cualquier otro rol    → mensaje de error en la vista de login.</li>
+     * </ul>
+     * </p>
+     *
+     * @param usuario DTO del usuario autenticado, con su rol definido
+     */
+
     private void navegarSegunRol(UsuarioDTO usuario) {
         switch (usuario.getRol()) {
             case administrador -> {
@@ -85,6 +155,12 @@ public class LoginController {
             default -> mostrarError("Rol no soportado en esta versión.");
         }
     }
+
+    /**
+     * Muestra un mensaje de error en la etiqueta {@code lblError} y la hace visible.
+     *
+     * @param mensaje texto descriptivo del error a mostrar al usuario
+     */
     private void mostrarError(String mensaje) {
         lblError.setText(mensaje);
         lblError.setVisible(true);

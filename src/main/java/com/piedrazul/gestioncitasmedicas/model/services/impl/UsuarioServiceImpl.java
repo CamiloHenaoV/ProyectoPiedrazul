@@ -98,6 +98,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         eventBus.publish(AppEvent.USUARIO_CREADO, guardado);
         return guardado;
     }
+
     /**
      * Busca un usuario por su identificador único.
      *
@@ -111,6 +112,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
     }
+
     /**
      * Retorna todos los usuarios registrados en el sistema.
      *
@@ -123,6 +125,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
     /**
      * Retorna todos los usuarios que tienen un rol específico.
      *
@@ -136,6 +139,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
     /**
      * Actualiza los datos de un usuario existente.
      * <p>
@@ -159,6 +163,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, actualizado);
         return actualizado;
     }
+
     /**
      * Desactiva un usuario impidiendo que pueda autenticarse.
      * <p>
@@ -177,6 +182,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         UsuarioDTO desactivado = toDTO(usuarioRepository.save(usuario));
         eventBus.publish(AppEvent.USUARIO_DESACTIVADO, desactivado);
     }
+
     /**
      * Reactiva un usuario previamente desactivado.
      *
@@ -191,6 +197,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         usuarioRepository.save(usuario);
         eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
     }
+
     /**
      * Verifica si un login ya está registrado en el sistema.
      * <p>
@@ -200,11 +207,11 @@ public class UsuarioServiceImpl implements IUsuarioService {
      * @param login login a verificar
      * @return {@code true} si el login ya existe, {@code false} si está disponible
      */
-
     @Override
     public boolean existeLogin(String login) {
         return usuarioRepository.existsByLogin(login);
     }
+
     /**
      * Convierte una entidad {@link Usuario} a su representación {@link UsuarioDTO}.
      * <p>
