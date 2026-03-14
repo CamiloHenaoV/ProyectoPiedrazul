@@ -1,7 +1,8 @@
 package com.piedrazul.gestioncitasmedicas.model.entities.enums;
 
 public enum RolUsuario {
-    medico_terapista,
+    medico,
+    terapista,
     agendador,
     administrador,
     paciente
