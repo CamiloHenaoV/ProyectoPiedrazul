@@ -17,12 +17,19 @@ public class DashboardAdminController implements Observer<UsuarioDTO> {
     @FXML private Label lblUsuario;
     @FXML private Label lblTotalUsuarios;
 
-    @Autowired private IUsuarioService  usuarioService;
-    @Autowired private StageInitializer stageInitializer;
-    @Autowired private EventBus         eventBus;
+    private final IUsuarioService  usuarioService;
+    private final StageInitializer stageInitializer;
+    private final EventBus         eventBus;
 
     private UsuarioDTO usuarioActual;
 
+    public DashboardAdminController(IUsuarioService usuarioService,
+                                    StageInitializer stageInitializer,
+                                    EventBus eventBus) {
+        this.usuarioService   = usuarioService;
+        this.stageInitializer = stageInitializer;
+        this.eventBus         = eventBus;
+    }
     @FXML
     public void initialize() {
         eventBus.subscribe(AppEvent.USUARIO_CREADO,      this);

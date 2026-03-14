@@ -13,9 +13,12 @@ public class DashboardPacienteController {
     @FXML private Label lblUsuario;
     @FXML private Label lblBienvenida;
 
-    @Autowired private StageInitializer stageInitializer;
+    private final StageInitializer stageInitializer;
 
     private UsuarioDTO usuarioActual;
+    public DashboardPacienteController(StageInitializer stageInitializer){
+        this.stageInitializer=stageInitializer;
+    }
 
     @FXML
     public void initialize() { }
