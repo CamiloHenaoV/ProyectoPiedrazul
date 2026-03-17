@@ -16,4 +16,5 @@ public interface IUsuarioService {
     void          desactivarUsuario(UUID id);
     void          activarUsuario(UUID id);
     boolean       existeLogin(String login);
+    UUID buscarPacienteIdPorUsuarioId(UUID usuarioId);
 }

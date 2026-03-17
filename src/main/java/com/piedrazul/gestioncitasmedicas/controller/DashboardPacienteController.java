@@ -4,8 +4,9 @@ import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import javafx.fxml.FXMLLoader;
+import com.piedrazul.gestioncitasmedicas.controller.AgendarCitaController;
 
 /**
  * Controlador JavaFX del portal del paciente
@@ -68,11 +69,13 @@ public class DashboardPacienteController {
      */
     @FXML
     private void irAAgendarCita() {
-        stageInitializer.cambiarVista(
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
                 "/view/fxml/citas/agendar-cita.fxml",
                 "Piedrazul - Agendar Cita",
                 800, 550
         );
+        AgendarCitaController controller = loader.getController();
+        controller.setUsuarioActual(usuarioActual);
     }
 
     /**

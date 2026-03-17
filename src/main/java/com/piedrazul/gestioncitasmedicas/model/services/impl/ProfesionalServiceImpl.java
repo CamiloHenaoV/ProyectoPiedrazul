@@ -1,4 +1,53 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
-public class ProfesionalServiceImpl {
+import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
+import com.piedrazul.gestioncitasmedicas.model.repositories.ProfesionalRepository;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IProfesionalService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class ProfesionalServiceImpl implements IProfesionalService {
+
+    private final ProfesionalRepository profesionalRepository;
+
+    public ProfesionalServiceImpl(ProfesionalRepository profesionalRepository) {
+        this.profesionalRepository = profesionalRepository;
+    }
+
+    @Override
+    public List<ProfesionalDTO> listarActivos() {
+        return profesionalRepository.findByActivoTrue()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProfesionalDTO buscarPorId(Integer id) {
+        return profesionalRepository.findById(id)
+                .map(this::toDTO)
+                .orElseThrow();
+    }
+
+    @Override
+    public List<ProfesionalDTO> listarActivosPorEspecialidad(String especialidadNombre) {
+        return profesionalRepository.findByEspecialidadNombreAndActivoTrue(especialidadNombre)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ProfesionalDTO toDTO(com.piedrazul.gestioncitasmedicas.model.entities.Profesional p) {
+        return ProfesionalDTO.builder()
+                .id(p.getId())
+                .nombreCompleto(p.getUsuario().getNombreCompleto())
+                .tipo(p.getTipo())
+                .especialidadNombre(p.getEspecialidad() != null ? p.getEspecialidad().getNombre() : "")
+                .licenciaProfesional(p.getLicenciaProfesional())
+                .activo(p.getActivo())
+                .build();
+    }
 }

@@ -4,6 +4,7 @@ import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
+import com.piedrazul.gestioncitasmedicas.model.repositories.PacienteRepository;
 import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
@@ -27,15 +28,18 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final IPasswordService  passwordService;
     private final EventBus          eventBus;
+    private final PacienteRepository pacienteRepository;
 
     public UsuarioServiceImpl(
             UsuarioRepository usuarioRepository,
             IPasswordService  passwordService,
-            EventBus          eventBus
+            EventBus          eventBus,
+            PacienteRepository pacienteRepository
     ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordService   = passwordService;
         this.eventBus          = eventBus;
+        this.pacienteRepository = pacienteRepository;
     }
     /**
      * Autentica un usuario verificando sus credenciales.
@@ -229,5 +233,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .rol(u.getRol())
                 .activo(u.getActivo())
                 .build();
+    }
+
+    @Override
+    public UUID buscarPacienteIdPorUsuarioId(UUID usuarioId) {
+        return pacienteRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new UsuarioNoEncontradoException(usuarioId.toString()))
+                .getId();
     }
 }

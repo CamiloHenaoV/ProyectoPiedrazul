@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,12 +18,12 @@ public class ListaCitasController implements Observer<CitaDTO> {
     @FXML
     private TableView<CitaDTO> tablaCitas;
 
-    @Autowired
-    private ICitaService citaService;
-    @Autowired private EventBus eventBus;
-
-    private PacienteDTO pacienteActual;
-
+    private final ICitaService citaService;
+    private final EventBus eventBus;
+    public ListaCitasController(ICitaService citaService,EventBus eventBus){
+        this.citaService= citaService;
+        this.eventBus=eventBus;
+    }
     @FXML
     public void initialize() {
         eventBus.subscribe(AppEvent.CITA_AGENDADA,  this);
@@ -40,7 +39,6 @@ public class ListaCitasController implements Observer<CitaDTO> {
     private void cargarCitas() {
         tablaCitas.setItems(
                 FXCollections.observableArrayList(
-                        citaService.listarPorPaciente(pacienteActual.getId())
                 )
         );
     }
