@@ -7,6 +7,7 @@ import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioServi
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;

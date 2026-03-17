@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.FormProfesionalController"
+      spacing="12" prefWidth="420" prefHeight="340">
 
-</AnchorPane>
+    <padding><Insets top="24" right="30" bottom="20" left="30"/></padding>
+
+    <Label text="Datos del Profesional" style="-fx-font-size: 16;"/>
+
+    <GridPane hgap="16" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="130" prefWidth="140"/>
+            <ColumnConstraints minWidth="180" hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cbTipo" maxWidth="Infinity"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Especialidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cbEspecialidad" maxWidth="Infinity"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Licencia profesional:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtLicencia" maxWidth="Infinity"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="lblError" text="" wrapText="true" style="-fx-text-fill: red;"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancelar"/>
+        <Button text="Guardar" defaultButton="true" onAction="#handleGuardar"/>
+    </HBox>
+
+</VBox>

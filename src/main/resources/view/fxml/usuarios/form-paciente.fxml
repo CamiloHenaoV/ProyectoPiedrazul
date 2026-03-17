@@ -1,14 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.FormPacienteController"
+      spacing="12" prefWidth="480" prefHeight="420">
 
-</AnchorPane>
+    <padding><Insets top="24" right="30" bottom="20" left="30"/></padding>
+
+    <Label text="Datos del Paciente" style="-fx-font-size: 16;"/>
+
+    <GridPane hgap="16" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="130" prefWidth="140"/>
+            <ColumnConstraints minWidth="200" hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Nombre completo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombre" maxWidth="Infinity"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Cédula de identidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCedula" maxWidth="Infinity"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Fecha de nacimiento:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpFechaNacimiento" maxWidth="Infinity"
+                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Teléfono:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtTelefono" maxWidth="Infinity"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Email:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtEmail" maxWidth="Infinity"
+                   GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Dirección:" GridPane.rowIndex="5" GridPane.columnIndex="0"
+               GridPane.valignment="TOP"/>
+        <TextField fx:id="txtDireccion" maxWidth="Infinity"
+                   GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="lblError" text="" wrapText="true" style="-fx-text-fill: red;"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancelar"/>
+        <Button text="Guardar" defaultButton="true" onAction="#handleGuardar"/>
+    </HBox>
+
+</VBox>
