@@ -1,29 +1,20 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
 import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
-import com.piedrazul.gestioncitasmedicas.model.repositories.EspecialidadRepository;
 import com.piedrazul.gestioncitasmedicas.model.repositories.ProfesionalRepository;
-import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IProfesionalService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class ProfesionalServiceImpl implements IProfesionalService {
 
     private final ProfesionalRepository  profesionalRepository;
-    private final UsuarioRepository      usuarioRepository;
-    private final EspecialidadRepository especialidadRepository;
 
-    public ProfesionalServiceImpl(ProfesionalRepository profesionalRepository,
-                                  UsuarioRepository      usuarioRepository,
-                                  EspecialidadRepository especialidadRepository) {
+    public ProfesionalServiceImpl(ProfesionalRepository profesionalRepository) {
         this.profesionalRepository  = profesionalRepository;
-        this.usuarioRepository      = usuarioRepository;
-        this.especialidadRepository = especialidadRepository;
     }
 
     @Override

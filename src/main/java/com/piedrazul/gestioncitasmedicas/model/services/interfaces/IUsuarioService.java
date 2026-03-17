@@ -21,4 +21,5 @@ public interface IUsuarioService {
     UUID buscarPacienteIdPorUsuarioId(UUID usuarioId);
     UsuarioDTO crearUsuarioConPaciente(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO);
     UsuarioDTO crearUsuarioConProfesional(UsuarioDTO usuarioDTO, ProfesionalDTO profesionalDTO);
+    long contarUsuariosActivos();
 }

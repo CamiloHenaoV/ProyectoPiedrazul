@@ -317,4 +317,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .orElseThrow(() -> new UsuarioNoEncontradoException(usuarioId.toString()))
                 .getId();
     }
+    @Override
+    public long contarUsuariosActivos() {
+        return usuarioRepository.countByActivoTrue();
+    }
 }

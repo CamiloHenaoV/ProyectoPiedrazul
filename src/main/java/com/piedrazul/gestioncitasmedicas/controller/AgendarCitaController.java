@@ -25,12 +25,12 @@ import java.util.UUID;
 @Component
 public class AgendarCitaController {
 
-    @FXML private ComboBox<String>          cbEspecialidad;
-    @FXML private ComboBox<ProfesionalDTO>  cbProfesional;
-    @FXML private DatePicker                dpFecha;
-    @FXML private ListView<ZonedDateTime>   lvHorarios;
-    @FXML private Button                    btnConfirmar;
-    @FXML private Label                     lblEstado;
+    @FXML private ComboBox<String>         cbEspecialidad;
+    @FXML private ComboBox<ProfesionalDTO> cbProfesional;
+    @FXML private DatePicker               dpFecha;
+    @FXML private ListView<ZonedDateTime>  lvHorarios;
+    @FXML private Button                   btnConfirmar;
+    @FXML private Label                    lblEstado;
 
     private final IEspecialidadService especialidadService;
     private final IProfesionalService  profesionalService;
@@ -107,7 +107,7 @@ public class AgendarCitaController {
 
     @FXML
     private void handleConfirmar() {
-        ZonedDateTime horario     = lvHorarios.getSelectionModel().getSelectedItem();
+        ZonedDateTime  horario    = lvHorarios.getSelectionModel().getSelectedItem();
         ProfesionalDTO profesional = cbProfesional.getSelectionModel().getSelectedItem();
 
         if (horario == null || profesional == null) return;
@@ -115,7 +115,7 @@ public class AgendarCitaController {
         btnConfirmar.setDisable(true);
         lblEstado.setText("Agendando cita...");
 
-        new Thread(() -> {
+        ejecutarAsync(() -> {
             try {
                 CitaDTO dto = CitaDTO.builder()
                         .pacienteId(pacienteId)
@@ -131,16 +131,16 @@ public class AgendarCitaController {
 
             } catch (HorarioOcupadoException e) {
                 Platform.runLater(() -> {
-                    lblEstado.setText("El horario ya no está disponible. Seleccioná otro.");
+                    lblEstado.setText("El horario ya no está disponible. Selecciona otro.");
                     onFechaSeleccionada(dpFecha.getValue());
                 });
             } catch (Exception e) {
                 Platform.runLater(() ->
-                        lblEstado.setText("Error inesperado. Intentá de nuevo."));
+                        lblEstado.setText("Error inesperado. Intenta de nuevo."));
             } finally {
                 Platform.runLater(() -> btnConfirmar.setDisable(false));
             }
-        }).start();
+        });
     }
 
     @FXML
@@ -153,10 +153,8 @@ public class AgendarCitaController {
     }
 
     private void cargarEspecialidades() {
-            List<String> especialidades = especialidadService.listarNombres();
-            Platform.runLater(() ->
-                    cbEspecialidad.setItems(FXCollections.observableArrayList(especialidades)));
-            System.out.println("Especialidades cargadas: " + especialidades.size());
+        List<String> especialidades = especialidadService.listarNombres();
+        cbEspecialidad.setItems(FXCollections.observableArrayList(especialidades));
     }
 
     private void onEspecialidadSeleccionada(String especialidad) {
@@ -169,7 +167,7 @@ public class AgendarCitaController {
         if (especialidad == null) return;
 
         lblEstado.setText("Cargando profesionales...");
-        new Thread(() -> {
+        ejecutarAsync(() -> {
             List<ProfesionalDTO> profesionales =
                     profesionalService.listarActivosPorEspecialidad(especialidad);
             Platform.runLater(() -> {
@@ -178,7 +176,7 @@ public class AgendarCitaController {
                         ? "No hay profesionales disponibles para esta especialidad."
                         : "");
             });
-        }).start();
+        });
     }
 
     private void onProfesionalSeleccionado(ProfesionalDTO profesional) {
@@ -198,7 +196,7 @@ public class AgendarCitaController {
         if (fecha == null || profesional == null) return;
 
         lblEstado.setText("Cargando horarios disponibles...");
-        new Thread(() -> {
+        ejecutarAsync(() -> {
             List<ZonedDateTime> horarios =
                     citaService.obtenerHorariosDisponibles(profesional.getId(), fecha);
             Platform.runLater(() -> {
@@ -206,9 +204,9 @@ public class AgendarCitaController {
                 lvHorarios.setDisable(false);
                 lblEstado.setText(horarios.isEmpty()
                         ? "No hay horarios disponibles para esta fecha."
-                        : "Seleccioná un horario.");
+                        : "Selecciona un horario.");
             });
-        }).start();
+        });
     }
 
     private void limpiarFormulario() {
@@ -219,5 +217,9 @@ public class AgendarCitaController {
         dpFecha.setDisable(true);
         lvHorarios.setDisable(true);
         btnConfirmar.setDisable(true);
+    }
+
+    private void ejecutarAsync(Runnable tarea) {
+        new Thread(tarea).start();
     }
 }

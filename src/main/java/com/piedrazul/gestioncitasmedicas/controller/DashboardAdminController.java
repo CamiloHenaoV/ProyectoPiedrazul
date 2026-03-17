@@ -141,8 +141,8 @@ public class DashboardAdminController implements Observer<UsuarioDTO> {
          * lista resultante a la etiqueta. Llamado en {@link #initialize()} y cada
          * vez que {@link #onEvent(AppEvent, UsuarioDTO)} es disparado.</p>
          */
-    private void actualizarContador() {
-        int total = usuarioService.listarTodos().size();
-        lblTotalUsuarios.setText(String.valueOf(total));
-    }
+        private void actualizarContador() {
+            long total = usuarioService.contarUsuariosActivos();
+            lblTotalUsuarios.setText(String.valueOf(total));
+        }
 }
