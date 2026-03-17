@@ -15,4 +15,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     List<Usuario>     findByRol(RolUsuario rol);
     List<Usuario>     findByActivoTrue();
     boolean           existsByLogin(String login);
+    long countByActivoTrue();
 }
