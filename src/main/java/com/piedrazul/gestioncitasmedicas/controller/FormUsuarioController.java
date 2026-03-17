@@ -6,10 +6,14 @@ import com.piedrazul.gestioncitasmedicas.model.exceptions.LoginDuplicadoExceptio
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -49,7 +53,7 @@ public class FormUsuarioController {
     @FXML private Label                lblError;
 
     private final IUsuarioService usuarioService;
-
+    private final ApplicationContext context;
     private UsuarioDTO usuarioEditar;
 
     /**
@@ -57,8 +61,10 @@ public class FormUsuarioController {
      *
      * @param usuarioService servicio para crear y actualizar usuarios
      */
-    public FormUsuarioController(IUsuarioService usuarioService) {
+    public FormUsuarioController(IUsuarioService usuarioService,ApplicationContext context) {
+
         this.usuarioService = usuarioService;
+        this.context=context;
     }
 
     /**
@@ -139,7 +145,11 @@ public class FormUsuarioController {
                         .rol(cbRol.getValue())
                         .activo(true)
                         .build();
-                usuarioService.crearUsuario(nuevo);
+
+                UsuarioDTO creado = usuarioService.crearUsuario(nuevo);
+                cerrarModal();
+                abrirModalPaso2SiAplica(creado);
+
             } else {
                 UsuarioDTO actualizado = UsuarioDTO.builder()
                         .id(usuarioEditar.getId())
@@ -149,13 +159,14 @@ public class FormUsuarioController {
                         .activo(usuarioEditar.getActivo())
                         .build();
                 usuarioService.actualizarUsuario(usuarioEditar.getId(), actualizado);
+                cerrarModal();
             }
-            cerrarModal();
 
         } catch (LoginDuplicadoException e) {
             mostrarError(e.getMessage());
         } catch (Exception e) {
             mostrarError("Error inesperado al guardar.");
+            e.printStackTrace();
         }
     }
 
@@ -169,6 +180,51 @@ public class FormUsuarioController {
         cerrarModal();
     }
 
+    private void abrirModalPaso2SiAplica(UsuarioDTO usuarioCreado) {
+        RolUsuario rol = usuarioCreado.getRol();
+
+        if (rol == RolUsuario.paciente) {
+            abrirModal(
+                    "/view/fxml/usuarios/form-paciente.fxml",
+                    "Datos del Paciente",
+                    480, 420,
+                    loader -> {
+                        FormPacienteController ctrl = loader.getController();
+                        ctrl.setUsuarioCreado(usuarioCreado);
+                    }
+            );
+        } else if (rol == RolUsuario.profesional) {
+            abrirModal(
+                    "/view/fxml/usuarios/form-profesional.fxml",
+                    "Datos del Profesional",
+                    420, 340,
+                    loader -> {
+                        FormProfesionalController ctrl = loader.getController();
+                        ctrl.setUsuarioCreado(usuarioCreado);
+                    }
+            );
+        }
+    }
+    private void abrirModal(String fxml, String titulo, int ancho, int alto,
+                            ModalConsumer configurar) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            loader.setControllerFactory(context::getBean);
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.setTitle(titulo);
+            modal.setScene(new Scene(loader.load(), ancho, alto));
+            configurar.accept(loader);
+            modal.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FunctionalInterface
+    private interface ModalConsumer {
+        void accept(FXMLLoader loader);
+    }
     /**
      * Valida que los campos obligatorios del formulario no estén vacíos.
      *
