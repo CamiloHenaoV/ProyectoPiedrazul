@@ -187,7 +187,6 @@ public class FormUsuarioController {
             mostrarError(e.getMessage());
         } catch (Exception e) {
             mostrarError("Error inesperado al guardar.");
-            e.printStackTrace();
         }
     }
 

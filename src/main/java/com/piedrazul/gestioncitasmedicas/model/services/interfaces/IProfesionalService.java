@@ -8,5 +8,4 @@ public interface IProfesionalService {
     List<ProfesionalDTO> listarActivos();
     ProfesionalDTO       buscarPorId(Integer id);
     List<ProfesionalDTO> listarActivosPorEspecialidad(String especialidadNombre);
-    ProfesionalDTO       crearProfesional(UUID usuarioId, ProfesionalDTO dto);
 }

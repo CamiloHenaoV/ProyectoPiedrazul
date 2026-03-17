@@ -49,24 +49,6 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public ProfesionalDTO crearProfesional(UUID usuarioId, ProfesionalDTO dto) {
-        var usuario = usuarioRepository.findById(usuarioId).orElseThrow();
-        var especialidad = especialidadRepository
-                .findByNombre(dto.getEspecialidadNombre())
-                .orElseThrow();
-
-        com.piedrazul.gestioncitasmedicas.model.entities.Profesional profesional =
-                com.piedrazul.gestioncitasmedicas.model.entities.Profesional.builder()
-                        .usuario(usuario)
-                        .tipo(dto.getTipo())
-                        .especialidad(especialidad)
-                        .licenciaProfesional(dto.getLicenciaProfesional())
-                        .activo(true)
-                        .build();
-
-        return toDTO(profesionalRepository.save(profesional));
-    }
 
     private ProfesionalDTO toDTO(com.piedrazul.gestioncitasmedicas.model.entities.Profesional p) {
         return ProfesionalDTO.builder()

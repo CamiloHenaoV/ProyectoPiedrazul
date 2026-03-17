@@ -4,7 +4,6 @@ import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IEspecialidadService;
-import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IProfesionalService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -42,7 +41,7 @@ public class FormProfesionalController {
     }
 
     public void setUsuarioNuevo(UsuarioDTO usuario) {
-        setUsuarioNuevo(usuario);
+        this.usuarioNuevo=usuario;
     }
 
     @FXML
@@ -61,7 +60,6 @@ public class FormProfesionalController {
 
         } catch (Exception e) {
             mostrarError("Error al guardar los datos del profesional.");
-            e.printStackTrace();
         }
     }
 
