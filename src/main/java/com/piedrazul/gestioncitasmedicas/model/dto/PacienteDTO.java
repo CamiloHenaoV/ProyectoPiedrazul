@@ -17,4 +17,5 @@ public class PacienteDTO {
     private LocalDate fechaNacimiento;
     private String telefono;
     private String email;
+    private String direccion;
 }
