@@ -117,3 +117,11 @@ CREATE INDEX idx_citas_fecha ON citas(fecha_hora);
 CREATE INDEX idx_paciente_cedula ON pacientes(cedula_identidad);
 CREATE INDEX idx_historia_paciente ON historias_clinicas(paciente_id);
 CREATE INDEX idx_disponibilidad_profesional ON disponibilidad_semanal(profesional_id);
+
+-- ======================================================
+-- 9. INSERT (especialidades)
+-- ======================================================
+INSERT INTO especialidades (nombre) VALUES
+('Medicina General'),
+('Cardiología'),
+('Ortopedia');

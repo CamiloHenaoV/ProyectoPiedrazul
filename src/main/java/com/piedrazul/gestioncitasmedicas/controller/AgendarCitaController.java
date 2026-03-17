@@ -153,11 +153,10 @@ public class AgendarCitaController {
     }
 
     private void cargarEspecialidades() {
-        new Thread(() -> {
             List<String> especialidades = especialidadService.listarNombres();
             Platform.runLater(() ->
                     cbEspecialidad.setItems(FXCollections.observableArrayList(especialidades)));
-        }).start();
+            System.out.println("Especialidades cargadas: " + especialidades.size());
     }
 
     private void onEspecialidadSeleccionada(String especialidad) {
