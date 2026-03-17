@@ -5,6 +5,7 @@ import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IEspecialidadService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IProfesionalService;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -21,14 +22,14 @@ public class FormProfesionalController {
     @FXML private ComboBox<TipoProfesional> cbTipo;
     @FXML private Label             lblError;
 
-    private final IProfesionalService  profesionalService;
+    private final IUsuarioService usuarioService;
     private final IEspecialidadService especialidadService;
 
-    private UsuarioDTO usuarioCreado;
+    private UsuarioDTO usuarioNuevo;
 
-    public FormProfesionalController(IProfesionalService  profesionalService,
+    public FormProfesionalController(IUsuarioService      usuarioService,
                                      IEspecialidadService especialidadService) {
-        this.profesionalService  = profesionalService;
+        this.usuarioService      = usuarioService;
         this.especialidadService = especialidadService;
     }
 
@@ -40,8 +41,8 @@ public class FormProfesionalController {
                 FXCollections.observableArrayList(especialidadService.listarNombres()));
     }
 
-    public void setUsuarioCreado(UsuarioDTO usuario) {
-        this.usuarioCreado = usuario;
+    public void setUsuarioNuevo(UsuarioDTO usuario) {
+        setUsuarioNuevo(usuario);
     }
 
     @FXML
@@ -49,13 +50,13 @@ public class FormProfesionalController {
         if (!validarCampos()) return;
 
         try {
-            ProfesionalDTO dto = ProfesionalDTO.builder()
+            ProfesionalDTO profesionalDTO = ProfesionalDTO.builder()
                     .licenciaProfesional(txtLicencia.getText().trim())
                     .especialidadNombre(cbEspecialidad.getValue())
                     .tipo(cbTipo.getValue())
                     .build();
 
-            profesionalService.crearProfesional(usuarioCreado.getId(), dto);
+            usuarioService.crearUsuarioConProfesional(usuarioNuevo, profesionalDTO);
             cerrarModal();
 
         } catch (Exception e) {

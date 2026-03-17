@@ -1,17 +1,25 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
+import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
+import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
+import com.piedrazul.gestioncitasmedicas.model.entities.Paciente;
+import com.piedrazul.gestioncitasmedicas.model.entities.Profesional;
 import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
+import com.piedrazul.gestioncitasmedicas.model.repositories.EspecialidadRepository;
 import com.piedrazul.gestioncitasmedicas.model.repositories.PacienteRepository;
+import com.piedrazul.gestioncitasmedicas.model.repositories.ProfesionalRepository;
 import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import com.piedrazul.gestioncitasmedicas.observer.AppEvent;
 import com.piedrazul.gestioncitasmedicas.observer.EventBus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,17 +37,23 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private final IPasswordService  passwordService;
     private final EventBus          eventBus;
     private final PacienteRepository pacienteRepository;
+    private final ProfesionalRepository profesionalRepository;
+    private final EspecialidadRepository especialidadRepository;
 
     public UsuarioServiceImpl(
             UsuarioRepository usuarioRepository,
             IPasswordService  passwordService,
             EventBus          eventBus,
-            PacienteRepository pacienteRepository
+            PacienteRepository pacienteRepository,
+            ProfesionalRepository  profesionalRepository,
+            EspecialidadRepository especialidadRepository
     ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordService   = passwordService;
         this.eventBus          = eventBus;
         this.pacienteRepository = pacienteRepository;
+        this.profesionalRepository  = profesionalRepository;
+        this.especialidadRepository = especialidadRepository;
     }
     /**
      * Autentica un usuario verificando sus credenciales.
@@ -103,6 +117,68 @@ public class UsuarioServiceImpl implements IUsuarioService {
         return guardado;
     }
 
+    @Override
+    @Transactional
+    public UsuarioDTO crearUsuarioConPaciente(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO) {
+        if (usuarioRepository.existsByLogin(usuarioDTO.getLogin())) {
+            throw new LoginDuplicadoException(usuarioDTO.getLogin());
+        }
+
+        Usuario usuario = usuarioRepository.save(Usuario.builder()
+                .nombreCompleto(usuarioDTO.getNombreCompleto())
+                .login(usuarioDTO.getLogin())
+                .passwordHash(passwordService.encriptar(usuarioDTO.getPassword()))
+                .rol(usuarioDTO.getRol())
+                .activo(true)
+                .build());
+
+        pacienteRepository.save(Paciente.builder()
+                .usuario(usuario)
+                .nombreCompleto(pacienteDTO.getNombreCompleto())
+                .cedulaIdentidad(pacienteDTO.getCedulaIdentidad())
+                .fechaNacimiento(pacienteDTO.getFechaNacimiento())
+                .telefono(pacienteDTO.getTelefono())
+                .email(pacienteDTO.getEmail())
+                .direccion(pacienteDTO.getDireccion())
+                .creadoEn(ZonedDateTime.now())
+                .build());
+
+        UsuarioDTO creado = toDTO(usuario);
+        eventBus.publish(AppEvent.USUARIO_CREADO, creado);
+        return creado;
+    }
+
+    @Override
+    @Transactional
+    public UsuarioDTO crearUsuarioConProfesional(UsuarioDTO usuarioDTO, ProfesionalDTO profesionalDTO) {
+        if (usuarioRepository.existsByLogin(usuarioDTO.getLogin())) {
+            throw new LoginDuplicadoException(usuarioDTO.getLogin());
+        }
+
+        Usuario usuario = usuarioRepository.save(Usuario.builder()
+                .nombreCompleto(usuarioDTO.getNombreCompleto())
+                .login(usuarioDTO.getLogin())
+                .passwordHash(passwordService.encriptar(usuarioDTO.getPassword()))
+                .rol(usuarioDTO.getRol())
+                .activo(true)
+                .build());
+
+        var especialidad = especialidadRepository
+                .findByNombre(profesionalDTO.getEspecialidadNombre())
+                .orElseThrow();
+
+        profesionalRepository.save(Profesional.builder()
+                .usuario(usuario)
+                .tipo(profesionalDTO.getTipo())
+                .especialidad(especialidad)
+                .licenciaProfesional(profesionalDTO.getLicenciaProfesional())
+                .activo(true)
+                .build());
+
+        UsuarioDTO creado = toDTO(usuario);
+        eventBus.publish(AppEvent.USUARIO_CREADO, creado);
+        return creado;
+    }
     /**
      * Busca un usuario por su identificador único.
      *

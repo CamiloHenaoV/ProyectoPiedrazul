@@ -1,5 +1,7 @@
 package com.piedrazul.gestioncitasmedicas.model.services.interfaces;
 
+import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
+import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 
@@ -17,4 +19,6 @@ public interface IUsuarioService {
     void          activarUsuario(UUID id);
     boolean       existeLogin(String login);
     UUID buscarPacienteIdPorUsuarioId(UUID usuarioId);
+    UsuarioDTO crearUsuarioConPaciente(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO);
+    UsuarioDTO crearUsuarioConProfesional(UsuarioDTO usuarioDTO, ProfesionalDTO profesionalDTO);
 }

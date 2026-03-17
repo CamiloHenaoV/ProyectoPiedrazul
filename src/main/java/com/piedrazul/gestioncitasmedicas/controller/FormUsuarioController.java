@@ -1,20 +1,15 @@
 package com.piedrazul.gestioncitasmedicas.controller;
 
+import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.LoginDuplicadoException;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -52,9 +47,8 @@ public class FormUsuarioController {
     @FXML private PasswordField        txtPassword;
     @FXML private ComboBox<RolUsuario> cbRol;
     @FXML private Label                lblError;
-
+    private final StageInitializer stageInitializer;
     private final IUsuarioService usuarioService;
-    private final ApplicationContext context;
     private UsuarioDTO usuarioEditar;
 
     /**
@@ -62,10 +56,11 @@ public class FormUsuarioController {
      *
      * @param usuarioService servicio para crear y actualizar usuarios
      */
-    public FormUsuarioController(IUsuarioService usuarioService,ApplicationContext context) {
+    public FormUsuarioController(IUsuarioService usuarioService,
+                                 StageInitializer stageInitializer) {
 
         this.usuarioService = usuarioService;
-        this.context=context;
+        this.stageInitializer=stageInitializer;
     }
 
     /**
@@ -147,9 +142,34 @@ public class FormUsuarioController {
                         .activo(true)
                         .build();
 
-                UsuarioDTO creado = usuarioService.crearUsuario(nuevo);
-                cerrarModal();
-                abrirModalPaso2SiAplica(creado);
+                RolUsuario rol = cbRol.getValue();
+
+                if (rol == RolUsuario.paciente) {
+                    cerrarModal();
+                    stageInitializer.abrirModal(
+                            "/view/fxml/usuarios/form-paciente.fxml",
+                            "Datos del Paciente",
+                            480, 420,
+                            loader -> {
+                                FormPacienteController ctrl = loader.getController();
+                                ctrl.setUsuarioNuevo(nuevo);
+                            }
+                    );
+                } else if (rol == RolUsuario.profesional) {
+                    cerrarModal();
+                    stageInitializer.abrirModal(
+                            "/view/fxml/usuarios/form-profesional.fxml",
+                            "Datos del Profesional",
+                            420, 340,
+                            loader -> {
+                                FormProfesionalController ctrl = loader.getController();
+                                ctrl.setUsuarioNuevo(nuevo);
+                            }
+                    );
+                } else {
+                    usuarioService.crearUsuario(nuevo);
+                    cerrarModal();
+                }
 
             } else {
                 UsuarioDTO actualizado = UsuarioDTO.builder()
@@ -181,51 +201,6 @@ public class FormUsuarioController {
         cerrarModal();
     }
 
-    private void abrirModalPaso2SiAplica(UsuarioDTO usuarioCreado) {
-        RolUsuario rol = usuarioCreado.getRol();
-
-        if (rol == RolUsuario.paciente) {
-            abrirModal(
-                    "/view/fxml/usuarios/form-paciente.fxml",
-                    "Datos del Paciente",
-                    480, 420,
-                    loader -> {
-                        FormPacienteController ctrl = loader.getController();
-                        ctrl.setUsuarioCreado(usuarioCreado);
-                    }
-            );
-        } else if (rol == RolUsuario.profesional) {
-            abrirModal(
-                    "/view/fxml/usuarios/form-profesional.fxml",
-                    "Datos del Profesional",
-                    420, 340,
-                    loader -> {
-                        FormProfesionalController ctrl = loader.getController();
-                        ctrl.setUsuarioCreado(usuarioCreado);
-                    }
-            );
-        }
-    }
-    private void abrirModal(String fxml, String titulo, int ancho, int alto,
-                            ModalConsumer configurar) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
-            loader.setControllerFactory(context::getBean);
-            Stage modal = new Stage();
-            modal.initModality(Modality.APPLICATION_MODAL);
-            modal.setTitle(titulo);
-            modal.setScene(new Scene(loader.load(), ancho, alto));
-            configurar.accept(loader);
-            modal.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FunctionalInterface
-    private interface ModalConsumer {
-        void accept(FXMLLoader loader);
-    }
     /**
      * Valida que los campos obligatorios del formulario no estén vacíos.
      *

@@ -3,6 +3,7 @@ package com.piedrazul.gestioncitasmedicas.controller;
 import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPacienteService;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -21,12 +22,12 @@ public class FormPacienteController {
     @FXML private TextField  txtDireccion;
     @FXML private Label      lblError;
 
-    private final IPacienteService pacienteService;
+    private final IUsuarioService usuarioService;
 
-    private UsuarioDTO usuarioCreado;
+    private UsuarioDTO usuarioNuevo;
 
-    public FormPacienteController(IPacienteService pacienteService) {
-        this.pacienteService = pacienteService;
+    public FormPacienteController(IUsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
     @FXML
@@ -34,8 +35,8 @@ public class FormPacienteController {
         lblError.setVisible(false);
     }
 
-    public void setUsuarioCreado(UsuarioDTO usuario) {
-        this.usuarioCreado = usuario;
+    public void setUsuarioNuevo(UsuarioDTO usuario) {
+        this.usuarioNuevo = usuario;
         txtNombre.setText(usuario.getNombreCompleto());
     }
 
@@ -44,7 +45,7 @@ public class FormPacienteController {
         if (!validarCampos()) return;
 
         try {
-            PacienteDTO dto = PacienteDTO.builder()
+            PacienteDTO pacienteDTO = PacienteDTO.builder()
                     .nombreCompleto(txtNombre.getText().trim())
                     .cedulaIdentidad(txtCedula.getText().trim())
                     .fechaNacimiento(dpFechaNacimiento.getValue())
@@ -53,7 +54,7 @@ public class FormPacienteController {
                     .direccion(txtDireccion.getText().trim())
                     .build();
 
-            pacienteService.crearPaciente(usuarioCreado.getId(), dto);
+            usuarioService.crearUsuarioConPaciente(usuarioNuevo, pacienteDTO);
             cerrarModal();
 
         } catch (Exception e) {

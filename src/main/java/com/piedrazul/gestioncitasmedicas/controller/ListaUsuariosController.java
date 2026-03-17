@@ -11,15 +11,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
-import javafx.stage.Stage;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -72,7 +68,6 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
     private final IUsuarioService    usuarioService;
     private final StageInitializer   stageInitializer;
     private final EventBus           eventBus;
-    private final ApplicationContext context;
 
     private ObservableList<UsuarioDTO> todosLosUsuarios = FXCollections.observableArrayList();
 
@@ -82,17 +77,14 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
      * @param usuarioService   servicio de usuarios (listar, activar, desactivar)
      * @param stageInitializer gestor de navegación entre vistas JavaFX
      * @param eventBus         bus de eventos del patrón Observer
-     * @param context          contexto de Spring para instanciar beans en el modal
      */
 
     public ListaUsuariosController(IUsuarioService usuarioService,
                                    StageInitializer stageInitializer,
-                                   EventBus eventBus,
-                                   ApplicationContext context) {
+                                   EventBus eventBus) {
         this.usuarioService   = usuarioService;
         this.stageInitializer = stageInitializer;
         this.eventBus         = eventBus;
-        this.context          = context;
     }
 
     /**
@@ -316,23 +308,14 @@ public class ListaUsuariosController implements Observer<UsuarioDTO> {
      * @param usuario {@link UsuarioDTO} a editar, o {@code null} para crear uno nuevo
      */
     private void abrirFormulario(UsuarioDTO usuario) {
-        try {
-            URL url = getClass().getResource("/view/fxml/usuarios/form-usuarios.fxml");
-            FXMLLoader loader = new FXMLLoader(url);
-            loader.setControllerFactory(context::getBean);
-
-            Stage modal = new Stage();
-            modal.initModality(Modality.APPLICATION_MODAL);
-            modal.setTitle(usuario == null ? "Nuevo Usuario" : "Editar Usuario");
-            modal.setScene(new Scene(loader.load(), 500, 450));
-
-            FormUsuarioController controller = loader.getController();
-            controller.setUsuario(usuario);
-            modal.show();
-
-        } catch (IOException e) {
-            lblEstado.setText("Error al abrir el formulario.");
-            e.printStackTrace();
-        }
+        stageInitializer.abrirModal(
+                "/view/fxml/usuarios/form-usuarios.fxml",
+                usuario == null ? "Nuevo Usuario" : "Editar Usuario",
+                500, 450,
+                loader -> {
+                    FormUsuarioController controller = loader.getController();
+                    controller.setUsuario(usuario);
+                }
+        );
     }
 }

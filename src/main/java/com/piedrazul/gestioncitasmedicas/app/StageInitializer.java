@@ -3,6 +3,7 @@ package com.piedrazul.gestioncitasmedicas.app;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import com.piedrazul.gestioncitasmedicas.app.JavaFxApplication.StageReadyEvent;
 
@@ -78,5 +80,34 @@ public class StageInitializer implements ApplicationListener<StageReadyEvent> {
         } catch (IOException e) {
             throw new RuntimeException("Error al cargar la vista: " + rutaFxml, e);
         }
+    }
+    public void abrirModal(String rutaFxml, String titulo, double ancho, double alto,
+                           Consumer<FXMLLoader> configurar) {
+        try {
+            URL url = getClass().getResource(rutaFxml);
+            if (url == null) {
+                throw new RuntimeException("No se encontró el FXML: " + rutaFxml);
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            loader.setControllerFactory(context::getBean);
+
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.setTitle(titulo);
+            modal.setScene(new Scene(loader.load(), ancho, alto));
+
+            if (configurar != null) {
+                configurar.accept(loader);
+            }
+
+            modal.show();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al cargar el modal: " + rutaFxml, e);
+        }
+    }
+    public void abrirModal(String rutaFxml, String titulo, double ancho, double alto) {
+        abrirModal(rutaFxml, titulo, ancho, alto, null);
     }
 }
