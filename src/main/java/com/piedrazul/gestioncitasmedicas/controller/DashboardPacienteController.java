@@ -90,4 +90,14 @@ public class DashboardPacienteController {
                 400, 300
         );
     }
+    @FXML
+    private void irAMisCitas() {
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                "/view/fxml/citas/lista-citas.fxml",
+                "Piedrazul - Mis Citas",
+                800, 550
+        );
+        ListaCitasController controller = loader.getController();
+        controller.setUsuarioActual(usuarioActual);
+    }
 }

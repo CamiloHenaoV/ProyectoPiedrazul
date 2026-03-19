@@ -3,6 +3,7 @@ package com.piedrazul.gestioncitasmedicas.model.services.interfaces;
 import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
+import com.piedrazul.gestioncitasmedicas.model.entities.Profesional;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 
 import java.util.List;

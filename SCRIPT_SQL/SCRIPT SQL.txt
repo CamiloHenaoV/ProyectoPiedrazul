@@ -125,3 +125,25 @@ INSERT INTO especialidades (nombre) VALUES
 ('Medicina General'),
 ('Cardiología'),
 ('Ortopedia');
+
+-- ======================================================
+-- 10. INSERT (medico/disponibilidad)
+-- ======================================================
+INSERT INTO usuarios (login, password_hash, nombre_completo, rol)
+VALUES ('med', '$2a$10$VQ2o9X3HFiDf5qTid1nqPeibpvUL.f01YQGxDARkCa8KDvAWc7Tpa', 'medico test', 'profesional');
+
+INSERT INTO profesionales (usuario_id, tipo, especialidad_id, licencia_profesional)
+VALUES (
+    (SELECT id FROM usuarios WHERE login = 'med'),
+    'medico',
+    (SELECT id FROM especialidades WHERE nombre = 'Medicina General'),
+    'LIC-001'
+);
+
+INSERT INTO disponibilidad_semanal (profesional_id, dia_semana, hora_inicio, hora_fin, duracion_cita_minutos)
+VALUES
+    ((SELECT id FROM profesionales WHERE licencia_profesional = 'LIC-001'), 1, '07:00', '14:00', 5),
+    ((SELECT id FROM profesionales WHERE licencia_profesional = 'LIC-001'), 2, '07:00', '14:00', 5),
+    ((SELECT id FROM profesionales WHERE licencia_profesional = 'LIC-001'), 3, '07:00', '14:00', 5),
+    ((SELECT id FROM profesionales WHERE licencia_profesional = 'LIC-001'), 4, '07:00', '14:00', 5),
+    ((SELECT id FROM profesionales WHERE licencia_profesional = 'LIC-001'), 5, '07:00', '14:00', 5);
