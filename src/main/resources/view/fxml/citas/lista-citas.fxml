@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.gestioncitasmedicas.controller.ListaCitasController"
-            prefHeight="400.0" prefWidth="600.0">
+            prefWidth="800" prefHeight="550">
 
-</AnchorPane>
+    <top>
+        <VBox>
+            <padding><Insets top="20" right="30" bottom="16" left="30"/></padding>
+            <Label text="Mis Citas">
+                <font><Font size="20"/></font>
+            </Label>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="30" bottom="10" left="30"/></padding>
+
+            <TableView fx:id="tablaCitas" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colFecha"       text="Fecha"       prefWidth="120"/>
+                    <TableColumn fx:id="colHora"        text="Hora"        prefWidth="80"/>
+                    <TableColumn fx:id="colProfesional" text="Profesional" prefWidth="220"/>
+                    <TableColumn fx:id="colEstado"      text="Estado"      prefWidth="120"/>
+                </columns>
+                <placeholder><Label text="No tienes citas registradas."/></placeholder>
+            </TableView>
+
+            <Label fx:id="lblEstado" text=""/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <padding><Insets top="10" right="30" bottom="20" left="30"/></padding>
+            <Button text="Volver"   onAction="#volver"/>
+            <Button fx:id="btnDetalle"  text="Ver detalle"   onAction="#handleDetalle"  disable="true"/>
+            <Button fx:id="btnCancelar" text="Cancelar cita" onAction="#handleCancelar" disable="true"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

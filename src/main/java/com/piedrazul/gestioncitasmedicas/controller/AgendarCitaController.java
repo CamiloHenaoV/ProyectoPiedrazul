@@ -17,6 +17,7 @@ import javafx.util.StringConverter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -41,8 +42,7 @@ public class AgendarCitaController {
     private UsuarioDTO usuarioActual;
     private UUID       pacienteId;
 
-    private static final DateTimeFormatter HORA_FMT =
-            DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault());
 
     public AgendarCitaController(IEspecialidadService especialidadService,
                                  IProfesionalService  profesionalService,
