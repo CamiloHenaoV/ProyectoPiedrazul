@@ -3,15 +3,14 @@ package com.piedrazul.gestioncitasmedicas.model.services.impl;
 import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
+import com.piedrazul.gestioncitasmedicas.model.entities.DisponibilidadSemanal;
 import com.piedrazul.gestioncitasmedicas.model.entities.Paciente;
 import com.piedrazul.gestioncitasmedicas.model.entities.Profesional;
 import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
+import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
-import com.piedrazul.gestioncitasmedicas.model.repositories.EspecialidadRepository;
-import com.piedrazul.gestioncitasmedicas.model.repositories.PacienteRepository;
-import com.piedrazul.gestioncitasmedicas.model.repositories.ProfesionalRepository;
-import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
+import com.piedrazul.gestioncitasmedicas.model.repositories.*;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import com.piedrazul.gestioncitasmedicas.observer.AppEvent;
@@ -19,6 +18,7 @@ import com.piedrazul.gestioncitasmedicas.observer.EventBus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +39,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private final PacienteRepository pacienteRepository;
     private final ProfesionalRepository profesionalRepository;
     private final EspecialidadRepository especialidadRepository;
+    private final DisponibilidadSemanalRepository disponibilidadRepository;
 
     public UsuarioServiceImpl(
             UsuarioRepository usuarioRepository,
@@ -46,7 +47,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
             EventBus          eventBus,
             PacienteRepository pacienteRepository,
             ProfesionalRepository  profesionalRepository,
-            EspecialidadRepository especialidadRepository
+            EspecialidadRepository especialidadRepository,
+            DisponibilidadSemanalRepository disponibilidadRepository
     ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordService   = passwordService;
@@ -54,6 +56,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         this.pacienteRepository = pacienteRepository;
         this.profesionalRepository  = profesionalRepository;
         this.especialidadRepository = especialidadRepository;
+        this.disponibilidadRepository = disponibilidadRepository;
     }
     /**
      * Autentica un usuario verificando sus credenciales.
@@ -167,13 +170,15 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .findByNombre(profesionalDTO.getEspecialidadNombre())
                 .orElseThrow();
 
-        profesionalRepository.save(Profesional.builder()
+        Profesional profesional = profesionalRepository.save(Profesional.builder()
                 .usuario(usuario)
                 .tipo(profesionalDTO.getTipo())
                 .especialidad(especialidad)
                 .licenciaProfesional(profesionalDTO.getLicenciaProfesional())
                 .activo(true)
                 .build());
+
+        crearDisponibilidadPorDefecto(profesional);
 
         UsuarioDTO creado = toDTO(usuario);
         eventBus.publish(AppEvent.USUARIO_CREADO, creado);
@@ -291,7 +296,21 @@ public class UsuarioServiceImpl implements IUsuarioService {
     public boolean existeLogin(String login) {
         return usuarioRepository.existsByLogin(login);
     }
+    private static final int[] DIAS_HABILES = {1, 2, 3, 4, 5};
 
+    private void crearDisponibilidadPorDefecto(Profesional profesional) {
+        int duracion = profesional.getTipo() == TipoProfesional.medico ? 5 : 20;
+
+        for (int dia : DIAS_HABILES) {
+            disponibilidadRepository.save(DisponibilidadSemanal.builder()
+                    .profesional(profesional)
+                    .diaSemana(dia)
+                    .horaInicio(LocalTime.of(7, 0))
+                    .horaFin(LocalTime.of(14, 0))
+                    .duracionCitaMinutos(duracion)
+                    .build());
+        }
+    }
     /**
      * Convierte una entidad {@link Usuario} a su representación {@link UsuarioDTO}.
      * <p>
