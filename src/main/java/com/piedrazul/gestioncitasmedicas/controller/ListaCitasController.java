@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 
 @Component
@@ -40,7 +41,7 @@ public class ListaCitasController implements Observer<CitaDTO> {
 
     private UUID pacienteId;
 
-    private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.forLanguageTag("es-CO")).withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter FECHA_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault());
 
     public ListaCitasController(ICitaService     citaService,
