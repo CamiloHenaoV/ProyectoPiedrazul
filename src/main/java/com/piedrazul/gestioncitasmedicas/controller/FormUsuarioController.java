@@ -50,7 +50,10 @@ public class FormUsuarioController {
     private final StageInitializer stageInitializer;
     private final IUsuarioService usuarioService;
     private UsuarioDTO usuarioEditar;
+    @FXML private TextField txtPasswordVisible;
+    @FXML private CheckBox chkMostrarPassword;
 
+    private boolean passwordVisible = false;
     /**
      * Construye el controlador con las dependencias requeridas.
      *
@@ -137,7 +140,9 @@ public class FormUsuarioController {
                 UsuarioDTO nuevo = UsuarioDTO.builder()
                         .nombreCompleto(txtNombre.getText().trim())
                         .login(txtLogin.getText().trim())
-                        .password(txtPassword.getText())
+                        .password(passwordVisible
+                                ? txtPasswordVisible.getText()
+                                : txtPassword.getText())
                         .rol(cbRol.getValue())
                         .activo(true)
                         .build();
@@ -223,7 +228,7 @@ public class FormUsuarioController {
             mostrarError("El login es obligatorio.");
             return false;
         }
-        if (usuarioEditar == null && txtPassword.getText().isBlank()) {
+        if (usuarioEditar == null && txtPassword.getText().isBlank() && txtPasswordVisible.getText().isBlank())  {
             mostrarError("La contraseña es obligatoria.");
             return false;
         }
@@ -242,6 +247,23 @@ public class FormUsuarioController {
     private void mostrarError(String mensaje) {
         lblError.setText(mensaje);
         lblError.setVisible(true);
+    }
+    @FXML
+    private void handleMostrarPassword() {
+        passwordVisible = chkMostrarPassword.isSelected();
+        if (passwordVisible) {
+            txtPasswordVisible.setText(txtPassword.getText());
+            txtPasswordVisible.setVisible(true);
+            txtPasswordVisible.setManaged(true);
+            txtPassword.setVisible(false);
+            txtPassword.setManaged(false);
+        } else {
+            txtPassword.setText(txtPasswordVisible.getText());
+            txtPassword.setVisible(true);
+            txtPassword.setManaged(true);
+            txtPasswordVisible.setVisible(false);
+            txtPasswordVisible.setManaged(false);
+        }
     }
     /**
      * Cierra la ventana modal obteniendo el {@link Stage} a través de cualquier

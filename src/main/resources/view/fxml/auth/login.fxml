@@ -16,9 +16,7 @@
     </padding>
 
     <Label text="PiedraAzul" alignment="CENTER">
-        <font>
-            <Font name="System Bold" size="24.0"/>
-        </font>
+        <font><Font name="System Bold" size="24.0"/></font>
     </Label>
 
     <Label text="Piedrazul" alignment="CENTER"/>
@@ -30,7 +28,11 @@
 
     <VBox spacing="6.0">
         <Label text="Contraseña"/>
-        <PasswordField fx:id="txtPassword" promptText="Ingresa tu contraseña"/>
+        <HBox spacing="6.0" alignment="CENTER_LEFT">
+            <PasswordField fx:id="txtPassword" promptText="Contraseña" HBox.hgrow="ALWAYS"/>
+            <TextField    fx:id="txtPasswordVisible" promptText="Contraseña" HBox.hgrow="ALWAYS" visible="false" managed="false"/>
+            <CheckBox fx:id="chkMostrarPassword" text="Mostrar" onAction="#handleMostrarPassword"/>
+        </HBox>
     </VBox>
 
     <Label fx:id="lblError" textFill="RED" visible="false" wrapText="true"/>

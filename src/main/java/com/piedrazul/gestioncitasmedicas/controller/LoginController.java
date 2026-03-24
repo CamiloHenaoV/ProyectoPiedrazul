@@ -7,10 +7,7 @@ import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioServi
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.springframework.stereotype.Component;
 /**
  * Controlador JavaFX para la vista de inicio de sesión ({@code /view/fxml/auth/login.fxml}).
@@ -56,7 +53,10 @@ public class LoginController {
     @FXML private PasswordField txtPassword;
     @FXML private Button        btnIngresar;
     @FXML private Label         lblError;
+    @FXML private TextField txtPasswordVisible;
+    @FXML private CheckBox chkMostrarPassword;
 
+    private boolean passwordVisible = false;
     /**
         * Inicializa la vista una vez que el FXML ha sido cargado.
      *
@@ -89,7 +89,7 @@ public class LoginController {
     @FXML
     public void handleLogin() {
         String login    = txtLogin.getText().trim();
-        String password = txtPassword.getText();
+        String password = passwordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
 
         lblError.setVisible(false);
 
@@ -155,7 +155,23 @@ public class LoginController {
             default -> mostrarError("Rol no soportado en esta versión.");
         }
     }
-
+    @FXML
+    private void handleMostrarPassword() {
+        passwordVisible = chkMostrarPassword.isSelected();
+        if (passwordVisible) {
+            txtPasswordVisible.setText(txtPassword.getText());
+            txtPasswordVisible.setVisible(true);
+            txtPasswordVisible.setManaged(true);
+            txtPassword.setVisible(false);
+            txtPassword.setManaged(false);
+        } else {
+            txtPassword.setText(txtPasswordVisible.getText());
+            txtPassword.setVisible(true);
+            txtPassword.setManaged(true);
+            txtPasswordVisible.setVisible(false);
+            txtPasswordVisible.setManaged(false);
+        }
+    }
     /**
      * Muestra un mensaje de error en la etiqueta {@code lblError} y la hace visible.
      *
