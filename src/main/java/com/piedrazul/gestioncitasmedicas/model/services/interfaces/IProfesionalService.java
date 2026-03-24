@@ -6,4 +6,5 @@ import java.util.List;
 public interface IProfesionalService {
     List<ProfesionalDTO> listarActivos();
     ProfesionalDTO       buscarPorId(Integer id);
+    List<ProfesionalDTO> listarActivosPorEspecialidad(String especialidadNombre);
 }

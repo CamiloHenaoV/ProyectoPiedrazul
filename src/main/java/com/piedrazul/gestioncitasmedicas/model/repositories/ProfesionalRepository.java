@@ -11,6 +11,6 @@ import java.util.List;
 public interface ProfesionalRepository extends JpaRepository<Profesional, Integer> {
     List<Profesional> findByActivoTrue();
     List<Profesional> findByTipoAndActivoTrue(TipoProfesional tipo);
-    List<Profesional> findByEspecialidadId(Integer especialidadId);
     boolean           existsByLicenciaProfesional(String licencia);
+    List<Profesional> findByEspecialidadNombreAndActivoTrue(String nombre);
 }

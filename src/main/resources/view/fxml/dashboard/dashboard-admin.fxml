@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.gestioncitasmedicas.controller.DashboardAdminController">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="10" prefWidth="200">
+            <padding><Insets top="20" right="10" bottom="20" left="10"/></padding>
+
+            <Label text="Piedrazul"/>
+            <Label fx:id="lblUsuario"/>
+
+            <Separator/>
+
+            <Button text="Gestión Usuarios"
+                    maxWidth="Infinity"
+                    onAction="#irAUsuarios"/>
+
+            <VBox VBox.vgrow="ALWAYS"/>
+
+            <Button text="Cerrar Sesión"
+                    maxWidth="Infinity"
+                    onAction="#cerrarSesion"/>
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <center>
+        <VBox spacing="20">
+            <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+
+            <Label text="Panel de Administración"/>
+
+            <HBox spacing="20">
+                <VBox prefWidth="180" prefHeight="100" alignment="CENTER">
+                    <Label fx:id="lblTotalUsuarios" text="0"/>
+                    <Label text="Usuarios registrados"/>
+                </VBox>
+            </HBox>
+
+            <Button text="Gestionar Usuarios"
+                    onAction="#irAUsuarios"/>
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -1,14 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.piedrazul.gestioncitasmedicas.controller.ListaUsuariosController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.ListaUsuariosController"
+      spacing="15">
 
-</AnchorPane>
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- ENCABEZADO -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="← Volver" onAction="#volver"/>
+        <Label text="Gestión de Usuarios"/>
+    </HBox>
+
+    <!-- BARRA DE BÚSQUEDA Y ACCIONES -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="txtBuscar"
+                   promptText="Buscar por nombre o login..."
+                   prefWidth="300"
+                   onKeyReleased="#handleBuscar"/>
+        <Button text="Buscar" onAction="#handleBuscar"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnNuevo"
+                text="+ Nuevo Usuario"
+                onAction="#handleNuevo"/>
+        <Button fx:id="btnEditar"
+                text="Editar"
+                disable="true"
+                onAction="#handleEditar"/>
+        <Button fx:id="btnToggleActivo"
+                text="Desactivar"
+                disable="true"
+                onAction="#handleToggleActivo"/>
+    </HBox>
+
+    <!-- TABLA -->
+    <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colNombre"  text="Nombre Completo" prefWidth="250"/>
+            <TableColumn fx:id="colRol"     text="Rol"             prefWidth="150"/>
+            <TableColumn fx:id="colActivo"  text="Estado"          prefWidth="100"/>
+        </columns>
+        <placeholder>
+            <Label text="No hay usuarios registrados"/>
+        </placeholder>
+    </TableView>
+
+    <!-- ESTADO -->
+    <Label fx:id="lblEstado"/>
+
+</VBox>

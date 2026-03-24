@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.gestioncitasmedicas.controller.DashboardPacienteController">
+
+    <left>
+        <VBox spacing="10" prefWidth="200">
+            <padding><Insets top="20" right="10" bottom="20" left="10"/></padding>
+
+            <Label text="Piedrazul"/>
+            <Label fx:id="lblUsuario"/>
+
+            <Separator/>
+
+            <Button text="Agendar Cita"
+                    maxWidth="Infinity"
+                    onAction="#irAAgendarCita"/>
+
+            <Button text="Mis Citas"
+                    maxWidth="Infinity"
+                    onAction="#irAMisCitas"/>
+
+            <VBox VBox.vgrow="ALWAYS"/>
+
+            <Button text="Cerrar Sesión"
+                    maxWidth="Infinity"
+                    onAction="#cerrarSesion"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20" alignment="CENTER">
+            <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+
+            <Label text="Bienvenido"/>
+            <Label fx:id="lblBienvenida"/>
+            <Label text="¿Qué deseas hacer hoy?"/>
+
+            <Button text="Agendar nueva cita"
+                    prefWidth="250"
+                    onAction="#irAAgendarCita"/>
+
+            <Button text="Ver mis citas"
+                    prefWidth="250"
+                    onAction="#irAMisCitas"/>
+        </VBox>
+    </center>
+
+</BorderPane>

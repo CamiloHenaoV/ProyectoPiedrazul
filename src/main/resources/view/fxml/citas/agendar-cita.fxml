@@ -1,14 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.gestioncitasmedicas.controller.AgendarCitaController"
-            prefHeight="400.0" prefWidth="600.0">
+            prefWidth="800" prefHeight="550">
 
-</AnchorPane>
+    <top>
+        <VBox>
+            <padding><Insets top="20" right="30" bottom="16" left="30"/></padding>
+            <Label text="Agendar Cita">
+                <font><Font size="20"/></font>
+            </Label>
+        </VBox>
+    </top>
+
+    <center>
+        <GridPane hgap="20" vgap="16" alignment="CENTER">
+            <padding><Insets top="20" right="40" bottom="20" left="40"/></padding>
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="150" prefWidth="160"/>
+                <ColumnConstraints minWidth="260" prefWidth="300" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Especialidad:"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <ComboBox fx:id="cbEspecialidad"
+                      promptText="Selecciona una especialidad"
+                      maxWidth="Infinity"
+                      GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Profesional:"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <ComboBox fx:id="cbProfesional"
+                      promptText="Selecciona un profesional"
+                      maxWidth="Infinity"
+                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Fecha:"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <DatePicker fx:id="dpFecha"
+                        promptText="Seleccioná una fecha"
+                        maxWidth="Infinity"
+                        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Horario disponible:"
+                   GridPane.rowIndex="3" GridPane.columnIndex="0"
+                   GridPane.valignment="TOP"/>
+            <ListView fx:id="lvHorarios"
+                      prefHeight="150"
+                      GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label fx:id="lblEstado"
+                   text=""
+                   wrapText="true"
+                   GridPane.rowIndex="4" GridPane.columnIndex="0"
+                   GridPane.columnSpan="2"/>
+
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <padding><Insets top="10" right="40" bottom="24" left="40"/></padding>
+            <Button text="Volver" onAction="#volver"/>
+            <Button fx:id="btnConfirmar"
+                    text="Confirmar cita"
+                    defaultButton="true"
+                    onAction="#handleConfirmar"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
