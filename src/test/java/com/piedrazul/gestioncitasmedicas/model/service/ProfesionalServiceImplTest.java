@@ -1,4 +1,4 @@
-package com.piedrazul.gestioncitasmedicas.service;
+package com.piedrazul.gestioncitasmedicas.model.service;
 
 import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.Especialidad;
