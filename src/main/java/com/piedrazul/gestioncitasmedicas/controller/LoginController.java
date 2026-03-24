@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
  * @see IUsuarioService#autenticar(String, String)
  * @see StageInitializer#cambiarVistaConLoader(String, String, double, double)
  */
+// HU 5.1 - validacion de autenticacion
 @Component
 public class LoginController {
 
