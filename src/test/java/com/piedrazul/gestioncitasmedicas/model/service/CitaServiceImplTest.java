@@ -16,10 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,10 +39,25 @@ class CitaServiceImplTest {
     private CitaServiceImpl citaService;
 
     @Test
-    void shouldScheduleCita() {
+    void shouldThrowWhenTryingToScheduleInThePast() {
         UUID pacienteId = UUID.randomUUID();
         Integer profesionalId = 1;
-        ZonedDateTime fechaHora = ZonedDateTime.of(2026, 3, 24, 9, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime fechaHoraPasada = ZonedDateTime.now().minusDays(1);
+
+        CitaDTO dto = CitaDTO.builder()
+                .pacienteId(pacienteId)
+                .profesionalId(profesionalId)
+                .fechaHora(fechaHoraPasada)
+                .build();
+
+        assertThrows(RuntimeException.class, () -> citaService.agendarCita(dto));
+    }
+
+    @Test
+    void shouldScheduleCitaInFuture() {
+        UUID pacienteId = UUID.randomUUID();
+        Integer profesionalId = 1;
+        ZonedDateTime fechaHora = ZonedDateTime.now().plusDays(1).withHour(9).withMinute(0).withSecond(0).withNano(0);
 
         Paciente paciente = Paciente.builder()
                 .id(pacienteId)
@@ -58,8 +70,10 @@ class CitaServiceImplTest {
                 .tipo(TipoProfesional.medico)
                 .build();
 
+        int diaSemana = fechaHora.getDayOfWeek().getValue() % 7;
+
         DisponibilidadSemanal disponibilidad = DisponibilidadSemanal.builder()
-                .diaSemana(fechaHora.getDayOfWeek().getValue() % 7)
+                .diaSemana(diaSemana)
                 .horaInicio(LocalTime.of(8, 0))
                 .horaFin(LocalTime.of(14, 0))
                 .duracionCitaMinutos(30)
@@ -73,7 +87,7 @@ class CitaServiceImplTest {
 
         when(citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, fechaHora)).thenReturn(false);
         when(bloqueoRepository.existeBloqueoEnFecha(profesionalId, fechaHora)).thenReturn(false);
-        when(disponibilidadRepository.findByProfesionalIdAndDiaSemana(profesionalId, fechaHora.getDayOfWeek().getValue() % 7))
+        when(disponibilidadRepository.findByProfesionalIdAndDiaSemana(profesionalId, diaSemana))
                 .thenReturn(List.of(disponibilidad));
         when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(paciente));
         when(profesionalRepository.findById(profesionalId)).thenReturn(Optional.of(profesional));
@@ -86,9 +100,9 @@ class CitaServiceImplTest {
         CitaDTO result = citaService.agendarCita(dto);
 
         assertNotNull(result);
+        assertEquals(EstadoCita.programada, result.getEstado());
         assertEquals(pacienteId, result.getPacienteId());
         assertEquals(profesionalId, result.getProfesionalId());
-        assertEquals(EstadoCita.programada, result.getEstado());
         verify(eventBus).publish(eq(AppEvent.CITA_AGENDADA), any());
     }
 
@@ -96,7 +110,7 @@ class CitaServiceImplTest {
     void shouldThrowWhenHorarioIsOccupied() {
         UUID pacienteId = UUID.randomUUID();
         Integer profesionalId = 1;
-        ZonedDateTime fechaHora = ZonedDateTime.now();
+        ZonedDateTime fechaHora = ZonedDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
 
         CitaDTO dto = CitaDTO.builder()
                 .pacienteId(pacienteId)
@@ -147,28 +161,6 @@ class CitaServiceImplTest {
 
         assertEquals(EstadoCita.completada, result.getEstado());
         verify(eventBus).publish(eq(AppEvent.CITA_COMPLETADA), any());
-    }
-
-    @Test
-    void shouldListHorariosDisponibles() {
-        Integer profesionalId = 1;
-        LocalDate fecha = LocalDate.of(2026, 3, 24);
-
-        DisponibilidadSemanal disponibilidad = DisponibilidadSemanal.builder()
-                .diaSemana(fecha.getDayOfWeek().getValue() % 7)
-                .horaInicio(LocalTime.of(8, 0))
-                .horaFin(LocalTime.of(9, 0))
-                .duracionCitaMinutos(30)
-                .build();
-
-        when(disponibilidadRepository.findByProfesionalIdAndDiaSemana(profesionalId, fecha.getDayOfWeek().getValue() % 7))
-                .thenReturn(List.of(disponibilidad));
-        when(citaRepository.existsByProfesionalIdAndFechaHora(eq(profesionalId), any())).thenReturn(false);
-        when(bloqueoRepository.existeBloqueoEnFecha(eq(profesionalId), any())).thenReturn(false);
-
-        List<ZonedDateTime> result = citaService.obtenerHorariosDisponibles(profesionalId, fecha);
-
-        assertEquals(2, result.size());
     }
 
     @Test
