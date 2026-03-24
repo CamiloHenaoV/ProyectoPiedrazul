@@ -157,7 +157,8 @@ public class CitaServiceImpl implements ICitaService {
                     return slots.stream();
                 })
                 .filter(slot ->
-                        !citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, slot) &&
+                        slot.isAfter(ZonedDateTime.now()) &&
+                                !citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, slot) &&
                                 !bloqueoRepository.existeBloqueoEnFecha(profesionalId, slot)
                 )
                 .collect(Collectors.toList());
@@ -212,6 +213,7 @@ public class CitaServiceImpl implements ICitaService {
      * @return {@code true} si el profesional está disponible
      */
     private boolean isProfesionalDisponible(Integer profesionalId, ZonedDateTime fechaHora) {
+        if (fechaHora.isBefore(ZonedDateTime.now())) return false;
         if (citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, fechaHora)) return false;
         if (bloqueoRepository.existeBloqueoEnFecha(profesionalId, fechaHora)) return false;
 
