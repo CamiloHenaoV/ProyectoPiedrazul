@@ -251,6 +251,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
      * @return {@link UsuarioDTO} con los datos actualizados
      * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
      */
+    // HU 1.3 - implementacion edicion de usuario por admin
     @Override
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
