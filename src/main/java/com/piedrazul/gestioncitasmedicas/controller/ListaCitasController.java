@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.UUID;
-
+// HU 5.4 - implementacion listado de citas
 @Component
 public class ListaCitasController implements Observer<CitaDTO> {
 

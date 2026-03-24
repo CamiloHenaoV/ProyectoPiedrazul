@@ -38,6 +38,7 @@ import java.util.UUID;
  * @see IUsuarioService#actualizarUsuario(UUID, UsuarioDTO)
  * @see ListaUsuariosController
  */
+// HU 1.3 - implementacion edicion de usuario por admin
 @Component
 public class FormUsuarioController {
 
