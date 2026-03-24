@@ -23,4 +23,6 @@ public interface IUsuarioService {
     UsuarioDTO crearUsuarioConPaciente(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO);
     UsuarioDTO crearUsuarioConProfesional(UsuarioDTO usuarioDTO, ProfesionalDTO profesionalDTO);
     long contarUsuariosActivos();
+    boolean recuperarContrasena(String login, String passwordNueva);
+    boolean cambiarContrasena(String login, String passwordActual, String passwordNueva);
 }
