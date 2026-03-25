@@ -134,7 +134,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.piedrazul.gestioncitasmedicas.app</mainClass>
+                    <mainClass>com.piedrazul.gestioncitasmedicas.app.Launcher</mainClass>
                 </configuration>
             </plugin>
             <plugin>
