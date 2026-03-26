@@ -10,7 +10,6 @@ import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
-import com.piedrazul.gestioncitasmedicas.model.exceptions.PasswordInvalidaException;
 import com.piedrazul.gestioncitasmedicas.model.repositories.*;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
@@ -105,10 +104,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private static final int PASSWORD_MIN_LENGTH = 8;
 
     private void validarPasswordSinFormato(String password) {
-        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
-            throw new PasswordInvalidaException("La contraseña debe tener al menos " + PASSWORD_MIN_LENGTH + " caracteres");
-        }
+    if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+        throw new PasswordInvalidaException("La contraseña debe tener al menos " + PASSWORD_MIN_LENGTH + " caracteres");
     }
+
+    if (!password.matches("^(?=.*[A-Z])(?=.*\\d).+$")) {
+        throw new PasswordInvalidaException("La contraseña debe contener al menos una mayúscula y un número");
+    }
+}
 
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO dto) {
