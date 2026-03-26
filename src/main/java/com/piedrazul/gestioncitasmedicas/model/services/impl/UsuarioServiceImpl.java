@@ -228,7 +228,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
+public List<UsuarioDTO> listarPorEstado(boolean activo) {
+    return usuarioRepository.findAll()
+            .stream()
+            .filter(u -> u.getActivo() == activo)
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+}
     /**
      * Retorna todos los usuarios que tienen un rol específico.
      *
