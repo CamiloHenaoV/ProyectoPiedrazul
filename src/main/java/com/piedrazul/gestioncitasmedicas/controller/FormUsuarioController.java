@@ -233,6 +233,11 @@ public class FormUsuarioController {
             mostrarError("La contraseña es obligatoria.");
             return false;
         }
+        if (usuarioEditar == null && txtPassword.getText().length() < 8
+                && txtPasswordVisible.getText().length() < 8) {
+            mostrarError("La contraseña debe tener al menos 8 caracteres.");
+            return false;
+        }
         if (cbRol.getValue() == null) {
             mostrarError("Selecciona un rol.");
             return false;
