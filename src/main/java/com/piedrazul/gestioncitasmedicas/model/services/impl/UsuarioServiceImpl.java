@@ -266,7 +266,9 @@ public List<UsuarioDTO> listarPorEstado(boolean activo) {
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
-
+        if (dto.getNombreCompleto() == null || dto.getNombreCompleto().trim().isEmpty()) {
+    throw new IllegalArgumentException("El nombre no puede estar vacío");
+}
         usuario.setNombreCompleto(dto.getNombreCompleto());
         usuario.setRol(dto.getRol());
 
