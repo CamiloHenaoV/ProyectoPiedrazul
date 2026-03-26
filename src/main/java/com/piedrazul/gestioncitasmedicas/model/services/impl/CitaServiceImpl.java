@@ -121,6 +121,22 @@ public class CitaServiceImpl implements ICitaService {
                 .collect(Collectors.toList());
     }
     /**
+ * Cuenta la cantidad de citas que se encuentran en un estado específico.
+ * <p>
+ * Este método permite obtener métricas del sistema filtrando las citas
+ * según su estado (por ejemplo: programada, cancelada, atendida).
+ *
+ * @param estado estado de la cita por el cual se desea filtrar
+ * @return número total de citas que coinciden con el estado indicado
+ */
+       @Override
+public long contarCitasPorEstado(EstadoCita estado) {
+    return citaRepository.findAll()
+            .stream()
+            .filter(c -> c.getEstado() == estado)
+            .count();
+}
+    /**
      * Calcula los horarios disponibles de un profesional para una fecha dada.
      * <p>
      * El algoritmo funciona en tres pasos:
@@ -139,6 +155,7 @@ public class CitaServiceImpl implements ICitaService {
      * @param fecha         fecha para la que se consulta disponibilidad
      * @return lista de {@link ZonedDateTime} con los horarios disponibles
      */
+ 
     @Override
     public List<ZonedDateTime> obtenerHorariosDisponibles(Integer profesionalId, LocalDate fecha) {
         int diaSemana = fecha.getDayOfWeek().getValue() % 7;
