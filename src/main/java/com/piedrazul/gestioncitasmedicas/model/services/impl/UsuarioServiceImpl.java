@@ -59,22 +59,22 @@ public class UsuarioServiceImpl implements IUsuarioService {
         this.disponibilidadRepository = disponibilidadRepository;
     }
     /**
-     * Autentica un usuario verificando sus credenciales.
-     * <p>
-     * El orden de validación es:
-     * <ol>
-     *     <li>Verifica que el login exista</li>
-     *     <li>Verifica que el usuario esté activo</li>
-     *     <li>Verifica que la contraseña coincida con el hash</li>
-     * </ol>
-     * Si cualquiera falla lanza la misma excepción para no revelar
-     * cuál validación específica falló.
-     *
-     * @param login    identificador único del usuario
-     * @param password contraseña en texto plano
-     * @return {@link UsuarioDTO} con los datos del usuario autenticado
-     * @throws CredencialesInvalidasException si alguna validación falla
-     */
+ * Autentica un usuario en el sistema validando sus credenciales.
+ * <p>
+ * El proceso de autenticación incluye:
+ * <ul>
+ *     <li>Verificar que el usuario exista</li>
+ *     <li>Comprobar que se encuentre activo</li>
+ *     <li>Validar que la contraseña coincida con la almacenada</li>
+ * </ul>
+ * En caso de fallo en cualquiera de las validaciones, se lanza una excepción
+ * de credenciales inválidas sin especificar la causa exacta por seguridad.
+ *
+ * @param login identificador único del usuario
+ * @param password contraseña en texto plano
+ * @return {@link UsuarioDTO} con la información del usuario autenticado
+ * @throws CredencialesInvalidasException si las credenciales no son válidas
+ */
     @Override
     public UsuarioDTO autenticar(String login, String password) {
         Usuario usuario = usuarioRepository.findByLogin(login)
