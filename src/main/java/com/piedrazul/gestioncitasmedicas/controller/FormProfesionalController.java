@@ -60,6 +60,7 @@ public class FormProfesionalController {
 
         } catch (Exception e) {
             mostrarError("Error al guardar los datos del profesional.");
+            e.printStackTrace();
         }
     }
 
