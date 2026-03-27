@@ -10,7 +10,6 @@ import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
-import com.piedrazul.gestioncitasmedicas.model.exceptions.PasswordInvalidaException;
 import com.piedrazul.gestioncitasmedicas.model.repositories.*;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
@@ -60,22 +59,22 @@ public class UsuarioServiceImpl implements IUsuarioService {
         this.disponibilidadRepository = disponibilidadRepository;
     }
     /**
-     * Autentica un usuario verificando sus credenciales.
-     * <p>
-     * El orden de validación es:
-     * <ol>
-     *     <li>Verifica que el login exista</li>
-     *     <li>Verifica que el usuario esté activo</li>
-     *     <li>Verifica que la contraseña coincida con el hash</li>
-     * </ol>
-     * Si cualquiera falla lanza la misma excepción para no revelar
-     * cuál validación específica falló.
-     *
-     * @param login    identificador único del usuario
-     * @param password contraseña en texto plano
-     * @return {@link UsuarioDTO} con los datos del usuario autenticado
-     * @throws CredencialesInvalidasException si alguna validación falla
-     */
+ * Autentica un usuario en el sistema validando sus credenciales.
+ * <p>
+ * El proceso de autenticación incluye:
+ * <ul>
+ *     <li>Verificar que el usuario exista</li>
+ *     <li>Comprobar que se encuentre activo</li>
+ *     <li>Validar que la contraseña coincida con la almacenada</li>
+ * </ul>
+ * En caso de fallo en cualquiera de las validaciones, se lanza una excepción
+ * de credenciales inválidas sin especificar la causa exacta por seguridad.
+ *
+ * @param login identificador único del usuario
+ * @param password contraseña en texto plano
+ * @return {@link UsuarioDTO} con la información del usuario autenticado
+ * @throws CredencialesInvalidasException si las credenciales no son válidas
+ */
     @Override
     public UsuarioDTO autenticar(String login, String password) {
         Usuario usuario = usuarioRepository.findByLogin(login)
@@ -105,10 +104,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private static final int PASSWORD_MIN_LENGTH = 8;
 
     private void validarPasswordSinFormato(String password) {
-        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
-            throw new PasswordInvalidaException("La contraseña debe tener al menos " + PASSWORD_MIN_LENGTH + " caracteres");
-        }
+    if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+        throw new PasswordInvalidaException("La contraseña debe tener al menos " + PASSWORD_MIN_LENGTH + " caracteres");
     }
+
+    if (!password.matches("^(?=.*[A-Z])(?=.*\\d).+$")) {
+        throw new PasswordInvalidaException("La contraseña debe contener al menos una mayúscula y un número");
+    }
+}
 
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO dto) {
@@ -225,7 +228,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
+public List<UsuarioDTO> listarPorEstado(boolean activo) {
+    return usuarioRepository.findAll()
+            .stream()
+            .filter(u -> u.getActivo() == activo)
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+}
     /**
      * Retorna todos los usuarios que tienen un rol específico.
      *
@@ -256,7 +266,9 @@ public class UsuarioServiceImpl implements IUsuarioService {
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
-
+        if (dto.getNombreCompleto() == null || dto.getNombreCompleto().trim().isEmpty()) {
+    throw new IllegalArgumentException("El nombre no puede estar vacío");
+}
         usuario.setNombreCompleto(dto.getNombreCompleto());
         usuario.setRol(dto.getRol());
 
