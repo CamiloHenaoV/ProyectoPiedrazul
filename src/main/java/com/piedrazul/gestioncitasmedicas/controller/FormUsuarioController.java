@@ -4,6 +4,7 @@ import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.LoginDuplicadoException;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IRegistroService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -50,6 +51,7 @@ public class FormUsuarioController {
     @FXML private Label                lblError;
     private final StageInitializer stageInitializer;
     private final IUsuarioService usuarioService;
+    private final IRegistroService registroService;
     private UsuarioDTO usuarioEditar;
     @FXML private TextField txtPasswordVisible;
     @FXML private CheckBox chkMostrarPassword;
@@ -61,10 +63,12 @@ public class FormUsuarioController {
      * @param usuarioService servicio para crear y actualizar usuarios
      */
     public FormUsuarioController(IUsuarioService usuarioService,
-                                 StageInitializer stageInitializer) {
+                                 StageInitializer stageInitializer,
+                                 IRegistroService registroService) {
 
         this.usuarioService = usuarioService;
         this.stageInitializer=stageInitializer;
+        this.registroService=registroService;
     }
 
     /**
@@ -173,7 +177,7 @@ public class FormUsuarioController {
                             }
                     );
                 } else {
-                    usuarioService.crearUsuario(nuevo);
+                    registroService.registrarUsuario(nuevo);
                     cerrarModal();
                 }
 

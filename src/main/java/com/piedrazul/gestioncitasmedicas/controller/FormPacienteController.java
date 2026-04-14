@@ -2,8 +2,7 @@ package com.piedrazul.gestioncitasmedicas.controller;
 
 import com.piedrazul.gestioncitasmedicas.model.dto.PacienteDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
-import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPacienteService;
-import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IRegistroService;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -22,12 +21,13 @@ public class FormPacienteController {
     @FXML private TextField  txtDireccion;
     @FXML private Label      lblError;
 
-    private final IUsuarioService usuarioService;
+    private final IRegistroService registroService;
+    
 
     private UsuarioDTO usuarioNuevo;
 
-    public FormPacienteController(IUsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
+    public FormPacienteController(IRegistroService registroService) {
+        this.registroService = registroService;
     }
 
     @FXML
@@ -54,12 +54,11 @@ public class FormPacienteController {
                     .direccion(txtDireccion.getText().trim())
                     .build();
 
-            usuarioService.crearUsuarioConPaciente(usuarioNuevo, pacienteDTO);
+            registroService.registrarPaciente(usuarioNuevo, pacienteDTO);
             cerrarModal();
 
         } catch (Exception e) {
             mostrarError("Error al guardar los datos del paciente.");
-            e.printStackTrace();
         }
     }
 

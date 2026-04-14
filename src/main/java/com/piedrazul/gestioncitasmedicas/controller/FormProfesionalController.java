@@ -4,7 +4,7 @@ import com.piedrazul.gestioncitasmedicas.model.dto.ProfesionalDTO;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IEspecialidadService;
-import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IRegistroService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -21,14 +21,14 @@ public class FormProfesionalController {
     @FXML private ComboBox<TipoProfesional> cbTipo;
     @FXML private Label             lblError;
 
-    private final IUsuarioService usuarioService;
+    private final IRegistroService registroService;
     private final IEspecialidadService especialidadService;
 
     private UsuarioDTO usuarioNuevo;
 
-    public FormProfesionalController(IUsuarioService      usuarioService,
+    public FormProfesionalController(IRegistroService      registroService,
                                      IEspecialidadService especialidadService) {
-        this.usuarioService      = usuarioService;
+        this.registroService      = registroService;
         this.especialidadService = especialidadService;
     }
 
@@ -55,12 +55,11 @@ public class FormProfesionalController {
                     .tipo(cbTipo.getValue())
                     .build();
 
-            usuarioService.crearUsuarioConProfesional(usuarioNuevo, profesionalDTO);
+            registroService.registrarProfesional(usuarioNuevo, profesionalDTO);
             cerrarModal();
 
         } catch (Exception e) {
             mostrarError("Error al guardar los datos del profesional.");
-            e.printStackTrace();
         }
     }
 

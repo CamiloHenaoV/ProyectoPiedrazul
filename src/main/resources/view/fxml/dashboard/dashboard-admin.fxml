@@ -39,7 +39,7 @@
             <HBox spacing="20">
                 <VBox prefWidth="180" prefHeight="100" alignment="CENTER">
                     <Label fx:id="lblTotalUsuarios" text="0"/>
-                    <Label text="Usuarios registrados"/>
+                    <Label text="Usuarios activos"/>
                 </VBox>
             </HBox>
 

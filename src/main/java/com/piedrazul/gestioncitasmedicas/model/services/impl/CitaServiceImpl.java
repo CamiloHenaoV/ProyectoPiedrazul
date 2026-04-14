@@ -129,7 +129,7 @@ public class CitaServiceImpl implements ICitaService {
  * @param estado estado de la cita por el cual se desea filtrar
  * @return número total de citas que coinciden con el estado indicado
  */
-       @Override
+    @Override
 public long contarCitasPorEstado(EstadoCita estado) {
     return citaRepository.findAll()
             .stream()
