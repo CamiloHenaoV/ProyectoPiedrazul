@@ -15,6 +15,7 @@ public interface IUsuarioService {
     UsuarioDTO    buscarPorId(UUID id);
     List<UsuarioDTO> listarTodos();
     List<UsuarioDTO> listarPorRol(RolUsuario rol);
+    List<UsuarioDTO> listarPorEstado(boolean activo);
     UsuarioDTO    actualizarUsuario(UUID id, UsuarioDTO dto);
     void          desactivarUsuario(UUID id);
     void          activarUsuario(UUID id);
