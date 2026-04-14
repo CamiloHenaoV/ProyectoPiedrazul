@@ -115,41 +115,33 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO dto) {
+        Usuario usuario = crearUsuarioBase(dto);
+        return finalizarCreacion(usuario);
+    }
+    private Usuario crearUsuarioBase(UsuarioDTO dto) {
         if (usuarioRepository.existsByLogin(dto.getLogin())) {
             throw new LoginDuplicadoException(dto.getLogin());
         }
 
         validarPasswordSinFormato(dto.getPassword());
 
-        Usuario usuario = Usuario.builder()
+        return usuarioRepository.save(Usuario.builder()
                 .nombreCompleto(dto.getNombreCompleto())
                 .login(dto.getLogin())
                 .passwordHash(passwordService.encriptar(dto.getPassword()))
                 .rol(dto.getRol())
                 .activo(true)
-                .build();
-
-        UsuarioDTO guardado = toDTO(usuarioRepository.save(usuario));
-        eventBus.publish(AppEvent.USUARIO_CREADO, guardado);
-        return guardado;
+                .build());
     }
-
+    private UsuarioDTO finalizarCreacion(Usuario usuario) {
+        UsuarioDTO dto = toDTO(usuario);
+        eventBus.publish(AppEvent.USUARIO_CREADO, dto);
+        return dto;
+    }
     @Override
     @Transactional
     public UsuarioDTO crearUsuarioConPaciente(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO) {
-        if (usuarioRepository.existsByLogin(usuarioDTO.getLogin())) {
-            throw new LoginDuplicadoException(usuarioDTO.getLogin());
-        }
-
-        validarPasswordSinFormato(usuarioDTO.getPassword());
-
-        Usuario usuario = usuarioRepository.save(Usuario.builder()
-                .nombreCompleto(usuarioDTO.getNombreCompleto())
-                .login(usuarioDTO.getLogin())
-                .passwordHash(passwordService.encriptar(usuarioDTO.getPassword()))
-                .rol(usuarioDTO.getRol())
-                .activo(true)
-                .build());
+        Usuario usuario = crearUsuarioBase(usuarioDTO);
 
         pacienteRepository.save(Paciente.builder()
                 .usuario(usuario)
@@ -162,27 +154,13 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .creadoEn(ZonedDateTime.now())
                 .build());
 
-        UsuarioDTO creado = toDTO(usuario);
-        eventBus.publish(AppEvent.USUARIO_CREADO, creado);
-        return creado;
+        return finalizarCreacion(usuario);
     }
 
     @Override
     @Transactional
     public UsuarioDTO crearUsuarioConProfesional(UsuarioDTO usuarioDTO, ProfesionalDTO profesionalDTO) {
-        if (usuarioRepository.existsByLogin(usuarioDTO.getLogin())) {
-            throw new LoginDuplicadoException(usuarioDTO.getLogin());
-        }
-
-        validarPasswordSinFormato(usuarioDTO.getPassword());
-
-        Usuario usuario = usuarioRepository.save(Usuario.builder()
-                .nombreCompleto(usuarioDTO.getNombreCompleto())
-                .login(usuarioDTO.getLogin())
-                .passwordHash(passwordService.encriptar(usuarioDTO.getPassword()))
-                .rol(usuarioDTO.getRol())
-                .activo(true)
-                .build());
+        Usuario usuario = crearUsuarioBase(usuarioDTO);
 
         var especialidad = especialidadRepository
                 .findByNombre(profesionalDTO.getEspecialidadNombre())
@@ -198,9 +176,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
         crearDisponibilidadPorDefecto(profesional);
 
-        UsuarioDTO creado = toDTO(usuario);
-        eventBus.publish(AppEvent.USUARIO_CREADO, creado);
-        return creado;
+        return finalizarCreacion(usuario);
     }
     /**
      * Busca un usuario por su identificador único.
