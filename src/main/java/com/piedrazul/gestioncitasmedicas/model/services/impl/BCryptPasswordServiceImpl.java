@@ -1,6 +1,12 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
+import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
+import com.piedrazul.gestioncitasmedicas.model.exceptions.CredencialesInvalidasException;
+import com.piedrazul.gestioncitasmedicas.model.exceptions.PasswordInvalidaException;
+import com.piedrazul.gestioncitasmedicas.model.exceptions.UsuarioNoEncontradoException;
+import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
+import com.piedrazul.gestioncitasmedicas.observer.AppEvent;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +24,7 @@ public class BCryptPasswordServiceImpl implements IPasswordService {
      * Inicializa el encoder con la configuración por defecto de BCrypt
      * (factor de costo 10).
      */
-    public BCryptPasswordServiceImpl() {
+    public BCryptPasswordServiceImpl(UsuarioRepository usuarioRepository) {
         this.encoder = new BCryptPasswordEncoder();
     }
     /**
@@ -48,5 +54,16 @@ public class BCryptPasswordServiceImpl implements IPasswordService {
     @Override
     public boolean verificar(String passwordPlano, String hash) {
         return encoder.matches(passwordPlano, hash);
+    }
+
+    private static final int PASSWORD_MIN_LENGTH = 8;
+    public void validarPasswordSinFormato(String password) {
+        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+            throw new PasswordInvalidaException("La contraseña debe tener al menos " + PASSWORD_MIN_LENGTH + " caracteres");
+        }
+
+        if (!password.matches("^(?=.*[A-Z])(?=.*\\d).+$")) {
+            throw new PasswordInvalidaException("La contraseña debe contener al menos una mayúscula y un número");
+        }
     }
 }

@@ -40,49 +40,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         this.eventBus          = eventBus;
         this.pacienteRepository = pacienteRepository;
     }
-    /**
- * Autentica un usuario en el sistema validando sus credenciales.
- * <p>
- * El proceso de autenticación incluye:
- * <ul>
- *     <li>Verificar que el usuario exista</li>
- *     <li>Comprobar que se encuentre activo</li>
- *     <li>Validar que la contraseña coincida con la almacenada</li>
- * </ul>
- * En caso de fallo en cualquiera de las validaciones, se lanza una excepción
- * de credenciales inválidas sin especificar la causa exacta por seguridad.
- *
- * @param login identificador único del usuario
- * @param password contraseña en texto plano
- * @return {@link UsuarioDTO} con la información del usuario autenticado
- * @throws CredencialesInvalidasException si las credenciales no son válidas
- */
-    @Override
-    public UsuarioDTO autenticar(String login, String password) {
-        Usuario usuario = usuarioRepository.findByLogin(login)
-                .orElseThrow(CredencialesInvalidasException::new);
 
-        if (!usuario.getActivo()) {
-            throw new CredencialesInvalidasException();
-        }
-
-        if (!passwordService.verificar(password, usuario.getPasswordHash())) {
-            throw new CredencialesInvalidasException();
-        }
-
-        return toDTO(usuario);
-    }
-    /**
-     * Crea un nuevo usuario en el sistema.
-     * <p>
-     * Verifica duplicidad del login antes de persistir.
-     * La contraseña se encripta antes de almacenarse —
-     * nunca se guarda en texto plano.
-     *
-     * @param dto datos del usuario a crear
-     * @return {@link UsuarioDTO} con los datos del usuario creado
-     * @throws LoginDuplicadoException si el login ya está registrado
-     */
     private static final int PASSWORD_MIN_LENGTH = 8;
 
     private void validarPasswordSinFormato(String password) {
@@ -122,25 +80,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
         return dto;
     }
 
-    /**
-     * Busca un usuario por su identificador único.
-     *
-     * @param id identificador UUID del usuario
-     * @return {@link UsuarioDTO} con los datos del usuario
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
-     */
-    @Override
-    public UsuarioDTO buscarPorId(UUID id) {
-        return usuarioRepository.findById(id)
-                .map(this::toDTO)
-                .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
-    }
 
-    /**
-     * Retorna todos los usuarios registrados en el sistema.
-     *
-     * @return lista de {@link UsuarioDTO}, vacía si no hay usuarios
-     */
     @Override
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll()
@@ -148,20 +88,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-    @Override
-public List<UsuarioDTO> listarPorEstado(boolean activo) {
-    return usuarioRepository.findAll()
-            .stream()
-            .filter(u -> u.getActivo() == activo)
-            .map(this::toDTO)
-            .collect(Collectors.toList());
-}
-    /**
-     * Retorna todos los usuarios que tienen un rol específico.
-     *
-     * @param rol rol por el que filtrar
-     * @return lista de {@link UsuarioDTO} con ese rol
-     */
+
     @Override
     public List<UsuarioDTO> listarPorRol(RolUsuario rol) {
         return usuarioRepository.findByRol(rol)
@@ -170,17 +97,7 @@ public List<UsuarioDTO> listarPorEstado(boolean activo) {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Actualiza los datos de un usuario existente.
-     * <p>
-     * Solo permite modificar {@code nombreCompleto} y {@code rol}.
-     * El login y la contraseña no se modifican en esta operación.
-     *
-     * @param id  identificador del usuario a actualizar
-     * @param dto datos nuevos del usuario
-     * @return {@link UsuarioDTO} con los datos actualizados
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
-     */
+
     // HU 1.3 - implementacion edicion de usuario por admin
     @Override
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) {
@@ -197,15 +114,6 @@ public List<UsuarioDTO> listarPorEstado(boolean activo) {
         return actualizado;
     }
 
-    /**
-     * Desactiva un usuario impidiendo que pueda autenticarse.
-     * <p>
-     * La desactivación es lógica — el registro permanece en la BD
-     * pero el usuario no puede iniciar sesión.
-     *
-     * @param id identificador del usuario a desactivar
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
-     */
     @Override
     public void desactivarUsuario(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -216,12 +124,7 @@ public List<UsuarioDTO> listarPorEstado(boolean activo) {
         eventBus.publish(AppEvent.USUARIO_DESACTIVADO, desactivado);
     }
 
-    /**
-     * Reactiva un usuario previamente desactivado.
-     *
-     * @param id identificador del usuario a activar
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese ID
-     */
+
     @Override
     public void activarUsuario(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -231,62 +134,7 @@ public List<UsuarioDTO> listarPorEstado(boolean activo) {
         eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
     }
 
-    /**
-     * Verifica si un login ya está registrado en el sistema.
-     * <p>
-     * Útil para validar en la UI antes de intentar crear un usuario
-     * y mostrar un error preventivo al usuario.
-     *
-     * @param login login a verificar
-     * @return {@code true} si el login ya existe, {@code false} si está disponible
-     */
-    @Override
-    public boolean existeLogin(String login) {
-        return usuarioRepository.existsByLogin(login);
-    }
 
-    @Override
-    public boolean cambiarContrasena(String login, String passwordActual, String passwordNueva) {
-        Usuario usuario = usuarioRepository.findByLogin(login)
-                .orElseThrow(() -> new UsuarioNoEncontradoException(login));
-
-        if (!usuario.getActivo()) {
-            throw new CredencialesInvalidasException();
-        }
-
-        if (!passwordService.verificar(passwordActual, usuario.getPasswordHash())) {
-            throw new CredencialesInvalidasException();
-        }
-
-        validarPasswordSinFormato(passwordNueva);
-
-        usuario.setPasswordHash(passwordService.encriptar(passwordNueva));
-        usuarioRepository.save(usuario);
-        eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
-        return true;
-    }
-
-    @Override
-    public boolean recuperarContrasena(String login, String passwordNueva) {
-        Usuario usuario = usuarioRepository.findByLogin(login)
-                .orElseThrow(() -> new UsuarioNoEncontradoException(login));
-
-        validarPasswordSinFormato(passwordNueva);
-
-        usuario.setPasswordHash(passwordService.encriptar(passwordNueva));
-        usuarioRepository.save(usuario);
-        eventBus.publish(AppEvent.USUARIO_ACTUALIZADO, toDTO(usuario));
-        return true;
-    }
-    /**
-     * Convierte una entidad {@link Usuario} a su representación {@link UsuarioDTO}.
-     * <p>
-     * El {@code passwordHash} nunca se incluye en el DTO para evitar
-     * que llegue a la capa de presentación.
-     *
-     * @param u entidad a convertir
-     * @return DTO con los datos del usuario sin información sensible
-     */
     private UsuarioDTO toDTO(Usuario u) {
         return UsuarioDTO.builder()
                 .id(u.getId())

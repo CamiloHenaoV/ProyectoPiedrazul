@@ -3,6 +3,7 @@ package com.piedrazul.gestioncitasmedicas.controller;
 import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.CredencialesInvalidasException;
+import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IAuthService;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IUsuarioService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
  * {@code context::getBean} desde {@link StageInitializer}; recibe sus dependencias
  * mediante inyección por constructor.</p>
  *
- * @see IUsuarioService#autenticar(String, String)
  * @see StageInitializer#cambiarVistaConLoader(String, String, double, double)
  */
 // HU 5.1 - validacion de autenticacion
@@ -38,6 +38,7 @@ public class LoginController {
 
     private final IUsuarioService usuarioService;
     private final StageInitializer stageInitializer;
+    private final IAuthService authService;
 
     /**
      * Construye el controlador con las dependencias requeridas.
@@ -45,9 +46,12 @@ public class LoginController {
      * @param usuarioService   servicio de autenticación y gestión de usuarios
      * @param stageInitializer gestor de navegación entre vistas JavaFX
      */
-    public LoginController(IUsuarioService usuarioService, StageInitializer stageInitializer) {
+    public LoginController(IUsuarioService usuarioService,
+                           StageInitializer stageInitializer,
+                           IAuthService authService) {
         this.usuarioService   = usuarioService;
         this.stageInitializer = stageInitializer;
+        this.authService = authService;
     }
 
     @FXML private TextField     txtLogin;
@@ -71,22 +75,6 @@ public class LoginController {
         txtPassword.setOnAction(e -> handleLogin());
     }
 
-    /**
-     * Maneja el intento de inicio de sesión iniciado por el usuario.
-     *
-     * <p>Flujo de ejecución:
-     * <ol>
-     *   <li>Valida que ningún campo esté vacío; si alguno lo está muestra un error y aborta.</li>
-     *   <li>Deshabilita {@code btnIngresar} para evitar envíos duplicados.</li>
-     *   <li>Lanza un hilo secundario que llama a {@link IUsuarioService#autenticar(String, String)}.</li>
-     *   <li>En caso de éxito, regresa al JavaFX Application Thread con
-     *       {@link Platform#runLater(Runnable)} y delega en {@link #navegarSegunRol(UsuarioDTO)}.</li>
-     *   <li>En caso de {@link CredencialesInvalidasException}, muestra el mensaje de credenciales
-     *       incorrectas; cualquier otra excepción muestra un error genérico.</li>
-     *   <li>El bloque {@code finally} rehabilita el botón siempre, independientemente del resultado.</li>
-     * </ol>
-     * </p>
-     */
     @FXML
     public void handleLogin() {
         String login    = txtLogin.getText().trim();
@@ -103,7 +91,7 @@ public class LoginController {
 
         new Thread(() -> {
             try {
-                UsuarioDTO usuario = usuarioService.autenticar(login, password);
+                UsuarioDTO usuario = authService.autenticar(login, password);
                 Platform.runLater(() -> navegarSegunRol(usuario));
             } catch (CredencialesInvalidasException ex) {
                 Platform.runLater(() -> mostrarError("Usuario o contraseña incorrectos."));
