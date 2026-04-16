@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq-um
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    restart: unless-stopped
+
+  postgres-users:
+    image: postgres:15
+    container_name: postgres-users-um
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: dev
+    volumes:
+      - pgdata-users:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata-users:
