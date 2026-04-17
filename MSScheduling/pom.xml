@@ -11,7 +11,7 @@
     <groupId>com.piedrazul</groupId>
     <artifactId>MSScheduling</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <n>MSScheduling</n>
+    <name>MSScheduling</name>
     <description>MSScheduling</description>
     <url/>
     <licenses><license/></licenses>
