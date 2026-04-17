@@ -9,10 +9,10 @@ import com.piedrazul.msusermanagement.domain.model.entity.enums.RolUsuario;
 import java.util.List;
 
 public interface IUsuarioService {
-    UsuarioDTO crearUsuario(UsuarioDTO dto);
     Usuario crearUsuarioBase(UsuarioDTO dto);
     List<UsuarioDTO> listarTodos();
     List<UsuarioDTO> listarPorRol(RolUsuario rol);
+    UsuarioDTO buscarPorId(Long id);
     UsuarioDTO    actualizarUsuario(Long id, UsuarioDTO dto);
     void          desactivarUsuario(Long id);
     void          activarUsuario(Long id);

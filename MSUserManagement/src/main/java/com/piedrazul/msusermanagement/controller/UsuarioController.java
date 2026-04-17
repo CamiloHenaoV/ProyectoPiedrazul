@@ -26,7 +26,10 @@ public class UsuarioController {
         }
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarPorId(id));
+    }
     @GetMapping("/activos/count")
     public ResponseEntity<Map<String, Long>> contarActivos() {
         return ResponseEntity.ok(Map.of("total", usuarioService.contarUsuariosActivos()));

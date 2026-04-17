@@ -39,11 +39,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    public UsuarioDTO crearUsuario(UsuarioDTO dto) {
-        Usuario usuario = crearUsuarioBase(dto);
-        return finalizarCreacion(usuario);
-    }
-    @Override
     public Usuario crearUsuarioBase(UsuarioDTO dto) {
         if (usuarioRepository.existsByLogin(dto.getLogin())) {
             throw new LoginDuplicadoException(dto.getLogin());
@@ -80,7 +75,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
+    public UsuarioDTO buscarPorId(Long id){
+        Usuario usuario=usuarioRepository.findById(id)
+                .orElseThrow(()-> new UsuarioNoEncontradoException(id.toString()));
+        return toDTO(usuario);
+    }
 
     // HU 1.3 - implementacion edicion de usuario por admin
     @Override
