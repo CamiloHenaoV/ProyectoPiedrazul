@@ -14,11 +14,11 @@ public class UserEventPublisher {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void publishUserRegistered(Usuario usuario, String password) {
+    public void publishUserRegistered(Usuario usuario) {
         UserRegisteredEvent event = new UserRegisteredEvent(
                 usuario.getId(),
                 usuario.getLogin(),
-                password,
+                usuario.getNombreCompleto(),
                 usuario.getRol().name()
         );
 

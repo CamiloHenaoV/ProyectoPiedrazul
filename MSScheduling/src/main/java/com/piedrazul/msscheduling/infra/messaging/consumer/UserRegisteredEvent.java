@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UserRegisteredEvent {
     private Long userId;
     private String login;
-    private String password;
+    private String nombreCompleto;
     private String rol;
 }

@@ -14,7 +14,6 @@ public class UsuarioDTO {
     private Long id;
     private String nombreCompleto;
     private String login;
-    private String password;
     private RolUsuario rol;
     private Boolean activo;
 }

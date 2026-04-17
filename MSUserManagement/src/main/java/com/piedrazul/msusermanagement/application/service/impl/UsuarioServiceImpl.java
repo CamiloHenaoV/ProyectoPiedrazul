@@ -50,7 +50,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .rol(dto.getRol())
                 .activo(true)
                 .build());
-        userEventPublisher.publishUserRegistered(usuario, dto.getPassword());
+        userEventPublisher.publishUserRegistered(usuario);
         return usuario;
     }
 
