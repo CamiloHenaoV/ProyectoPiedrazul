@@ -4,7 +4,6 @@ import com.piedrazul.msusermanagement.domain.model.entity.enums.TipoProfesional;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 
 @Entity
 @Table(name = "profesionales")

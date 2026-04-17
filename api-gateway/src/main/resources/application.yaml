@@ -30,13 +30,6 @@ spring:
           uri: lb://notification-service
           predicates:
             - Path=/api/notifications/**
-
-        # Todo lo demás va al monolito mientras migras
-        - id: monolith
-          uri: http://localhost:8090
-          predicates:
-            - Path=/api/**
-
 eureka:
   client:
     service-url:

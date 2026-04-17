@@ -3,7 +3,6 @@ package com.piedrazul.msusermanagement.domain.model.dto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Setter

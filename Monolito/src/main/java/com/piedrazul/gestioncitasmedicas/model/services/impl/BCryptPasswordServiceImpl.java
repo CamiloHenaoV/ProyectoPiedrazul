@@ -1,12 +1,8 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
-import com.piedrazul.gestioncitasmedicas.model.entities.Usuario;
-import com.piedrazul.gestioncitasmedicas.model.exceptions.CredencialesInvalidasException;
 import com.piedrazul.gestioncitasmedicas.model.exceptions.PasswordInvalidaException;
-import com.piedrazul.gestioncitasmedicas.model.exceptions.UsuarioNoEncontradoException;
 import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
-import com.piedrazul.gestioncitasmedicas.observer.AppEvent;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +20,7 @@ public class BCryptPasswordServiceImpl implements IPasswordService {
      * Inicializa el encoder con la configuración por defecto de BCrypt
      * (factor de costo 10).
      */
-    public BCryptPasswordServiceImpl(UsuarioRepository usuarioRepository) {
+    public BCryptPasswordServiceImpl() {
         this.encoder = new BCryptPasswordEncoder();
     }
     /**

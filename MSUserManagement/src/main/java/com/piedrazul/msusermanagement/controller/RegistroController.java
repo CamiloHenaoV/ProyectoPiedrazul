@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/registro")
+@RequestMapping("/api/users/registro")
 public class RegistroController {
 
     private final IRegistroService registroService;
