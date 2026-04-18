@@ -6,6 +6,8 @@ import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.PacienteDTO;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
 import com.piedrazul.frontend.model.dto.UsuarioRegistroDTO;
+import com.piedrazul.frontend.observer.AppEvent;
+import com.piedrazul.frontend.observer.EventBus;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -34,11 +36,14 @@ public class FormPacienteController {
     private final UsuarioClient usuarioClient;
     private final AuthClient authClient;
     private UsuarioRegistroDTO usuarioNuevo;
+    private final EventBus eventBus;
 
     public FormPacienteController(UsuarioClient usuarioClient,
-                                  AuthClient authClient) {
+                                  AuthClient authClient,
+                                  EventBus eventBus) {
         this.usuarioClient = usuarioClient;
         this.authClient      = authClient;
+        this.eventBus = eventBus;
     }
 
     @FXML
@@ -78,7 +83,7 @@ public class FormPacienteController {
                     usuarioNuevo.getLogin(),
                     usuarioNuevo.getPassword()
             );
-
+            eventBus.publish(AppEvent.USUARIO_CREADO, creado);
             cerrarModal();
 
         } catch (HttpException ex) {

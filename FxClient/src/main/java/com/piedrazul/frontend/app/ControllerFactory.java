@@ -60,14 +60,16 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         if (controllerClass == FormPacienteController.class)
             return new FormPacienteController(
                     ctx.getUsuarioClient(),
-                    ctx.getAuthClient()
+                    ctx.getAuthClient(),
+                    ctx.getEventBus()
             );
 
         if (controllerClass == FormProfesionalController.class)
             return new FormProfesionalController(
                     ctx.getUsuarioClient(),
                     ctx.getAuthClient(),
-                    ctx.getEspecialidadClient()
+                    ctx.getEspecialidadClient(),
+                    ctx.getEventBus()
             );
 
         if (controllerClass == AgendarCitaController.class)

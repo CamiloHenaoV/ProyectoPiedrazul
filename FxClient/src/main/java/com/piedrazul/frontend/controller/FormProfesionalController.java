@@ -8,6 +8,8 @@ import com.piedrazul.frontend.model.dto.ProfesionalDTO;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
 import com.piedrazul.frontend.model.dto.UsuarioRegistroDTO;
 import com.piedrazul.frontend.model.enums.TipoProfesional;
+import com.piedrazul.frontend.observer.AppEvent;
+import com.piedrazul.frontend.observer.EventBus;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -34,15 +36,18 @@ public class FormProfesionalController {
     private final UsuarioClient      usuarioClient;
     private final AuthClient authClient;
     private final EspecialidadClient especialidadClient;
+    private final EventBus eventBus;
 
     private UsuarioRegistroDTO usuarioNuevo;
 
     public FormProfesionalController(UsuarioClient usuarioClient,
                                      AuthClient authClient,
-                                     EspecialidadClient especialidadClient) {
+                                     EspecialidadClient especialidadClient,
+                                     EventBus eventBus) {
         this.usuarioClient      = usuarioClient;
         this.authClient      = authClient;
         this.especialidadClient = especialidadClient;
+        this.eventBus         = eventBus;
     }
 
     @FXML
@@ -85,8 +90,11 @@ public class FormProfesionalController {
                     .rol(usuarioNuevo.getRol())
                     .activo(true)
                     .build();
+
             UsuarioDTO creado = usuarioClient.registrarProfesional(usuarioDTO, profesionalDTO);
             authClient.registrarCredencial(creado.getId(), usuarioNuevo.getLogin(), usuarioNuevo.getPassword());
+
+            eventBus.publish(AppEvent.USUARIO_CREADO, creado);
             cerrarModal();
 
         } catch (HttpException ex) {
