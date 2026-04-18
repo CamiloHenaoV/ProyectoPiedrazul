@@ -1,6 +1,7 @@
 package com.piedrazul.frontend.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.piedrazul.frontend.http.ApiClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.PacienteDTO;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Cliente HTTP para el user-service (gestión de usuarios).
  *
- * Rutas esperadas en el API Gateway:
+ * Rutas esperadas en el APi-Gateway:
  *   GET    /usuarios              → lista todos
  *   GET    /usuarios/{id}         → busca por id
  *   GET    /usuarios/{id}/paciente-id → devuelve el Long del paciente asociado
@@ -46,9 +47,10 @@ public class UsuarioClient {
     }
 
     public long contarActivos() throws Exception {
-        HttpResponse<String> r = api.get("/api/users/usuarios/count/activos");
+        HttpResponse<String> r = api.get("/api/users/usuarios/activos/count"); // path correcto
         validar(r);
-        return Long.parseLong(r.body().trim());
+        JsonNode node = api.mapper.readTree(r.body());
+        return node.get("total").asLong();
     }
 
     // ── Búsqueda ─────────────────────────────────────────────────
@@ -75,7 +77,7 @@ public class UsuarioClient {
 
     /** Crea un usuario con rol administrador (sin perfil adicional). */
     public UsuarioDTO crearUsuario(UsuarioDTO dto) throws Exception {
-        HttpResponse<String> r = api.post("/api/users/usuarios", dto);
+        HttpResponse<String> r = api.post("/api/users/registro/usuario", dto);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
@@ -86,7 +88,7 @@ public class UsuarioClient {
     public void registrarPaciente(UsuarioDTO usuario, PacienteDTO paciente) throws Exception {
         RegistroPacienteRequestDTO body =
                 new RegistroPacienteRequestDTO(usuario, paciente);
-        HttpResponse<String> r = api.post("/api/users/usuarios/pacientes", body);
+        HttpResponse<String> r = api.post("/api/users/registro/paciente", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
@@ -97,7 +99,7 @@ public class UsuarioClient {
                                      ProfesionalDTO profesional) throws Exception {
         RegistroProfesionalRequestDTO body =
                 new RegistroProfesionalRequestDTO(usuario, profesional);
-        HttpResponse<String> r = api.post("/api/users/usuarios/profesionales", body);
+        HttpResponse<String> r = api.post("/api/users/registro/profesional", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);

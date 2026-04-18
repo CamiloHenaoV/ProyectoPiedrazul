@@ -10,5 +10,6 @@ public class LoginResponseDTO {
     private Long   expiresIn;
     private Long   usuarioId;
     private String login;
+    private String nombreCompleto;
     private String rol;
 }

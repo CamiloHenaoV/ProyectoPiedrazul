@@ -77,6 +77,7 @@ public class LoginController {
                 UsuarioDTO usuario = new UsuarioDTO();
                 usuario.setId(respuesta.getUsuarioId());
                 usuario.setLogin(respuesta.getLogin());
+                usuario.setNombreCompleto(respuesta.getNombreCompleto());
                 usuario.setRol(RolUsuario.valueOf(respuesta.getRol()));
                 usuario.setActivo(true);
                 session.setUsuarioActual(usuario);

@@ -16,5 +16,6 @@ public class AuthResponse {
     private Long expiresIn;       // milisegundos hasta expiración del access token
     private Long usuarioId;
     private String login;
+    private String nombreCompleto;
     private String rol;
 }

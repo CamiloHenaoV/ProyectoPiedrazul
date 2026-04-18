@@ -72,6 +72,7 @@ public class AuthServiceImpl implements IAuthService {
                 .expiresIn(accessExpiration)
                 .usuarioId(credencial.getUsuarioId())
                 .login(credencial.getLogin())
+                .nombreCompleto(usuario.getNombreCompleto())
                 .rol(usuario.getRol().name())
                 .build();
     }
