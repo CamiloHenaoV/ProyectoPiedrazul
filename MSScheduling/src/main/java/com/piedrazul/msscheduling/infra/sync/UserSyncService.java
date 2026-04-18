@@ -30,7 +30,7 @@ public class UserSyncService {
         log.info("Iniciando sincronización de usuarios desde UserManagement...");
         try {
             webClient.get()
-                    .uri("/api/usuarios")
+                    .uri("/api/users/usuarios")
                     .retrieve()
                     .bodyToFlux(UsuarioSyncDTO.class)
                     .doOnNext(this::guardarOActualizar)
