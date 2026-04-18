@@ -11,8 +11,9 @@ import java.util.UUID;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class CitaDTO {
     private UUID          id;
-    private UUID          pacienteId;
-    private UUID          profesionalId;
+    private Long pacienteId;
+    private Long profesionalId;
+    private String pacienteNombre;
     private String        profesionalNombre;
     private ZonedDateTime fechaHora;
     private EstadoCita    estado;

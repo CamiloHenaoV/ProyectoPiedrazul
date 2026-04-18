@@ -11,7 +11,6 @@ import com.piedrazul.frontend.model.dto.UsuarioDTO;
 
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Cliente HTTP para el user-service (gestión de usuarios).
@@ -19,7 +18,7 @@ import java.util.UUID;
  * Rutas esperadas en el API Gateway:
  *   GET    /usuarios              → lista todos
  *   GET    /usuarios/{id}         → busca por id
- *   GET    /usuarios/{id}/paciente-id → devuelve el UUID del paciente asociado
+ *   GET    /usuarios/{id}/paciente-id → devuelve el Long del paciente asociado
  *   POST   /usuarios              → crea usuario base (admin)
  *   POST   /usuarios/pacientes    → crea usuario + paciente
  *   POST   /usuarios/profesionales→ crea usuario + profesional
@@ -54,22 +53,22 @@ public class UsuarioClient {
 
     // ── Búsqueda ─────────────────────────────────────────────────
 
-    public UsuarioDTO buscarPorId(UUID id) throws Exception {
+    public UsuarioDTO buscarPorId(Long id) throws Exception {
         HttpResponse<String> r = api.get("/api/users/usuarios/" + id);
         validar(r);
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
     /**
-     * Devuelve el UUID del Paciente asociado a un usuario.
+     * Devuelve el Long del Paciente asociado a un usuario.
      * Necesario para agendar/listar citas.
      */
-    public UUID buscarPacienteIdPorUsuarioId(UUID usuarioId) throws Exception {
+    public Long buscarPacienteIdPorUsuarioId(Long usuarioId) throws Exception {
         HttpResponse<String> r = api.get("/api/users/usuarios/" + usuarioId + "/paciente-id");
         validar(r);
-        // El endpoint devuelve el UUID como string plano o JSON "\"uuid\""
+        // El endpoint devuelve el Long como string plano o JSON "\"uuid\""
         String raw = r.body().trim().replace("\"", "");
-        return UUID.fromString(raw);
+        return Long.parseLong(raw);
     }
 
     // ── Creación ─────────────────────────────────────────────────
@@ -106,18 +105,18 @@ public class UsuarioClient {
 
     // ── Edición ──────────────────────────────────────────────────
 
-    public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) throws Exception {
+    public UsuarioDTO actualizarUsuario(Long id, UsuarioDTO dto) throws Exception {
         HttpResponse<String> r = api.put("/api/users/usuarios/" + id, dto);
         validar(r);
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
-    public void activarUsuario(UUID id) throws Exception {
+    public void activarUsuario(Long id) throws Exception {
         HttpResponse<String> r = api.patch("/api/users/usuarios/" + id + "/activar", null);
         validar(r);
     }
 
-    public void desactivarUsuario(UUID id) throws Exception {
+    public void desactivarUsuario(Long id) throws Exception {
         HttpResponse<String> r = api.patch("/api/users/usuarios/" + id + "/desactivar", null);
         validar(r);
     }

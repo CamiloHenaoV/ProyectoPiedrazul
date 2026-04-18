@@ -9,7 +9,8 @@ import java.util.UUID;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ProfesionalDTO {
-    private UUID            id;
+    private Long    id;
+    private Boolean activo;
     private String          nombreCompleto;
     private String          especialidadNombre;
     private String          licenciaProfesional;

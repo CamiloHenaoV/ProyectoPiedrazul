@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class PacienteDTO {
+    private Long id;
     private String    nombreCompleto;
     private String    cedulaIdentidad;
     private LocalDate fechaNacimiento;
