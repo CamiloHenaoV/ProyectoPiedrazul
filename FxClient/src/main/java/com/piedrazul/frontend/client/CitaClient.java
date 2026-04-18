@@ -45,8 +45,7 @@ public class CitaClient {
 
     public List<String> obtenerHorariosDisponibles(Long profesionalId,
                                                     LocalDate fecha) throws Exception {
-        String path = "/api/scheduling/citas/horarios?profesionalId=" + profesionalId
-                + "&fecha=" + fecha;
+        String path = "/api/scheduling/citas/profesional/" + profesionalId + "/disponibilidad?fecha=" + fecha;
         HttpResponse<String> r = api.get(path);
         validar(r);
         // El servicio devuelve strings ISO-8601; los controladores los parsearán a ZonedDateTime

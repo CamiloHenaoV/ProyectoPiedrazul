@@ -1,5 +1,6 @@
 package com.piedrazul.frontend.controller;
 
+import com.piedrazul.frontend.client.AuthClient;
 import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.PacienteDTO;
@@ -30,10 +31,13 @@ public class FormPacienteController {
     @FXML private Label      lblError;
 
     private final UsuarioClient usuarioClient;
+    private final AuthClient authClient;
     private UsuarioDTO usuarioNuevo;
 
-    public FormPacienteController(UsuarioClient usuarioClient) {
+    public FormPacienteController(UsuarioClient usuarioClient,
+                                  AuthClient authClient) {
         this.usuarioClient = usuarioClient;
+        this.authClient      = authClient;
     }
 
     @FXML

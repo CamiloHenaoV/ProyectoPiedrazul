@@ -1,6 +1,7 @@
 package com.piedrazul.frontend.controller;
 
 import com.piedrazul.frontend.app.StageInitializer;
+import com.piedrazul.frontend.client.AuthClient;
 import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
@@ -34,6 +35,7 @@ public class FormUsuarioController {
     @FXML private Label                lblError;
 
     private final UsuarioClient    usuarioClient;
+    private final AuthClient authClient;
     private final StageInitializer stageInitializer;
     private final EventBus         eventBus;
 
@@ -41,9 +43,11 @@ public class FormUsuarioController {
     private boolean    passwordVisible = false;
 
     public FormUsuarioController(UsuarioClient usuarioClient,
+                                 AuthClient authClient,
                                  StageInitializer stageInitializer,
                                  EventBus eventBus) {
         this.usuarioClient   = usuarioClient;
+        this.authClient      = authClient;
         this.stageInitializer = stageInitializer;
         this.eventBus         = eventBus;
     }
@@ -122,7 +126,8 @@ public class FormUsuarioController {
 
         } else {
             // Administrador: POST /usuarios directo
-            usuarioClient.crearUsuario(nuevo);
+            UsuarioDTO creado = usuarioClient.crearUsuario(nuevo);
+            authClient.registrarCredencial(creado.getId(), nuevo.getLogin(), nuevo.getPassword());
             // Publicar evento para que ListaUsuarios y Dashboard se actualicen
             eventBus.publish(AppEvent.USUARIO_CREADO, nuevo);
             cerrarModal();

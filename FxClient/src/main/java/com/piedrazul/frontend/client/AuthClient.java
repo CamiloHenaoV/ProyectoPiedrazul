@@ -7,6 +7,7 @@ import com.piedrazul.frontend.model.dto.LoginRequestDTO;
 import com.piedrazul.frontend.model.dto.LoginResponseDTO;
 
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 /**
  * Cliente HTTP para el auth-service.
@@ -41,5 +42,15 @@ public class AuthClient {
                     "Error al autenticar: " + response.statusCode());
 
         return api.mapper.readValue(response.body(), LoginResponseDTO.class);
+    }
+    public void registrarCredencial(Long usuarioId, String login, String password) throws Exception {
+        Map<String, Object> body = Map.of(
+                "usuarioId", usuarioId,
+                "login",     login,
+                "password",  password
+        );
+        HttpResponse<String> r = api.post("/api/auth/registro", body);
+        if (!api.isSuccess(r))
+            throw new HttpException(r.statusCode(), "Error al registrar credenciales.");
     }
 }

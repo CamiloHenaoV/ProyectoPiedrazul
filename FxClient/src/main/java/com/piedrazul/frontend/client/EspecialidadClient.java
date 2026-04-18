@@ -26,13 +26,13 @@ public class EspecialidadClient {
     }
 
     public List<String> listarNombres() throws Exception {
-        HttpResponse<String> r = api.get("/api/scheduling/especialidades");
+        HttpResponse<String> r = api.get("/api/users/especialidades");
         validar(r);
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
     public List<ProfesionalDTO> listarActivosPorEspecialidad(String especialidad) throws Exception {
-        String path = "/api/scheduling/profesionales/activos?especialidad="
+        String path = "/api/users/profesionales?especialidad="
                 + java.net.URLEncoder.encode(especialidad, java.nio.charset.StandardCharsets.UTF_8);
         HttpResponse<String> r = api.get(path);
         validar(r);

@@ -1,5 +1,6 @@
 package com.piedrazul.frontend.controller;
 
+import com.piedrazul.frontend.client.AuthClient;
 import com.piedrazul.frontend.client.EspecialidadClient;
 import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
@@ -30,13 +31,16 @@ public class FormProfesionalController {
     @FXML private Label                     lblError;
 
     private final UsuarioClient      usuarioClient;
+    private final AuthClient authClient;
     private final EspecialidadClient especialidadClient;
 
     private UsuarioDTO usuarioNuevo;
 
     public FormProfesionalController(UsuarioClient usuarioClient,
+                                     AuthClient authClient,
                                      EspecialidadClient especialidadClient) {
         this.usuarioClient      = usuarioClient;
+        this.authClient      = authClient;
         this.especialidadClient = especialidadClient;
     }
 
