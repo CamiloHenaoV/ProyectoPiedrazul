@@ -27,7 +27,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // 🔹 Rutas públicas (no validar token)
-        if (path.contains("/api/auth/login") || path.contains("/api/auth/register")) {
+        if (path.contains("/api/auth/login")
+                || path.contains("/api/auth/registro")   // registro de credenciales (interno)
+                || path.contains("/api/auth/refresh")) {
             return chain.filter(exchange);
         }
 

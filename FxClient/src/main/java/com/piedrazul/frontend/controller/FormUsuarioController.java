@@ -105,7 +105,6 @@ public class FormUsuarioController {
 
         if (rol == RolUsuario.paciente) {
             // Cerrar este modal y abrir el de datos de paciente
-            cerrarModal();
             stageInitializer.abrirModal(
                     "/view/fxml/usuarios/form-paciente.fxml",
                     "Datos del Paciente", 480, 420,
@@ -113,9 +112,9 @@ public class FormUsuarioController {
                         FormPacienteController ctrl = loader.getController();
                         ctrl.setUsuarioNuevo(nuevo);
                     });
+            cerrarModal();
 
         } else if (rol == RolUsuario.profesional) {
-            cerrarModal();
             stageInitializer.abrirModal(
                     "/view/fxml/usuarios/form-profesional.fxml",
                     "Datos del Profesional", 420, 340,
@@ -123,7 +122,7 @@ public class FormUsuarioController {
                         FormProfesionalController ctrl = loader.getController();
                         ctrl.setUsuarioNuevo(nuevo);
                     });
-
+            cerrarModal();
         } else {
             // Administrador: POST /usuarios directo
             UsuarioDTO creado = usuarioClient.crearUsuario(nuevo);
