@@ -79,9 +79,8 @@ public class FormProfesionalController {
                     .tipo(cbTipo.getValue())
                     .build();
 
-            // CAMBIO: antes registroService.registrarProfesional(...)
-            // Ahora: POST /usuarios/profesionales
-            usuarioClient.registrarProfesional(usuarioNuevo, profesionalDTO);
+            UsuarioDTO creado = usuarioClient.registrarProfesional(usuarioNuevo, profesionalDTO);
+            authClient.registrarCredencial(creado.getId(), usuarioNuevo.getLogin(), usuarioNuevo.getPassword());
             cerrarModal();
 
         } catch (HttpException ex) {

@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: api-gateway
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
   cloud:
     gateway:
       server:

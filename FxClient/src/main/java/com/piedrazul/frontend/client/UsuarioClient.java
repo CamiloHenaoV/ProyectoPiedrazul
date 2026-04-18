@@ -85,24 +85,23 @@ public class UsuarioClient {
     }
 
     /** Crea usuario + datos de paciente en una sola petición. */
-    public void registrarPaciente(UsuarioDTO usuario, PacienteDTO paciente) throws Exception {
-        RegistroPacienteRequestDTO body =
-                new RegistroPacienteRequestDTO(usuario, paciente);
+    public UsuarioDTO registrarPaciente(UsuarioDTO usuario, PacienteDTO paciente) throws Exception {
+        RegistroPacienteRequestDTO body = new RegistroPacienteRequestDTO(usuario, paciente);
         HttpResponse<String> r = api.post("/api/users/registro/paciente", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
+        return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
     /** Crea usuario + datos de profesional en una sola petición. */
-    public void registrarProfesional(UsuarioDTO usuario,
-                                     ProfesionalDTO profesional) throws Exception {
-        RegistroProfesionalRequestDTO body =
-                new RegistroProfesionalRequestDTO(usuario, profesional);
+    public UsuarioDTO registrarProfesional(UsuarioDTO usuario, ProfesionalDTO profesional) throws Exception {
+        RegistroProfesionalRequestDTO body = new RegistroProfesionalRequestDTO(usuario, profesional);
         HttpResponse<String> r = api.post("/api/users/registro/profesional", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
+        return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
     // ── Edición ──────────────────────────────────────────────────

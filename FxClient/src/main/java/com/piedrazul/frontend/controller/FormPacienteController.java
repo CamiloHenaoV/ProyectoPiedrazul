@@ -64,9 +64,10 @@ public class FormPacienteController {
                     .direccion(txtDireccion.getText().trim())
                     .build();
 
-            // CAMBIO: antes registroService.registrarPaciente(usuarioNuevo, pacienteDTO)
-            // Ahora: POST /usuarios/pacientes al API Gateway
-            usuarioClient.registrarPaciente(usuarioNuevo, pacienteDTO);
+            UsuarioDTO creado = usuarioClient.registrarPaciente(usuarioNuevo, pacienteDTO);
+
+            authClient.registrarCredencial(creado.getId(), usuarioNuevo.getLogin(), usuarioNuevo.getPassword());
+
             cerrarModal();
 
         } catch (HttpException ex) {
