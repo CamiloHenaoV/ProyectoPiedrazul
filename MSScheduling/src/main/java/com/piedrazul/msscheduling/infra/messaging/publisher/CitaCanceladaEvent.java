@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CitaCanceladaEvent {
-    private UUID citaId;
+    private Long citaId;
     private Long pacienteId;
     private Long profesionalId;
     private ZonedDateTime fechaHora;

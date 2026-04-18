@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CitaAgendadaEvent {
-    private UUID citaId;
+    private Long citaId;
     private Long pacienteId;
     private String pacienteNombre;
     private Long profesionalId;
