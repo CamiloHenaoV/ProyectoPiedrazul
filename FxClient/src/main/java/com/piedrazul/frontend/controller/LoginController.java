@@ -6,6 +6,7 @@ import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.http.SessionManager;
 import com.piedrazul.frontend.model.dto.LoginResponseDTO;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
+import com.piedrazul.frontend.model.enums.RolUsuario;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -67,16 +68,20 @@ public class LoginController {
 
         new Thread(() -> {
             try {
-                // ── CAMBIO PRINCIPAL: antes era authService.autenticar(login, password)
-                //    Ahora es una llamada HTTP al auth-service que devuelve token + usuario
                 LoginResponseDTO respuesta = authClient.login(login, password);
 
                 // Guardar JWT en SessionManager para que ApiClient lo añada
                 // automáticamente a todas las peticiones siguientes
-                session.setToken(respuesta.getToken());
-                session.setUsuarioActual(respuesta.getUsuario());
+                session.setToken(respuesta.getAccessToken());
 
-                Platform.runLater(() -> navegarSegunRol(respuesta.getUsuario()));
+                UsuarioDTO usuario = new UsuarioDTO();
+                usuario.setId(respuesta.getUsuarioId());
+                usuario.setLogin(respuesta.getLogin());
+                usuario.setRol(RolUsuario.valueOf(respuesta.getRol()));
+                usuario.setActivo(true);
+                session.setUsuarioActual(usuario);
+
+                Platform.runLater(() -> navegarSegunRol(usuario));
 
             } catch (HttpException ex) {
                 Platform.runLater(() -> {

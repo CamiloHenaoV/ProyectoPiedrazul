@@ -30,7 +30,7 @@ public class CitaClient {
     }
 
     public CitaDTO agendarCita(CitaDTO dto) throws Exception {
-        HttpResponse<String> r = api.post("/api/citas", dto);
+        HttpResponse<String> r = api.post("/api/scheduling/citas", dto);
         // 409 = horario ya ocupado
         if (r.statusCode() == 409)
             throw new HttpException(409, "El horario ya no está disponible.");
@@ -39,14 +39,14 @@ public class CitaClient {
     }
 
     public List<CitaDTO> listarPorPaciente(UUID pacienteId) throws Exception {
-        HttpResponse<String> r = api.get("/api/citas/paciente/" + pacienteId);
+        HttpResponse<String> r = api.get("/api/scheduling/citas/paciente/" + pacienteId);
         validar(r);
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
     public List<String> obtenerHorariosDisponibles(UUID profesionalId,
                                                     LocalDate fecha) throws Exception {
-        String path = "/api/citas/horarios?profesionalId=" + profesionalId
+        String path = "/api/scheduling/citas/horarios?profesionalId=" + profesionalId
                 + "&fecha=" + fecha;
         HttpResponse<String> r = api.get(path);
         validar(r);
@@ -55,7 +55,7 @@ public class CitaClient {
     }
 
     public void cancelarCita(UUID citaId) throws Exception {
-        HttpResponse<String> r = api.patch("/api/citas/" + citaId + "/cancelar", null);
+        HttpResponse<String> r = api.patch("/api/scheduling/citas/" + citaId + "/cancelar", null);
         validar(r);
     }
 

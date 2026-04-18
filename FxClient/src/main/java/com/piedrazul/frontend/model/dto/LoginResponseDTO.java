@@ -4,6 +4,11 @@ import lombok.Data;
 
 @Data
 public class LoginResponseDTO {
-    private String    token;
-    private UsuarioDTO usuario;
+    private String accessToken;
+    private String refreshToken;
+    private String tipo;
+    private Long   expiresIn;
+    private Long   usuarioId;
+    private String login;
+    private String rol;
 }
