@@ -5,6 +5,7 @@ import com.piedrazul.frontend.client.AuthClient;
 import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
+import com.piedrazul.frontend.model.dto.UsuarioRegistroDTO;
 import com.piedrazul.frontend.model.enums.RolUsuario;
 import com.piedrazul.frontend.observer.AppEvent;
 import com.piedrazul.frontend.observer.EventBus;
@@ -93,12 +94,11 @@ public class FormUsuarioController {
     }
 
     private void crearNuevoUsuario() throws Exception {
-        UsuarioDTO nuevo = UsuarioDTO.builder()
+        UsuarioRegistroDTO nuevo = UsuarioRegistroDTO.builder()
                 .nombreCompleto(txtNombre.getText().trim())
                 .login(txtLogin.getText().trim())
                 .password(passwordVisible ? txtPasswordVisible.getText() : txtPassword.getText())
                 .rol(cbRol.getValue())
-                .activo(true)
                 .build();
 
         RolUsuario rol = cbRol.getValue();
@@ -125,10 +125,16 @@ public class FormUsuarioController {
             cerrarModal();
         } else {
             // Administrador: POST /usuarios directo
-            UsuarioDTO creado = usuarioClient.crearUsuario(nuevo);
+            UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                    .nombreCompleto(nuevo.getNombreCompleto())
+                    .login(nuevo.getLogin())
+                    .rol(nuevo.getRol())
+                    .activo(true)
+                    .build();
+            UsuarioDTO creado = usuarioClient.crearUsuario(usuarioDTO);
             authClient.registrarCredencial(creado.getId(), nuevo.getLogin(), nuevo.getPassword());
             // Publicar evento para que ListaUsuarios y Dashboard se actualicen
-            eventBus.publish(AppEvent.USUARIO_CREADO, nuevo);
+            eventBus.publish(AppEvent.USUARIO_CREADO, creado);
             cerrarModal();
         }
     }

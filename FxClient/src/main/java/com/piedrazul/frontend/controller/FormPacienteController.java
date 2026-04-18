@@ -5,6 +5,7 @@ import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.PacienteDTO;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
+import com.piedrazul.frontend.model.dto.UsuarioRegistroDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -32,7 +33,7 @@ public class FormPacienteController {
 
     private final UsuarioClient usuarioClient;
     private final AuthClient authClient;
-    private UsuarioDTO usuarioNuevo;
+    private UsuarioRegistroDTO usuarioNuevo;
 
     public FormPacienteController(UsuarioClient usuarioClient,
                                   AuthClient authClient) {
@@ -45,7 +46,7 @@ public class FormPacienteController {
         lblError.setVisible(false);
     }
 
-    public void setUsuarioNuevo(UsuarioDTO usuario) {
+    public void setUsuarioNuevo(UsuarioRegistroDTO usuario) {
         this.usuarioNuevo = usuario;
         txtNombre.setText(usuario.getNombreCompleto());
     }
@@ -63,10 +64,20 @@ public class FormPacienteController {
                     .email(txtEmail.getText().trim())
                     .direccion(txtDireccion.getText().trim())
                     .build();
+            UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                    .nombreCompleto(usuarioNuevo.getNombreCompleto())
+                    .login(usuarioNuevo.getLogin())
+                    .rol(usuarioNuevo.getRol())
+                    .activo(true)
+                    .build();
 
-            UsuarioDTO creado = usuarioClient.registrarPaciente(usuarioNuevo, pacienteDTO);
+            UsuarioDTO creado = usuarioClient.registrarPaciente(usuarioDTO, pacienteDTO);
 
-            authClient.registrarCredencial(creado.getId(), usuarioNuevo.getLogin(), usuarioNuevo.getPassword());
+            authClient.registrarCredencial(
+                    creado.getId(),
+                    usuarioNuevo.getLogin(),
+                    usuarioNuevo.getPassword()
+            );
 
             cerrarModal();
 

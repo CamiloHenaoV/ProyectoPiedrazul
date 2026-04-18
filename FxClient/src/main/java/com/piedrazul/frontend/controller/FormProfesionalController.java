@@ -6,6 +6,7 @@ import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.ProfesionalDTO;
 import com.piedrazul.frontend.model.dto.UsuarioDTO;
+import com.piedrazul.frontend.model.dto.UsuarioRegistroDTO;
 import com.piedrazul.frontend.model.enums.TipoProfesional;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -34,7 +35,7 @@ public class FormProfesionalController {
     private final AuthClient authClient;
     private final EspecialidadClient especialidadClient;
 
-    private UsuarioDTO usuarioNuevo;
+    private UsuarioRegistroDTO usuarioNuevo;
 
     public FormProfesionalController(UsuarioClient usuarioClient,
                                      AuthClient authClient,
@@ -64,7 +65,7 @@ public class FormProfesionalController {
         }).start();
     }
 
-    public void setUsuarioNuevo(UsuarioDTO usuario) {
+    public void setUsuarioNuevo(UsuarioRegistroDTO usuario) {
         this.usuarioNuevo = usuario;
     }
 
@@ -78,8 +79,13 @@ public class FormProfesionalController {
                     .especialidadNombre(cbEspecialidad.getValue())
                     .tipo(cbTipo.getValue())
                     .build();
-
-            UsuarioDTO creado = usuarioClient.registrarProfesional(usuarioNuevo, profesionalDTO);
+            UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                    .nombreCompleto(usuarioNuevo.getNombreCompleto())
+                    .login(usuarioNuevo.getLogin())
+                    .rol(usuarioNuevo.getRol())
+                    .activo(true)
+                    .build();
+            UsuarioDTO creado = usuarioClient.registrarProfesional(usuarioDTO, profesionalDTO);
             authClient.registrarCredencial(creado.getId(), usuarioNuevo.getLogin(), usuarioNuevo.getPassword());
             cerrarModal();
 
