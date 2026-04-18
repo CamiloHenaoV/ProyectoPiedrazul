@@ -25,6 +25,7 @@
         <module>MSAuth</module>
         <module>MSUserManagement</module>
         <module>MSScheduling</module>
+        <module>FxClient</module>
     </modules>
 
     <properties>

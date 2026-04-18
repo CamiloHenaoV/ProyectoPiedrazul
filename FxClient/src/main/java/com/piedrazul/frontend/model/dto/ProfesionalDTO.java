@@ -1,0 +1,17 @@
+package com.piedrazul.frontend.model.dto;
+
+import com.piedrazul.frontend.model.enums.TipoProfesional;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.UUID;
+
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
+public class ProfesionalDTO {
+    private UUID            id;
+    private String          nombreCompleto;
+    private String          especialidadNombre;
+    private String          licenciaProfesional;
+    private TipoProfesional tipo;
+}
