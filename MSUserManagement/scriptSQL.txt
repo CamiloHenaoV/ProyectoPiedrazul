@@ -36,3 +36,15 @@ CREATE TABLE pacientes (
     direccion        TEXT,
     creado_en        TIMESTAMPTZ
 );
+
+
+-- 1. Usuario admin
+INSERT INTO public.usuarios (login, nombre_completo, rol, activo, creado_en)
+VALUES ('admin', 'Administrador', 'administrador', true, now());
+
+-- 2. Algunas especialidades base 
+INSERT INTO public.especialidades (nombre) VALUES
+  ('Medicina General'),
+  ('Odontología'),
+  ('Psicología'),
+  ('Enfermería');

@@ -23,7 +23,7 @@ spring:
         - id: scheduling-service
           uri: lb://scheduling-service
           predicates:
-            - Path=/api/citas/**
+            - Path=/api/scheduling/citas/**
 
         # Notifications
         - id: notification-service

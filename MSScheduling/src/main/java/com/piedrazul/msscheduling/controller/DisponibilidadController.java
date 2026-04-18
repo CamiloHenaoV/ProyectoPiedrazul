@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/disponibilidad")
+@RequestMapping("/api/scheduling/disponibilidad")
 public class DisponibilidadController {
 
     private final IDisponibilidadService disponibilidadService;

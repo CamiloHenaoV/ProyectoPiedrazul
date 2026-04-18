@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/citas")
+@RequestMapping("/api/scheduling/citas")
 public class CitaController {
 
     private final ICitaService citaService;

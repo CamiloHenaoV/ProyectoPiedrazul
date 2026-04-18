@@ -41,13 +41,13 @@ public class UsuarioClient {
     // ── Listado ──────────────────────────────────────────────────
 
     public List<UsuarioDTO> listarTodos() throws Exception {
-        HttpResponse<String> r = api.get("/usuarios");
+        HttpResponse<String> r = api.get("/api/users/usuarios");
         validar(r);
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
     public long contarActivos() throws Exception {
-        HttpResponse<String> r = api.get("/usuarios/count/activos");
+        HttpResponse<String> r = api.get("/api/users/usuarios/count/activos");
         validar(r);
         return Long.parseLong(r.body().trim());
     }
@@ -55,7 +55,7 @@ public class UsuarioClient {
     // ── Búsqueda ─────────────────────────────────────────────────
 
     public UsuarioDTO buscarPorId(UUID id) throws Exception {
-        HttpResponse<String> r = api.get("/usuarios/" + id);
+        HttpResponse<String> r = api.get("/api/users/usuarios/" + id);
         validar(r);
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
@@ -65,7 +65,7 @@ public class UsuarioClient {
      * Necesario para agendar/listar citas.
      */
     public UUID buscarPacienteIdPorUsuarioId(UUID usuarioId) throws Exception {
-        HttpResponse<String> r = api.get("/usuarios/" + usuarioId + "/paciente-id");
+        HttpResponse<String> r = api.get("/api/users/usuarios/" + usuarioId + "/paciente-id");
         validar(r);
         // El endpoint devuelve el UUID como string plano o JSON "\"uuid\""
         String raw = r.body().trim().replace("\"", "");
@@ -76,7 +76,7 @@ public class UsuarioClient {
 
     /** Crea un usuario con rol administrador (sin perfil adicional). */
     public UsuarioDTO crearUsuario(UsuarioDTO dto) throws Exception {
-        HttpResponse<String> r = api.post("/usuarios", dto);
+        HttpResponse<String> r = api.post("/api/users/usuarios", dto);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
@@ -87,7 +87,7 @@ public class UsuarioClient {
     public void registrarPaciente(UsuarioDTO usuario, PacienteDTO paciente) throws Exception {
         RegistroPacienteRequestDTO body =
                 new RegistroPacienteRequestDTO(usuario, paciente);
-        HttpResponse<String> r = api.post("/usuarios/pacientes", body);
+        HttpResponse<String> r = api.post("/api/users/usuarios/pacientes", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
@@ -98,7 +98,7 @@ public class UsuarioClient {
                                      ProfesionalDTO profesional) throws Exception {
         RegistroProfesionalRequestDTO body =
                 new RegistroProfesionalRequestDTO(usuario, profesional);
-        HttpResponse<String> r = api.post("/usuarios/profesionales", body);
+        HttpResponse<String> r = api.post("/api/users/usuarios/profesionales", body);
         if (r.statusCode() == 409)
             throw new HttpException(409, "El login ya está en uso.");
         validar(r);
@@ -107,18 +107,18 @@ public class UsuarioClient {
     // ── Edición ──────────────────────────────────────────────────
 
     public UsuarioDTO actualizarUsuario(UUID id, UsuarioDTO dto) throws Exception {
-        HttpResponse<String> r = api.put("/usuarios/" + id, dto);
+        HttpResponse<String> r = api.put("/api/users/usuarios/" + id, dto);
         validar(r);
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
     public void activarUsuario(UUID id) throws Exception {
-        HttpResponse<String> r = api.patch("/usuarios/" + id + "/activar", null);
+        HttpResponse<String> r = api.patch("/api/users/usuarios/" + id + "/activar", null);
         validar(r);
     }
 
     public void desactivarUsuario(UUID id) throws Exception {
-        HttpResponse<String> r = api.patch("/usuarios/" + id + "/desactivar", null);
+        HttpResponse<String> r = api.patch("/api/users/usuarios/" + id + "/desactivar", null);
         validar(r);
     }
 

@@ -31,7 +31,7 @@ public class AuthClient {
      */
     public LoginResponseDTO login(String login, String password) throws Exception {
         LoginRequestDTO body = new LoginRequestDTO(login, password);
-        HttpResponse<String> response = api.post("/auth/login", body);
+        HttpResponse<String> response = api.post("/api/auth/login", body);
 
         if (response.statusCode() == 401)
             throw new HttpException(401, "Credenciales inválidas.");
