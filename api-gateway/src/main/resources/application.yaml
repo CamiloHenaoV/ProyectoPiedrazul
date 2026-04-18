@@ -9,7 +9,7 @@ spring:
       routes:
         # Identity & Access
         - id: identity-service
-          uri: lb://identity-service
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
 
