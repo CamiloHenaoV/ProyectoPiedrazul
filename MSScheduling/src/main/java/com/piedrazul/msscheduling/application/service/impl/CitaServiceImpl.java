@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,7 +75,7 @@ public class CitaServiceImpl implements ICitaService {
     }
 
     @Override
-    public CitaDTO buscarPorId(UUID id) {
+    public CitaDTO buscarPorId(Long id) {
         return citaRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
@@ -124,7 +123,7 @@ public class CitaServiceImpl implements ICitaService {
     }
 
     @Override
-    public CitaDTO cancelarCita(UUID id) {
+    public CitaDTO cancelarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
 
@@ -135,7 +134,7 @@ public class CitaServiceImpl implements ICitaService {
     }
 
     @Override
-    public CitaDTO completarCita(UUID id) {
+    public CitaDTO completarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
 

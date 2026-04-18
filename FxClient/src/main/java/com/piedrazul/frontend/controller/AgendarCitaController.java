@@ -21,7 +21,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Controlador de agendamiento de citas.
@@ -50,7 +49,7 @@ public class AgendarCitaController {
     private final StageInitializer   stageInitializer;
     private final SessionManager     session;
 
-    private UUID pacienteId;
+    private Long pacienteId;
 
     private static final DateTimeFormatter HORA_FMT =
             DateTimeFormatter.ofPattern("hh:mm a", Locale.forLanguageTag("es-CO"))
@@ -117,7 +116,7 @@ public class AgendarCitaController {
     public void setUsuarioActual(UsuarioDTO usuario) {
         new Thread(() -> {
             try {
-                UUID pid = usuarioClient.buscarPacienteIdPorUsuarioId(usuario.getId());
+                Long pid = usuarioClient.buscarPacienteIdPorUsuarioId(usuario.getId());
                 this.pacienteId = pid;
             } catch (Exception e) {
                 Platform.runLater(() -> lblEstado.setText("Error al cargar datos del paciente."));

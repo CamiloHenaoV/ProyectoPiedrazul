@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class CitaDTO {
-    private UUID          id;
+    private Long         id;
     private Long pacienteId;
     private Long profesionalId;
     private String pacienteNombre;

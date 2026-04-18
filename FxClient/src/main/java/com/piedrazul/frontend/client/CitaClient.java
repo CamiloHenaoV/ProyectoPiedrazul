@@ -8,7 +8,6 @@ import com.piedrazul.frontend.model.dto.CitaDTO;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Cliente HTTP para el scheduling-service (gestión de citas).
@@ -38,13 +37,13 @@ public class CitaClient {
         return api.mapper.readValue(r.body(), CitaDTO.class);
     }
 
-    public List<CitaDTO> listarPorPaciente(UUID pacienteId) throws Exception {
+    public List<CitaDTO> listarPorPaciente(Long pacienteId) throws Exception {
         HttpResponse<String> r = api.get("/api/scheduling/citas/paciente/" + pacienteId);
         validar(r);
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
-    public List<String> obtenerHorariosDisponibles(UUID profesionalId,
+    public List<String> obtenerHorariosDisponibles(Long profesionalId,
                                                     LocalDate fecha) throws Exception {
         String path = "/api/scheduling/citas/horarios?profesionalId=" + profesionalId
                 + "&fecha=" + fecha;
@@ -54,7 +53,7 @@ public class CitaClient {
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
-    public void cancelarCita(UUID citaId) throws Exception {
+    public void cancelarCita(Long citaId) throws Exception {
         HttpResponse<String> r = api.patch("/api/scheduling/citas/" + citaId + "/cancelar", null);
         validar(r);
     }

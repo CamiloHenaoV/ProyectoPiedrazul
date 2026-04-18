@@ -28,7 +28,7 @@ public class CitaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CitaDTO> buscarPorId(@PathVariable UUID id) {
+    public ResponseEntity<CitaDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.buscarPorId(id));
     }
 
@@ -50,12 +50,12 @@ public class CitaController {
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<CitaDTO> cancelar(@PathVariable UUID id) {
+    public ResponseEntity<CitaDTO> cancelar(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.cancelarCita(id));
     }
 
     @PatchMapping("/{id}/completar")
-    public ResponseEntity<CitaDTO> completar(@PathVariable UUID id) {
+    public ResponseEntity<CitaDTO> completar(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.completarCita(id));
     }
 

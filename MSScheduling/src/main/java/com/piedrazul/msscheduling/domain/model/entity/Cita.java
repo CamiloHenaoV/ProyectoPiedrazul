@@ -3,10 +3,9 @@ package com.piedrazul.msscheduling.domain.model.entity;
 import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Table(
@@ -24,9 +23,8 @@ import java.util.UUID;
 public class Cita {
 
     @Id
-    @UuidGenerator
-    @Column(updatable = false, nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     // IDs locales — no FK a microservicios externos
     @Column(name = "paciente_id", nullable = false)

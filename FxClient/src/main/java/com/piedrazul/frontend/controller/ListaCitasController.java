@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Controlador de listado de citas del paciente.
@@ -51,7 +50,7 @@ public class ListaCitasController implements Observer<CitaDTO> {
     private final StageInitializer stageInitializer;
     private final SessionManager   session;
 
-    private UUID pacienteId;
+    private Long pacienteId;
 
     private static final DateTimeFormatter HORA_FMT =
             DateTimeFormatter.ofPattern("hh:mm a", Locale.forLanguageTag("es-CO"))
@@ -86,7 +85,7 @@ public class ListaCitasController implements Observer<CitaDTO> {
     public void setUsuarioActual(UsuarioDTO usuario) {
         new Thread(() -> {
             try {
-                UUID pid = usuarioClient.buscarPacienteIdPorUsuarioId(usuario.getId());
+                Long pid = usuarioClient.buscarPacienteIdPorUsuarioId(usuario.getId());
                 this.pacienteId = pid;
                 Platform.runLater(this::cargarCitas);
             } catch (Exception e) {
