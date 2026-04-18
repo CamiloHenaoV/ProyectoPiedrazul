@@ -50,7 +50,11 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .rol(dto.getRol())
                 .activo(true)
                 .build());
-        userEventPublisher.publishUserRegistered(usuario);
+        try {
+            userEventPublisher.publishUserRegistered(usuario);
+        } catch (Exception e) {
+            System.err.println("RabbitMQ no disponible, evento no publicado.");
+        }
         return usuario;
     }
 
