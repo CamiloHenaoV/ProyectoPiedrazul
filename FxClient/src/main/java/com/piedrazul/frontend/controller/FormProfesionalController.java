@@ -32,6 +32,7 @@ public class FormProfesionalController {
     @FXML private ComboBox<String>          cbEspecialidad;
     @FXML private TextField                 txtLicencia;
     @FXML private Label                     lblError;
+    @FXML private TextField                 txtIntervalo;
 
     private final UsuarioClient      usuarioClient;
     private final AuthClient authClient;
@@ -83,6 +84,7 @@ public class FormProfesionalController {
                     .licenciaProfesional(txtLicencia.getText().trim())
                     .especialidadNombre(cbEspecialidad.getValue())
                     .tipo(cbTipo.getValue())
+                    .duracionCitaMinutos(Integer.parseInt(txtIntervalo.getText().trim()))
                     .build();
             UsuarioDTO usuarioDTO = UsuarioDTO.builder()
                     .nombreCompleto(usuarioNuevo.getNombreCompleto())

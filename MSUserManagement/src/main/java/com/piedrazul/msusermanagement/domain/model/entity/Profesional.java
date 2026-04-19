@@ -32,4 +32,6 @@ public class Profesional {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    @Column(name = "duracion_cita_minutos", nullable = false)
+    private Integer duracionCitaMinutos;
 }

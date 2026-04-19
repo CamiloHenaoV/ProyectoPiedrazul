@@ -7,7 +7,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.piedrazul.frontend.controller.FormProfesionalController"
-      spacing="12" prefWidth="420" prefHeight="340">
+      spacing="12" prefWidth="420" prefHeight="370">
 
     <padding><Insets top="24" right="30" bottom="20" left="30"/></padding>
 
@@ -15,7 +15,7 @@
 
     <GridPane hgap="16" vgap="10">
         <columnConstraints>
-            <ColumnConstraints minWidth="130" prefWidth="140"/>
+            <ColumnConstraints minWidth="150" prefWidth="160"/>
             <ColumnConstraints minWidth="180" hgrow="ALWAYS"/>
         </columnConstraints>
 
@@ -30,6 +30,10 @@
         <Label text="Licencia profesional:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <TextField fx:id="txtLicencia" maxWidth="Infinity"
                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Intervalo de cita (min):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtIntervalo" promptText="ej: 30" maxWidth="Infinity"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
     </GridPane>
 
     <Label fx:id="lblError" text="" wrapText="true" style="-fx-text-fill: red;"/>

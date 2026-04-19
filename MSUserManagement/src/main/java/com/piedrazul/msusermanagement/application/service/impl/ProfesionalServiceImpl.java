@@ -76,6 +76,7 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                 .especialidadNombre(p.getEspecialidad() != null ? p.getEspecialidad().getNombre() : "")
                 .licenciaProfesional(p.getLicenciaProfesional())
                 .activo(p.getActivo())
+                .duracionCitaMinutos(p.getDuracionCitaMinutos())
                 .build();
     }
 }

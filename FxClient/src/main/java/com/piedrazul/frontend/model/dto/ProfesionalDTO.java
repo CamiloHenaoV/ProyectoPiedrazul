@@ -15,4 +15,5 @@ public class ProfesionalDTO {
     private String          especialidadNombre;
     private String          licenciaProfesional;
     private TipoProfesional tipo;
+    private Integer         duracionCitaMinutos;
 }
