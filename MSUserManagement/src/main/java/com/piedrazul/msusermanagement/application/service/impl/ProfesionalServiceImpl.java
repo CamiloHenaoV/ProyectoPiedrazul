@@ -40,6 +40,7 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                         .especialidad(especialidad)
                         .licenciaProfesional(dto.getLicenciaProfesional())
                         .activo(true)
+                        .duracionCitaMinutos(dto.getDuracionCitaMinutos())
                         .build()
         );
     }

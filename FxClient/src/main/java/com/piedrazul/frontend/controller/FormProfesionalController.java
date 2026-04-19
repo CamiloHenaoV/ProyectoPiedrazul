@@ -124,6 +124,18 @@ public class FormProfesionalController {
         if (cbTipo.getValue() == null) {
             mostrarError("Selecciona el tipo de profesional."); return false;
         }
+        String intervaloTxt = txtIntervalo.getText().trim();
+        if (intervaloTxt.isBlank()) {
+            mostrarError("El intervalo de cita es obligatorio."); return false;
+        }
+        try {
+            int minutos = Integer.parseInt(intervaloTxt);
+            if (minutos <= 0) {
+                mostrarError("El intervalo debe ser mayor a 0."); return false;
+            }
+        } catch (NumberFormatException e) {
+            mostrarError("El intervalo debe ser un número entero (ej: 30)."); return false;
+        }
         return true;
     }
 
