@@ -68,9 +68,8 @@ public class UsuarioClient {
     public Long buscarPacienteIdPorUsuarioId(Long usuarioId) throws Exception {
         HttpResponse<String> r = api.get("/api/users/usuarios/" + usuarioId + "/paciente-id");
         validar(r);
-        // El endpoint devuelve el Long como string plano o JSON "\"long\""
-        String raw = r.body().trim().replace("\"", "");
-        return Long.parseLong(raw);
+        JsonNode node = api.mapper.readTree(r.body());
+        return node.get("pacienteId").asLong();
     }
 
     // ── Creación ─────────────────────────────────────────────────

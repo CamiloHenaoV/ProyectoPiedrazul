@@ -15,6 +15,7 @@ import com.piedrazul.msscheduling.domain.model.repository.UsuarioLocalRepository
 import com.piedrazul.msscheduling.infra.messaging.publisher.CitaEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -47,6 +48,7 @@ public class CitaServiceImpl implements ICitaService {
     }
 
     @Override
+    @Transactional
     public CitaDTO agendarCita(CitaDTO dto) {
         if (!isProfesionalDisponible(dto.getProfesionalId(), dto.getFechaHora())) {
             throw new HorarioOcupadoException();

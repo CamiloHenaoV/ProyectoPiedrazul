@@ -28,7 +28,6 @@ public class UserEventConsumer {
 
         usuario.setId(event.getUserId());
         usuario.setNombreCompleto(event.getNombreCompleto());
-        usuario.setNombreCompleto(event.getLogin()); // nombre real llega por UserUpdated cuando esté disponible
         usuario.setRol(RolUsuario.valueOf(event.getRol()));
         usuario.setActivo(true);
 

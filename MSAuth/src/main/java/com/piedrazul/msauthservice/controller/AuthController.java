@@ -48,7 +48,6 @@ public class AuthController {
      * o el gateway al crear un nuevo usuario. No expuesto al cliente final.
      */
     @PostMapping("/registro")
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> registrar(@Valid @RequestBody RegistroCredencialRequest request) {
         authService.registrarCredencial(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();

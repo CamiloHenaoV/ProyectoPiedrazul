@@ -114,14 +114,7 @@ public class AgendarCitaController {
      * Ahora: GET /usuarios/{id}/paciente-id
      */
     public void setUsuarioActual(UsuarioDTO usuario) {
-        new Thread(() -> {
-            try {
-                Long pid = usuarioClient.buscarPacienteIdPorUsuarioId(usuario.getId());
-                this.pacienteId = pid;
-            } catch (Exception e) {
-                Platform.runLater(() -> lblEstado.setText("Error al cargar datos del paciente."));
-            }
-        }).start();
+        this.pacienteId = usuario.getId();
     }
 
     @FXML

@@ -18,9 +18,10 @@ public class UserSyncService {
     private final WebClient webClient;
 
     public UserSyncService(UsuarioLocalRepository usuarioLocalRepository,
+                           WebClient.Builder webClientBuilder,
                            @Value("${user-management.url}") String userManagementUrl) {
         this.usuarioLocalRepository = usuarioLocalRepository;
-        this.webClient = WebClient.builder()
+        this.webClient = webClientBuilder
                 .baseUrl(userManagementUrl)
                 .build();
     }

@@ -26,8 +26,6 @@ public class RegistroController {
 
     @PostMapping("/paciente")
     public ResponseEntity<UsuarioDTO> registrarPaciente(@RequestBody RegistroPacienteRequest request) {
-        System.out.println("USUARIO: " + request.getUsuario());
-        System.out.println("PACIENTE: " + request.getPaciente());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(registroService.registrarPaciente(request.getUsuario(), request.getPaciente()));
     }

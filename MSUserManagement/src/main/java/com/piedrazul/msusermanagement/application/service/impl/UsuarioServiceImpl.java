@@ -58,11 +58,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
         return usuario;
     }
 
-    private UsuarioDTO finalizarCreacion(Usuario usuario) {
-        UsuarioDTO dto = toDTO(usuario);
-        return dto;
-    }
-
 
     @Override
     public List<UsuarioDTO> listarTodos() {
@@ -107,7 +102,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
 
         usuario.setActivo(false);
-        UsuarioDTO desactivado = toDTO(usuarioRepository.save(usuario));
     }
 
 
