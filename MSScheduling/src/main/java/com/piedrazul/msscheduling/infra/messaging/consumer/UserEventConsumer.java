@@ -30,6 +30,7 @@ public class UserEventConsumer {
         usuario.setNombreCompleto(event.getNombreCompleto());
         usuario.setRol(RolUsuario.valueOf(event.getRol()));
         usuario.setActivo(true);
+        usuario.setLogin(event.getLogin());
 
         usuarioLocalRepository.save(usuario);
         log.info("Usuario sincronizado en caché local: id={}", event.getUserId());

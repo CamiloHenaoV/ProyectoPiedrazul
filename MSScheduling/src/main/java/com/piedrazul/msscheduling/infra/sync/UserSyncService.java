@@ -37,7 +37,8 @@ public class UserSyncService {
                     .doOnNext(this::guardarOActualizar)
                     .doOnComplete(() -> log.info("Sincronización de usuarios completada"))
                     .doOnError(e -> log.error("Error en sincronización de usuarios: {}", e.getMessage()))
-                    .subscribe();
+                    .subscribe(usuario -> log.debug("Sincronizado: {}", usuario.getId()),
+                            error -> log.error("Error en sincronización inicial: {}", error.getMessage()));
         } catch (Exception e) {
             log.error("No se pudo conectar con UserManagement para sincronización inicial: {}", e.getMessage());
         }

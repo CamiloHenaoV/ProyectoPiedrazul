@@ -21,7 +21,9 @@ CREATE TABLE profesionales (
     tipo                 VARCHAR(50) NOT NULL,
     especialidad_id      INTEGER     NOT NULL REFERENCES especialidades(id),
     licencia_profesional VARCHAR(50) NOT NULL UNIQUE,
+    duracion_cita_minutos INTEGER NOT NULL DEFAULT 30,
     activo               BOOLEAN     NOT NULL DEFAULT TRUE
+
 );
 
 -- Tabla: pacientes

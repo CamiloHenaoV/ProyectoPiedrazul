@@ -32,7 +32,8 @@ public class JwtUtil {
     public String generarAccessToken(Long usuarioId, String login, String rol) {
         return Jwts.builder()
                 .subject(String.valueOf(usuarioId))
-                .claims(Map.of("login", login, "rol", rol))
+                .claim("login", login)
+                .claim("rol", rol)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration))
                 .signWith(key)

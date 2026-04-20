@@ -100,8 +100,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
     public void desactivarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(id.toString()));
-
         usuario.setActivo(false);
+        usuarioRepository.save(usuario);
     }
 
 
