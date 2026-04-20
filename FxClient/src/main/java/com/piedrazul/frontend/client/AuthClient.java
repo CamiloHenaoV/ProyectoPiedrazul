@@ -1,6 +1,5 @@
 package com.piedrazul.frontend.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.piedrazul.frontend.http.ApiClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.LoginRequestDTO;

@@ -4,6 +4,8 @@ import com.piedrazul.msauthservice.domain.model.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
@@ -13,4 +15,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     @Modifying
     @Query("UPDATE RefreshToken r SET r.revocado = true WHERE r.usuarioId = :usuarioId AND r.revocado = false")
     void revocarTodosPorUsuarioId(Long usuarioId);
+    void deleteByExpiraEnBeforeOrUsadoTrueOrRevocadoTrue(ZonedDateTime now);
 }

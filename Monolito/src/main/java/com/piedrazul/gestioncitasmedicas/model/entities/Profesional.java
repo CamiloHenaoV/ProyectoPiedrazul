@@ -3,6 +3,7 @@ package com.piedrazul.gestioncitasmedicas.model.entities;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.List;
 
 @Entity

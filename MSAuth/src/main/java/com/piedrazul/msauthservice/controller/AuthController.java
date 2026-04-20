@@ -1,7 +1,10 @@
 package com.piedrazul.msauthservice.controller;
 
 import com.piedrazul.msauthservice.application.service.IAuthService;
-import com.piedrazul.msauthservice.domain.model.dto.request.*;
+import com.piedrazul.msauthservice.domain.model.dto.request.CambioPasswordRequest;
+import com.piedrazul.msauthservice.domain.model.dto.request.LoginRequest;
+import com.piedrazul.msauthservice.domain.model.dto.request.RefreshTokenRequest;
+import com.piedrazul.msauthservice.domain.model.dto.request.RegistroCredencialRequest;
 import com.piedrazul.msauthservice.domain.model.dto.response.AuthResponse;
 import com.piedrazul.msauthservice.domain.model.dto.response.TokenValidationResponse;
 import jakarta.validation.Valid;

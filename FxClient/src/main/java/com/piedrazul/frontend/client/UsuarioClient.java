@@ -4,11 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.piedrazul.frontend.http.ApiClient;
 import com.piedrazul.frontend.http.HttpException;
-import com.piedrazul.frontend.model.dto.PacienteDTO;
-import com.piedrazul.frontend.model.dto.ProfesionalDTO;
-import com.piedrazul.frontend.model.dto.RegistroPacienteRequestDTO;
-import com.piedrazul.frontend.model.dto.RegistroProfesionalRequestDTO;
-import com.piedrazul.frontend.model.dto.UsuarioDTO;
+import com.piedrazul.frontend.model.dto.*;
 
 import java.net.http.HttpResponse;
 import java.util.List;

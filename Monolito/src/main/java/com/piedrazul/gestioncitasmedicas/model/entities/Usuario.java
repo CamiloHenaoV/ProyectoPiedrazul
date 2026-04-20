@@ -2,12 +2,11 @@ package com.piedrazul.gestioncitasmedicas.model.entities;
 
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "usuarios")

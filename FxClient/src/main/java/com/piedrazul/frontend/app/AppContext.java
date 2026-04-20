@@ -1,8 +1,8 @@
 package com.piedrazul.frontend.app;
 
 import com.piedrazul.frontend.client.AuthClient;
-import com.piedrazul.frontend.client.EspecialidadClient;
 import com.piedrazul.frontend.client.CitaClient;
+import com.piedrazul.frontend.client.EspecialidadClient;
 import com.piedrazul.frontend.client.UsuarioClient;
 import com.piedrazul.frontend.config.AppConfig;
 import com.piedrazul.frontend.http.ApiClient;

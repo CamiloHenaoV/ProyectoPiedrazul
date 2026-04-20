@@ -2,8 +2,8 @@ package com.piedrazul.msauthservice.application.service;
 
 import com.piedrazul.msauthservice.domain.model.dto.request.CambioPasswordRequest;
 import com.piedrazul.msauthservice.domain.model.dto.request.LoginRequest;
-import com.piedrazul.msauthservice.domain.model.dto.request.RegistroCredencialRequest;
 import com.piedrazul.msauthservice.domain.model.dto.request.RefreshTokenRequest;
+import com.piedrazul.msauthservice.domain.model.dto.request.RegistroCredencialRequest;
 import com.piedrazul.msauthservice.domain.model.dto.response.AuthResponse;
 import com.piedrazul.msauthservice.domain.model.dto.response.TokenValidationResponse;
 

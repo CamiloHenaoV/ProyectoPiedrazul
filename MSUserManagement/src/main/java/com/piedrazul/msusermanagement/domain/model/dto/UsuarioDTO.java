@@ -3,8 +3,6 @@ package com.piedrazul.msusermanagement.domain.model.dto;
 import com.piedrazul.msusermanagement.domain.model.entity.enums.RolUsuario;
 import lombok.*;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor

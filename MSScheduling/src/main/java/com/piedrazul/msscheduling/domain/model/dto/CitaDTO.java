@@ -4,7 +4,6 @@ import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import lombok.*;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter

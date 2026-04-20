@@ -3,10 +3,8 @@ package com.piedrazul.msusermanagement.domain.model.entity;
 import com.piedrazul.msusermanagement.domain.model.entity.enums.RolUsuario;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
@@ -19,7 +17,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;;
+    private Long id;
 
     @Column(unique = true, nullable = false, length = 50)
     private String login;
@@ -42,4 +40,6 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Paciente paciente;
+
+    @PrePersist void prePersist() { creadoEn = ZonedDateTime.now(); }
 }

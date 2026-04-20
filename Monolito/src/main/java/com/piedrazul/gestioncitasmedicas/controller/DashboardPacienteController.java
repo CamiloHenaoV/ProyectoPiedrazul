@@ -3,10 +3,9 @@ package com.piedrazul.gestioncitasmedicas.controller;
 import com.piedrazul.gestioncitasmedicas.app.StageInitializer;
 import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import org.springframework.stereotype.Component;
-import javafx.fxml.FXMLLoader;
-import com.piedrazul.gestioncitasmedicas.controller.AgendarCitaController;
 
 /**
  * Controlador JavaFX del portal del paciente

@@ -6,7 +6,7 @@ import com.piedrazul.gestioncitasmedicas.model.dto.UsuarioDTO;
 import com.piedrazul.gestioncitasmedicas.model.entities.*;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.RolUsuario;
 import com.piedrazul.gestioncitasmedicas.model.entities.enums.TipoProfesional;
-import com.piedrazul.gestioncitasmedicas.model.exceptions.*;
+import com.piedrazul.gestioncitasmedicas.model.exceptions.LoginDuplicadoException;
 import com.piedrazul.gestioncitasmedicas.model.repositories.*;
 import com.piedrazul.gestioncitasmedicas.model.services.impl.UsuarioServiceImpl;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;

@@ -4,7 +4,10 @@ import com.piedrazul.msnotifications.application.service.interfaces.INotificacio
 import com.piedrazul.msnotifications.domain.model.dto.NotificacionDTO;
 import com.piedrazul.msnotifications.domain.model.entity.enums.EstadoNotificacion;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 

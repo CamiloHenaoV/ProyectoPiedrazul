@@ -108,11 +108,6 @@ public class AgendarCitaController {
         cargarEspecialidades();
     }
 
-    /**
-     * Recibe el usuario autenticado y resuelve su pacienteId via HTTP.
-     * CAMBIO: antes usuarioService.buscarPacienteIdPorUsuarioId() (local)
-     * Ahora: GET /usuarios/{id}/paciente-id
-     */
     public void setUsuarioActual(UsuarioDTO usuario) {
         this.pacienteId = usuario.getId();
     }
@@ -134,8 +129,7 @@ public class AgendarCitaController {
                         .fechaHora(horario)
                         .build();
 
-                // CAMBIO: antes citaService.agendarCita(dto) (local)
-                // Ahora: POST /citas al API Gateway
+                // POST /citas al API Gateway
                 citaClient.agendarCita(dto);
                 Platform.runLater(() -> {
                     lblEstado.setText("Cita agendada correctamente.");
@@ -145,7 +139,7 @@ public class AgendarCitaController {
             } catch (HttpException ex) {
                 Platform.runLater(() -> {
                     if (ex.isConflict()) {
-                        // 409 = HorarioOcupadoException del monolito
+                        // 409 = HorarioOcupadoException
                         lblEstado.setText("El horario ya no está disponible. Selecciona otro.");
                         onFechaSeleccionada(dpFecha.getValue());
                     } else {

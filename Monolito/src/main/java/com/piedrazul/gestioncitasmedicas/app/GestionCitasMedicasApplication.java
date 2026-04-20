@@ -2,7 +2,6 @@ package com.piedrazul.gestioncitasmedicas.app;
 
 import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
 public class GestionCitasMedicasApplication {

@@ -2,6 +2,7 @@ package com.piedrazul.msauthservice.domain.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.ZonedDateTime;
 
 /**

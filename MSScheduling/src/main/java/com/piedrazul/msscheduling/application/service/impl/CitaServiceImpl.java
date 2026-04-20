@@ -167,7 +167,7 @@ public class CitaServiceImpl implements ICitaService {
                 .stream()
                 .anyMatch(d ->
                         !hora.isBefore(d.getHoraInicio()) &&
-                        !hora.isAfter(d.getHoraFin())
+                        !hora.isAfter(d.getHoraFin().minusMinutes(d.getDuracionCitaMinutos()))
                 );
     }
 

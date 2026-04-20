@@ -34,7 +34,8 @@ public class RegistroServiceImpl implements IRegistroService {
     public UsuarioDTO registrarUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuario = usuarioService.crearUsuarioBase(usuarioDTO);
 
-        return finalizarRegistro(usuario);
+        UsuarioDTO dto = toDTO(usuario);
+        return dto;
     }
 
     /**
@@ -46,7 +47,8 @@ public class RegistroServiceImpl implements IRegistroService {
 
         pacienteService.crearPaciente(usuario, pacienteDTO);
 
-        return finalizarRegistro(usuario);
+        UsuarioDTO dto = toDTO(usuario);
+        return dto;
     }
 
     /**
@@ -57,18 +59,10 @@ public class RegistroServiceImpl implements IRegistroService {
         Usuario usuario = usuarioService.crearUsuarioBase(usuarioDTO);
 
         profesionalService.crearProfesional(usuario, profesionalDTO);
-
-        return finalizarRegistro(usuario);
-    }
-
-    /**
-     * Punto único de salida del flujo
-     */
-    private UsuarioDTO finalizarRegistro(Usuario usuario) {
         UsuarioDTO dto = toDTO(usuario);
-
         return dto;
     }
+
 
     /**
      * Mapper (puedes moverlo a un mapper dedicado si quieres)

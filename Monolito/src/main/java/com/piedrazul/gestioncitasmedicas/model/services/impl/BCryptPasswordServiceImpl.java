@@ -1,7 +1,6 @@
 package com.piedrazul.gestioncitasmedicas.model.services.impl;
 
 import com.piedrazul.gestioncitasmedicas.model.exceptions.PasswordInvalidaException;
-import com.piedrazul.gestioncitasmedicas.model.repositories.UsuarioRepository;
 import com.piedrazul.gestioncitasmedicas.model.services.interfaces.IPasswordService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
