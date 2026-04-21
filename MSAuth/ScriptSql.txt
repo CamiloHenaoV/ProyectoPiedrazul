@@ -1,0 +1,8 @@
+INSERT INTO public.credenciales (login, password_hash, usuario_id, activo, creado_en)
+VALUES (
+  'admin',
+  '$2a$10$TTi0U6OpPxZoc7O8NwFTA.Yv5FBgWEtQ6PifpuvaDqw7/IRQ52hnC',
+  1,
+  true,
+  now()
+);

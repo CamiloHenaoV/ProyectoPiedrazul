@@ -1,0 +1,52 @@
+-- Tabla: especialidades
+CREATE TABLE especialidades (
+    id      SERIAL PRIMARY KEY,
+    nombre  VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- Tabla: usuarios
+CREATE TABLE usuarios (
+    id              BIGSERIAL PRIMARY KEY,
+    login           VARCHAR(50)  NOT NULL UNIQUE,
+    nombre_completo VARCHAR(150) NOT NULL,
+    rol             VARCHAR(50)  NOT NULL,
+    activo          BOOLEAN      NOT NULL DEFAULT TRUE,
+    creado_en       TIMESTAMPTZ
+);
+
+-- Tabla: profesionales
+CREATE TABLE profesionales (
+    id                   BIGSERIAL PRIMARY KEY,
+    usuario_id           BIGINT      NOT NULL UNIQUE REFERENCES usuarios(id),
+    tipo                 VARCHAR(50) NOT NULL,
+    especialidad_id      INTEGER     NOT NULL REFERENCES especialidades(id),
+    licencia_profesional VARCHAR(50) NOT NULL UNIQUE,
+    duracion_cita_minutos INTEGER NOT NULL DEFAULT 30,
+    activo               BOOLEAN     NOT NULL DEFAULT TRUE
+
+);
+
+-- Tabla: pacientes
+CREATE TABLE pacientes (
+    id               BIGSERIAL PRIMARY KEY,
+    usuario_id       BIGINT       NOT NULL UNIQUE REFERENCES usuarios(id),
+    nombre_completo  VARCHAR(150) NOT NULL,
+    cedula_identidad VARCHAR(20)  NOT NULL UNIQUE,
+    fecha_nacimiento DATE,
+    telefono         VARCHAR(20)  NOT NULL,
+    email            VARCHAR(150),
+    direccion        TEXT,
+    creado_en        TIMESTAMPTZ
+);
+
+
+-- 1. Usuario admin
+INSERT INTO public.usuarios (login, nombre_completo, rol, activo, creado_en)
+VALUES ('admin', 'Administrador', 'administrador', true, now());
+
+-- 2. Algunas especialidades base 
+INSERT INTO public.especialidades (nombre) VALUES
+  ('Medicina General'),
+  ('Odontología'),
+  ('Psicología'),
+  ('Enfermería');

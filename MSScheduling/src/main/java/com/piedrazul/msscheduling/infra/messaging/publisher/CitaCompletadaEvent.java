@@ -1,0 +1,17 @@
+package com.piedrazul.msscheduling.infra.messaging.publisher;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.ZonedDateTime;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CitaCompletadaEvent {
+    private Long citaId;
+    private Long pacienteId;
+    private Long profesionalId;
+    private ZonedDateTime fechaHora;
+}

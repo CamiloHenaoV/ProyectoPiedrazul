@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # Identity & Access
+            - id: identity-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+
+            # User Management
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**
+
+            # Scheduling
+            - id: scheduling-service
+              uri: lb://scheduling-service
+              predicates:
+                - Path=/api/scheduling/**
+
+            # Notifications
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true

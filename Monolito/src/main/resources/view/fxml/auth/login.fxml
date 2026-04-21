@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox alignment="CENTER" spacing="16.0"
+      prefHeight="300.0" prefWidth="400.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.piedrazul.gestioncitasmedicas.controller.LoginController">
+
+    <padding>
+        <Insets top="40.0" right="60.0" bottom="40.0" left="60.0"/>
+    </padding>
+
+    <Label text="PiedraAzul" alignment="CENTER">
+        <font><Font name="System Bold" size="24.0"/></font>
+    </Label>
+
+    <Label text="Piedrazul" alignment="CENTER"/>
+
+    <VBox spacing="6.0">
+        <Label text="Usuario"/>
+        <TextField fx:id="txtLogin" promptText="Ingresa tu usuario"/>
+    </VBox>
+
+    <VBox spacing="6.0">
+        <Label text="Contraseña"/>
+        <HBox spacing="6.0" alignment="CENTER_LEFT">
+            <PasswordField fx:id="txtPassword" promptText="Contraseña" HBox.hgrow="ALWAYS"/>
+            <TextField    fx:id="txtPasswordVisible" promptText="Contraseña" HBox.hgrow="ALWAYS" visible="false" managed="false"/>
+            <CheckBox fx:id="chkMostrarPassword" text="Mostrar" onAction="#handleMostrarPassword"/>
+        </HBox>
+    </VBox>
+
+    <Label fx:id="lblError" textFill="RED" visible="false" wrapText="true"/>
+
+    <Button fx:id="btnIngresar" text="Ingresar" onAction="#handleLogin"
+            defaultButton="true" maxWidth="Infinity"/>
+
+</VBox>
