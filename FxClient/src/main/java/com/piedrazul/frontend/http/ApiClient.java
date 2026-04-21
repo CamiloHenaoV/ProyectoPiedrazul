@@ -1,6 +1,7 @@
 package com.piedrazul.frontend.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.piedrazul.frontend.config.AppConfig;
 
@@ -34,7 +35,8 @@ public class ApiClient {
                 .connectTimeout(Duration.ofMillis(config.getConnectTimeout()))
                 .build();
         this.mapper  = new ObjectMapper()
-                .registerModule(new JavaTimeModule());
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     // ── GET ──────────────────────────────────────────────────────

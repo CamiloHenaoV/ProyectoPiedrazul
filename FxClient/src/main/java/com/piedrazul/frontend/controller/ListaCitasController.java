@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 
 import java.time.ZoneId;
@@ -51,10 +52,11 @@ public class ListaCitasController implements Observer<CitaDTO> {
     private final SessionManager   session;
 
     private Long pacienteId;
+    private UsuarioDTO usuarioActual;
 
     private static final DateTimeFormatter HORA_FMT =
             DateTimeFormatter.ofPattern("hh:mm a", Locale.forLanguageTag("es-CO"))
-                             .withZone(ZoneId.systemDefault());
+                    .withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter FECHA_FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault());
 
@@ -83,6 +85,7 @@ public class ListaCitasController implements Observer<CitaDTO> {
      * Ahora: GET /usuarios/{id}/paciente-id en hilo secundario; carga citas al terminar.
      */
     public void setUsuarioActual(UsuarioDTO usuario) {
+        this.usuarioActual = usuario;
         this.pacienteId = usuario.getId();
         cargarCitas();
     }
@@ -138,9 +141,9 @@ public class ListaCitasController implements Observer<CitaDTO> {
         detalle.setHeaderText("Información de la cita");
         detalle.setContentText(
                 "Profesional: " + sel.getProfesionalNombre() + "\n" +
-                "Fecha:       " + sel.getFechaHora().format(FECHA_FMT) + "\n" +
-                "Hora:        " + sel.getFechaHora().format(HORA_FMT)  + "\n" +
-                "Estado:      " + sel.getEstado().name()
+                        "Fecha:       " + sel.getFechaHora().format(FECHA_FMT) + "\n" +
+                        "Hora:        " + sel.getFechaHora().format(HORA_FMT)  + "\n" +
+                        "Estado:      " + sel.getEstado().name()
         );
         detalle.showAndWait();
     }
@@ -149,9 +152,11 @@ public class ListaCitasController implements Observer<CitaDTO> {
     private void volver() {
         eventBus.unsubscribe(AppEvent.CITA_AGENDADA,  this);
         eventBus.unsubscribe(AppEvent.CITA_CANCELADA, this);
-        stageInitializer.cambiarVistaConLoader(
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
                 "/view/fxml/dashboard/dashboard-paciente.fxml",
                 "Piedrazul - Mi Portal", 900, 600);
+        DashboardPacienteController ctrl = loader.getController();
+        if (usuarioActual != null) ctrl.setUsuarioActual(usuarioActual);
     }
 
     private void configurarColumnas() {

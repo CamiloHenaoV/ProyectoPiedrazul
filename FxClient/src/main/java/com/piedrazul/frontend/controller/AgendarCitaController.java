@@ -12,6 +12,7 @@ import com.piedrazul.frontend.model.dto.UsuarioDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 
@@ -50,10 +51,11 @@ public class AgendarCitaController {
     private final SessionManager     session;
 
     private Long pacienteId;
+    private UsuarioDTO usuarioActual;
 
     private static final DateTimeFormatter HORA_FMT =
             DateTimeFormatter.ofPattern("hh:mm a", Locale.forLanguageTag("es-CO"))
-                             .withZone(ZoneId.systemDefault());
+                    .withZone(ZoneId.systemDefault());
 
     public AgendarCitaController(EspecialidadClient especialidadClient,
                                  CitaClient citaClient,
@@ -109,6 +111,7 @@ public class AgendarCitaController {
     }
 
     public void setUsuarioActual(UsuarioDTO usuario) {
+        this.usuarioActual = usuario;
         this.pacienteId = usuario.getId();
     }
 
@@ -156,10 +159,11 @@ public class AgendarCitaController {
 
     @FXML
     private void volver() {
-        stageInitializer.cambiarVistaConLoader(
+        FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
                 "/view/fxml/dashboard/dashboard-paciente.fxml",
-                "Piedrazul - Mi Portal", 900, 600)
-                .getController();
+                "Piedrazul - Mi Portal", 900, 600);
+        DashboardPacienteController ctrl = loader.getController();
+        if (usuarioActual != null) ctrl.setUsuarioActual(usuarioActual);
     }
 
     private void cargarEspecialidades() {

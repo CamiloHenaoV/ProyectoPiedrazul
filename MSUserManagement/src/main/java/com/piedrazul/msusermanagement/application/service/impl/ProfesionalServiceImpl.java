@@ -83,7 +83,7 @@ public class ProfesionalServiceImpl implements IProfesionalService {
 
     private ProfesionalDTO toDTO(Profesional p) {
         return ProfesionalDTO.builder()
-                .id(p.getId())
+                .id(p.getUsuario().getId())
                 .nombreCompleto(p.getUsuario().getNombreCompleto())
                 .tipo(p.getTipo())
                 .especialidadNombre(p.getEspecialidad() != null ? p.getEspecialidad().getNombre() : "")
