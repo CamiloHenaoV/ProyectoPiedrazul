@@ -14,6 +14,7 @@ public class RabbitConfig {
     public static final String EXCHANGE = "user.exchange";
     public static final String QUEUE = "user.registered.queue";
     public static final String ROUTING_KEY = "user.registered";
+    public static final String ROUTING_PROFESIONAL_CREADO = "profesional.creado";
 
 
     @Bean

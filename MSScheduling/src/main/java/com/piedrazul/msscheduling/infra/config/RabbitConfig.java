@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     // Exchange de UserManagement — solo se consume, no se declara (ya existe)
-    public static final String USER_EXCHANGE        = "user.exchange";
-    public static final String QUEUE_USER_REGISTERED = "scheduling.user.registered.queue";
-    public static final String ROUTING_USER_REGISTERED = "user.registered";
+    public static final String USER_EXCHANGE             = "user.exchange";
+    public static final String QUEUE_USER_REGISTERED     = "scheduling.user.registered.queue";
+    public static final String ROUTING_USER_REGISTERED   = "user.registered";
+    public static final String QUEUE_PROFESIONAL_CREADO  = "scheduling.profesional.creado.queue";
+    public static final String ROUTING_PROFESIONAL_CREADO = "profesional.creado";
 
     // Exchange propio de Scheduling — publica eventos de citas
     public static final String SCHEDULING_EXCHANGE       = "scheduling.exchange";
@@ -36,11 +38,26 @@ public class RabbitConfig {
 
     @Bean
     public Binding schedulingUserRegisteredBinding(Queue schedulingUserRegisteredQueue,
-                                                    TopicExchange userExchange) {
+                                                   TopicExchange userExchange) {
         return BindingBuilder
                 .bind(schedulingUserRegisteredQueue)
                 .to(userExchange)
                 .with(ROUTING_USER_REGISTERED);
+    }
+
+    // --- Cola para consumir ProfesionalCreado ---
+    @Bean
+    public Queue schedulingProfesionalCreadoQueue() {
+        return QueueBuilder.durable(QUEUE_PROFESIONAL_CREADO).build();
+    }
+
+    @Bean
+    public Binding schedulingProfesionalCreadoBinding(Queue schedulingProfesionalCreadoQueue,
+                                                      TopicExchange userExchange) {
+        return BindingBuilder
+                .bind(schedulingProfesionalCreadoQueue)
+                .to(userExchange)
+                .with(ROUTING_PROFESIONAL_CREADO);
     }
 
     // --- Exchange propio de Scheduling ---

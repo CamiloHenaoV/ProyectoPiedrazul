@@ -7,6 +7,7 @@ import com.piedrazul.msusermanagement.domain.model.entity.Profesional;
 import com.piedrazul.msusermanagement.domain.model.entity.Usuario;
 import com.piedrazul.msusermanagement.domain.model.repository.EspecialidadRepository;
 import com.piedrazul.msusermanagement.domain.model.repository.ProfesionalRepository;
+import com.piedrazul.msusermanagement.infra.messaging.UserEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +19,14 @@ public class ProfesionalServiceImpl implements IProfesionalService {
 
     private final ProfesionalRepository profesionalRepository;
     private final EspecialidadRepository especialidadRepository;
+    private final UserEventPublisher     userEventPublisher;
 
     public ProfesionalServiceImpl(ProfesionalRepository profesionalRepository,
-                                  EspecialidadRepository especialidadRepository) {
+                                  EspecialidadRepository especialidadRepository,
+                                  UserEventPublisher userEventPublisher) {
         this.profesionalRepository  = profesionalRepository;
-        this.especialidadRepository=especialidadRepository;
+        this.especialidadRepository = especialidadRepository;
+        this.userEventPublisher     = userEventPublisher;
     }
 
     @Override
@@ -33,8 +37,8 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                 .findByNombre(dto.getEspecialidadNombre())
                 .orElseThrow();
 
-        return profesionalRepository.save(
-                        Profesional.builder()
+        Profesional profesional = profesionalRepository.save(
+                Profesional.builder()
                         .usuario(usuario)
                         .tipo(dto.getTipo())
                         .especialidad(especialidad)
@@ -43,6 +47,14 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                         .duracionCitaMinutos(dto.getDuracionCitaMinutos())
                         .build()
         );
+
+        try {
+            userEventPublisher.publishProfesionalCreado(profesional);
+        } catch (Exception e) {
+            System.err.println("RabbitMQ no disponible, evento profesional.creado no publicado.");
+        }
+
+        return profesional;
     }
 
     @Override

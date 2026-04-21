@@ -1,5 +1,6 @@
 package com.piedrazul.msusermanagement.infra.messaging;
 
+import com.piedrazul.msusermanagement.domain.model.entity.Profesional;
 import com.piedrazul.msusermanagement.domain.model.entity.Usuario;
 import com.piedrazul.msusermanagement.infra.config.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -25,6 +26,20 @@ public class UserEventPublisher {
         rabbitTemplate.convertAndSend(
                 RabbitConfig.EXCHANGE,
                 RabbitConfig.ROUTING_KEY,
+                event
+        );
+    }
+
+    public void publishProfesionalCreado(Profesional profesional) {
+        ProfesionalCreadoEvent event = new ProfesionalCreadoEvent(
+                profesional.getUsuario().getId(),
+                profesional.getUsuario().getNombreCompleto(),
+                profesional.getDuracionCitaMinutos()
+        );
+
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.EXCHANGE,
+                RabbitConfig.ROUTING_PROFESIONAL_CREADO,
                 event
         );
     }
