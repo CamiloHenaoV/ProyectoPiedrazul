@@ -1,6 +1,8 @@
 package com.piedrazul.msscheduling.application.service.impl;
 
 import com.piedrazul.msscheduling.application.service.interfaces.ICitaService;
+import com.piedrazul.msscheduling.domain.model.builder.CitaProgramadaBuilder;
+import com.piedrazul.msscheduling.domain.model.builder.DirectorCita;
 import com.piedrazul.msscheduling.domain.model.dto.CitaDTO;
 import com.piedrazul.msscheduling.domain.model.entity.Cita;
 import com.piedrazul.msscheduling.domain.model.entity.UsuarioLocal;
@@ -40,11 +42,11 @@ public class CitaServiceImpl implements ICitaService {
                            BloqueoDisponibilidadRepository bloqueoRepository,
                            UsuarioLocalRepository usuarioLocalRepository,
                            CitaEventPublisher citaEventPublisher) {
-        this.citaRepository        = citaRepository;
+        this.citaRepository           = citaRepository;
         this.disponibilidadRepository = disponibilidadRepository;
-        this.bloqueoRepository     = bloqueoRepository;
-        this.usuarioLocalRepository = usuarioLocalRepository;
-        this.citaEventPublisher    = citaEventPublisher;
+        this.bloqueoRepository        = bloqueoRepository;
+        this.usuarioLocalRepository   = usuarioLocalRepository;
+        this.citaEventPublisher       = citaEventPublisher;
     }
 
     @Override
@@ -59,20 +61,15 @@ public class CitaServiceImpl implements ICitaService {
         UsuarioLocal profesional = usuarioLocalRepository.findById(dto.getProfesionalId())
                 .orElseThrow(() -> new UsuarioNoEncontradoException(dto.getProfesionalId().toString()));
 
-        Cita cita = Cita.builder()
-                .pacienteId(paciente.getId())
-                .pacienteNombre(paciente.getNombreCompleto())
-                .profesionalId(profesional.getId())
-                .profesionalNombre(profesional.getNombreCompleto())
-                .fechaHora(dto.getFechaHora())
-                .estado(EstadoCita.programada)
-                .creadoEn(ZonedDateTime.now())
-                .build();
+        DirectorCita director = new DirectorCita();
+        director.setCitaBuilder(new CitaProgramadaBuilder());
+        director.construirCita(paciente, profesional, dto.getFechaHora());
+        Cita cita = director.getCita();
 
         CitaDTO guardada = toDTO(citaRepository.save(cita));
         citaEventPublisher.publicarCitaAgendada(guardada);
-        log.info("Cita agendada: paciente={} profesional={} fecha={}", 
-                 paciente.getId(), profesional.getId(), dto.getFechaHora());
+        log.info("Cita agendada: paciente={} profesional={} fecha={}",
+                paciente.getId(), profesional.getId(), dto.getFechaHora());
         return guardada;
     }
 
