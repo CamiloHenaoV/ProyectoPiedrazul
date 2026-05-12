@@ -16,30 +16,19 @@ spring:
           routes:
             # Identity & Access
             - id: identity-service
-              uri: lb://auth-service
+              uri: http://localhost:8082
               predicates:
                 - Path=/api/auth/**
 
             # User Management
             - id: user-service
-              uri: lb://user-service
+              uri: http://localhost:8081
               predicates:
                 - Path=/api/users/**
 
             # Scheduling
             - id: scheduling-service
-              uri: lb://scheduling-service
+              uri: http://localhost:8084
               predicates:
                 - Path=/api/scheduling/**
 
-            # Notifications
-            - id: notification-service
-              uri: lb://notification-service
-              predicates:
-                - Path=/api/notifications/**
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true

@@ -5,6 +5,9 @@ spring:
   application:
     name: auth-service
 
+user-management:
+  url: http://localhost:8081
+
   datasource:
     url: jdbc:postgresql://localhost:5432/MsAuthDB
     username: postgres
@@ -20,13 +23,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
 jwt:
   secret: ${JWT_SECRET:4f9a2b8c5d7e1f3a6b8d0c2e4f6a8b1c3d5e7f9a2b4c6d8e0f1a3b5c7d9e1f2a}
   access-expiration: 900000      # 15 min

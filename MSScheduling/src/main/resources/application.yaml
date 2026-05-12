@@ -19,10 +19,5 @@ spring:
     username: admin
     password: admin
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
 user-management:
-  url: http://user-service
+  url: http://localhost:8081
