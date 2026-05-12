@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  * El nombre "ms-usuario-service" debe coincidir exactamente
  * con spring.application.name del servicio de usuarios en Eureka.
  */
-@FeignClient(name = "user-service")
+@FeignClient(name = "user-service", url = "${user-management.url}")
 public interface UsuarioClient {
 
     @GetMapping("/api/users/usuarios/{id}")

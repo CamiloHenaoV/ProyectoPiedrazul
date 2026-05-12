@@ -20,7 +20,6 @@
     <description>Proyecto padre centralizado para el ecosistema de microservicios</description>
 
     <modules>
-        <module>eureka-server</module>
         <module>api-gateway</module>
         <module>MSAuth</module>
         <module>MSUserManagement</module>
