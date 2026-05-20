@@ -18,7 +18,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private final WebClient webClient;
 
     public AuthFilter(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("lb://auth-service").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8082").build();
     }
 
     @Override
