@@ -9,8 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
     @Bean
-    public WebClient.Builder webClientBuilder(
-            ReactorLoadBalancerExchangeFilterFunction lbFunction) {
-        return WebClient.builder().filter(lbFunction);
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
     }
 }

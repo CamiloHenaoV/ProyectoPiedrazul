@@ -2,6 +2,7 @@ package com.piedrazul.msscheduling.infra.exception;
 
 import com.piedrazul.msscheduling.domain.model.exceptions.CitaNoEncontradaException;
 import com.piedrazul.msscheduling.domain.model.exceptions.HorarioOcupadoException;
+import com.piedrazul.msscheduling.domain.model.exceptions.TransicionEstadoInvalidaException;
 import com.piedrazul.msscheduling.domain.model.exceptions.UsuarioNoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleHorarioOcupado(HorarioOcupadoException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiError(HttpStatus.CONFLICT.value(), "Horario no disponible", ex.getMessage()));
+    }
+
+    /**
+     * Transición de estado inválida detectada por el patrón State.
+     * HTTP 422: la solicitud es sintácticamente correcta pero semánticamente
+     * inaceptable dado el estado actual de la cita.
+     */
+    @ExceptionHandler(TransicionEstadoInvalidaException.class)
+    public ResponseEntity<ApiError> handleTransicionInvalida(TransicionEstadoInvalidaException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ApiError(
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                        "Transición de estado inválida",
+                        ex.getMessage()
+                ));
     }
 
     @ExceptionHandler(UsuarioNoEncontradoException.class)
