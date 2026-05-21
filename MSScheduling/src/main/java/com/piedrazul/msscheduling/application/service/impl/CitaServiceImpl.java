@@ -9,6 +9,7 @@ import com.piedrazul.msscheduling.domain.model.entity.UsuarioLocal;
 import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import com.piedrazul.msscheduling.domain.model.exceptions.CitaNoEncontradaException;
 import com.piedrazul.msscheduling.domain.model.exceptions.HorarioOcupadoException;
+import com.piedrazul.msscheduling.domain.model.exceptions.TransicionEstadoInvalidaException;
 import com.piedrazul.msscheduling.domain.model.exceptions.UsuarioNoEncontradoException;
 import com.piedrazul.msscheduling.domain.model.repository.BloqueoDisponibilidadRepository;
 import com.piedrazul.msscheduling.domain.model.repository.CitaRepository;
@@ -104,6 +105,24 @@ public class CitaServiceImpl implements ICitaService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * HU-6.1 – Devuelve todas las citas de un profesional en una fecha concreta.
+     * Utiliza el query existente findByProfesionalIdAndFechaHoraBetween acotando
+     * el rango al inicio y fin del día.
+     */
+    @Override
+    public List<CitaDTO> listarPorProfesionalYFecha(Long profesionalId, LocalDate fecha) {
+        ZoneId zona  = ZoneId.systemDefault();
+        ZonedDateTime inicio = fecha.atStartOfDay(zona);
+        ZonedDateTime fin    = fecha.atTime(LocalTime.MAX).atZone(zona);
+
+        return citaRepository
+                .findByProfesionalIdAndFechaHoraBetween(profesionalId, inicio, fin)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List<ZonedDateTime> obtenerHorariosDisponibles(Long profesionalId, LocalDate fecha) {
         int diaSemana = fecha.getDayOfWeek().getValue() % 7;
@@ -139,26 +158,12 @@ public class CitaServiceImpl implements ICitaService {
 
     // ── Transiciones de estado (patrón State) ────────────────────────────────
 
-    /**
-     * Cancela la cita si su estado actual lo permite.
-     *
-     * <p>El {@link CitaEstadoResolver} devuelve el handler correspondiente al
-     * estado actual de la cita. Si el estado es {@code programada}, el handler
-     * muta la entidad a {@code cancelada}. Si la cita ya está en un estado
-     * terminal ({@code cancelada} o {@code completada}), el handler lanza
-     * {@link com.piedrazul.msscheduling.domain.model.exceptions.TransicionEstadoInvalidaException}.
-     *
-     * @param id identificador de la cita a cancelar.
-     * @return DTO de la cita actualizada.
-     */
     @Override
     @Transactional
     public CitaDTO cancelarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
 
-        // El handler valida la transición y muta el estado de la entidad.
-        // Si el estado no permite cancelar, lanza TransicionEstadoInvalidaException.
         estadoResolver.resolve(cita.getEstado()).cancelar(cita);
 
         CitaDTO cancelada = toDTO(citaRepository.save(cita));
@@ -167,29 +172,54 @@ public class CitaServiceImpl implements ICitaService {
         return cancelada;
     }
 
-    /**
-     * Marca la cita como completada si su estado actual lo permite.
-     *
-     * <p>Análogo a {@link #cancelarCita}: el handler del estado actual decide
-     * si la transición es válida antes de mutar la entidad.
-     *
-     * @param id identificador de la cita a completar.
-     * @return DTO de la cita actualizada.
-     */
     @Override
     @Transactional
     public CitaDTO completarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
 
-        // El handler valida la transición y muta el estado de la entidad.
-        // Si el estado no permite completar, lanza TransicionEstadoInvalidaException.
         estadoResolver.resolve(cita.getEstado()).completar(cita);
 
         CitaDTO completada = toDTO(citaRepository.save(cita));
         citaEventPublisher.publicarCitaCompletada(completada);
         log.info("Cita completada: id={}", id);
         return completada;
+    }
+
+    /**
+     * HU-6.3 – Reprograma el horario de una cita existente.
+     * Solo se permite si la cita está en estado {@code programada}.
+     * El nuevo horario debe estar disponible dentro de la agenda del profesional.
+     */
+    @Override
+    @Transactional
+    public CitaDTO actualizarCita(Long id, CitaDTO dto) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
+
+        // HU-6.3 – Restricción: solo citas programadas pueden ser reprogramadas
+        if (cita.getEstado() != EstadoCita.programada) {
+            throw new TransicionEstadoInvalidaException(
+                    "Solo se puede reprogramar una cita en estado 'programada'. " +
+                    "Estado actual: " + cita.getEstado());
+        }
+
+        ZonedDateTime nuevaFechaHora = dto.getFechaHora();
+
+        // Solo validar disponibilidad si la fecha/hora cambia
+        if (!nuevaFechaHora.equals(cita.getFechaHora())) {
+            // isProfesionalDisponible también chequea existsByProfesionalIdAndFechaHora;
+            // como la cita actual aún conserva su fechaHora antigua en DB, la consulta
+            // sobre la nueva fechaHora no la encontrará → sin falso positivo.
+            if (!isProfesionalDisponible(cita.getProfesionalId(), nuevaFechaHora)) {
+                throw new HorarioOcupadoException();
+            }
+            cita.setFechaHora(nuevaFechaHora);
+        }
+
+        CitaDTO actualizada = toDTO(citaRepository.save(cita));
+        log.info("Cita reprogramada: id={} nuevaFecha={}", id, nuevaFechaHora);
+        return actualizada;
     }
 
     // ── Utilidades privadas ───────────────────────────────────────────────────

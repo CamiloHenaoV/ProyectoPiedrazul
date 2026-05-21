@@ -5,5 +5,6 @@ public enum AppEvent {
     USUARIO_ACTUALIZADO,
     USUARIO_DESACTIVADO,
     CITA_AGENDADA,
-    CITA_CANCELADA
+    CITA_CANCELADA,
+    CITA_ACTUALIZADA   // HU-6.3: notifica reprogramación de cita
 }
