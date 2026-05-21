@@ -200,8 +200,9 @@ public class CitaServiceImpl implements ICitaService {
         // HU-6.3 – Restricción: solo citas programadas pueden ser reprogramadas
         if (cita.getEstado() != EstadoCita.programada) {
             throw new TransicionEstadoInvalidaException(
-                    "Solo se puede reprogramar una cita en estado 'programada'. " +
-                    "Estado actual: " + cita.getEstado());
+                    cita.getEstado(),
+                    EstadoCita.programada
+            );
         }
 
         ZonedDateTime nuevaFechaHora = dto.getFechaHora();

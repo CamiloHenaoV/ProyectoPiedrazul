@@ -3,21 +3,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.frontend.controller.RegistroCitaManualController"
             prefWidth="900" prefHeight="620">
 
     <top>
-        <VBox style="-fx-background-color: #2E7D32;">
+        <VBox>
             <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
-            <Label text="Registrar Cita Manual" style="-fx-text-fill: white; -fx-font-weight: bold;">
-                <font><Font size="20"/></font>
+            <Label text="Registrar Cita Manual">
+                
             </Label>
             <Label text="Ingresa los datos del paciente y selecciona el horario disponible"
-                   style="-fx-text-fill: #C8E6C9; -fx-font-size: 12px;"/>
+                  />
         </VBox>
     </top>
 
@@ -32,7 +30,7 @@
 
             <!-- Paciente -->
             <Label text="Paciente: *"
-                   style="-fx-font-weight: bold;"
+                  
                    GridPane.rowIndex="0" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbPaciente"
@@ -42,7 +40,7 @@
 
             <!-- Especialidad -->
             <Label text="Especialidad: *"
-                   style="-fx-font-weight: bold;"
+                  
                    GridPane.rowIndex="1" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbEspecialidad"
@@ -52,7 +50,7 @@
 
             <!-- Profesional -->
             <Label text="Profesional: *"
-                   style="-fx-font-weight: bold;"
+                  
                    GridPane.rowIndex="2" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbProfesional"
@@ -62,7 +60,7 @@
 
             <!-- Fecha -->
             <Label text="Fecha: *"
-                   style="-fx-font-weight: bold;"
+                  
                    GridPane.rowIndex="3" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <DatePicker fx:id="dpFecha"
@@ -72,7 +70,7 @@
 
             <!-- Horarios disponibles -->
             <Label text="Horario disponible: *"
-                   style="-fx-font-weight: bold;"
+                  
                    GridPane.rowIndex="4" GridPane.columnIndex="0"
                    GridPane.valignment="TOP"/>
             <ListView fx:id="lvHorarios"
@@ -81,7 +79,7 @@
 
             <!-- Nota campos opcionales (HU-6.2 CA-4) -->
             <Label text="* Campos obligatorios. Los datos adicionales del paciente (fecha de nacimiento,\ncorreo) son opcionales y no bloquean el registro."
-                   style="-fx-text-fill: #757575; -fx-font-size: 11px;"
+                  
                    wrapText="true"
                    GridPane.rowIndex="5" GridPane.columnIndex="0"
                    GridPane.columnSpan="2"/>
@@ -97,13 +95,13 @@
     <bottom>
         <HBox spacing="12" alignment="CENTER_RIGHT">
             <padding><Insets top="10" right="50" bottom="24" left="50"/></padding>
-            <Button text="Cancelar" onAction="#handleCancelar" style="-fx-cursor: hand;"/>
+            <Button text="Cancelar" onAction="#handleCancelar"/>
             <Button fx:id="btnGuardar"
                     text="GUARDAR"
                     onAction="#handleGuardar"
                     defaultButton="true"
                     disable="true"
-                    style="-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-cursor: hand;"/>
+                   />
         </HBox>
     </bottom>
 

@@ -3,8 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.frontend.controller.GestionCitasAgendadorController"
@@ -12,10 +10,10 @@
 
     <!-- ── Encabezado ─────────────────────────────────────────────────────── -->
     <top>
-        <VBox style="-fx-background-color: #1565C0;">
+        <VBox>
             <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
-            <Label text="Gestión de Citas" style="-fx-text-fill: white; -fx-font-weight: bold;">
-                <font><Font size="20"/></font>
+            <Label text="Gestión de Citas">
+                
             </Label>
         </VBox>
     </top>
@@ -27,7 +25,7 @@
 
             <!-- Filtros de búsqueda (HU-6.1) -->
             <TitledPane text="Buscar citas por profesional y fecha" collapsible="false"
-                        style="-fx-font-size: 13px;">
+                       >
                 <GridPane hgap="16" vgap="12">
                     <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
 
@@ -63,15 +61,15 @@
                     <Button fx:id="btnBuscar" text="BUSCAR"
                             onAction="#handleBuscar"
                             defaultButton="true"
-                            style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-cursor: hand;"
+                           
                             GridPane.rowIndex="1" GridPane.columnIndex="3"/>
                 </GridPane>
             </TitledPane>
 
             <!-- Total de citas (HU-6.1 CA-1) -->
             <HBox alignment="CENTER_LEFT" spacing="8">
-                <Label text="Resultados:" style="-fx-font-weight: bold;"/>
-                <Label fx:id="lblTotalCitas" style="-fx-text-fill: #1565C0; -fx-font-weight: bold;"/>
+                <Label text="Resultados:"/>
+                <Label fx:id="lblTotalCitas"/>
             </HBox>
 
             <!-- Tabla de citas (HU-6.1 CA-4) -->
@@ -93,7 +91,7 @@
         <HBox spacing="12" alignment="CENTER_RIGHT">
             <padding><Insets top="12" right="30" bottom="20" left="30"/></padding>
 
-            <Button text="← Volver" onAction="#volver" style="-fx-cursor: hand;"/>
+            <Button text="← Volver" onAction="#volver"/>
 
             <Region HBox.hgrow="ALWAYS"/>
 
@@ -101,21 +99,21 @@
             <Button fx:id="btnRegistrarNueva"
                     text="+ Registrar cita"
                     onAction="#handleRegistrarNueva"
-                    style="-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-cursor: hand;"/>
+                   />
 
             <!-- HU-6.3: Modificar / reprogramar -->
             <Button fx:id="btnModificar"
                     text="Reprogramar"
                     onAction="#handleModificar"
                     disable="true"
-                    style="-fx-background-color: #E65100; -fx-text-fill: white; -fx-cursor: hand;"/>
+                   />
 
             <!-- HU-6.4: Cancelar cita -->
             <Button fx:id="btnCancelar"
                     text="Cancelar cita"
                     onAction="#handleCancelar"
                     disable="true"
-                    style="-fx-background-color: #C62828; -fx-text-fill: white; -fx-cursor: hand;"/>
+                   />
         </HBox>
     </bottom>
 

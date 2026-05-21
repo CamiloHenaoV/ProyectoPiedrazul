@@ -3,27 +3,25 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.frontend.controller.DashboardAgendadorController"
             prefWidth="900" prefHeight="600">
 
     <top>
-        <VBox style="-fx-background-color: #1565C0;">
+        <VBox>
             <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
             <HBox alignment="CENTER_LEFT" spacing="16">
-                <Label text="Piedrazul" style="-fx-text-fill: white; -fx-font-weight: bold;">
-                    <font><Font size="22"/></font>
+                <Label text="Piedrazul">
+                    
                 </Label>
-                <Label text="—" style="-fx-text-fill: #90CAF9;"/>
-                <Label text="Panel del Agendador" style="-fx-text-fill: #BBDEFB;">
-                    <font><Font size="16"/></font>
+                <Label text="—"/>
+                <Label text="Panel del Agendador">
+                    
                 </Label>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblUsuario" style="-fx-text-fill: white;">
-                    <font><Font size="13"/></font>
+                <Label fx:id="lblUsuario">
+                    
                 </Label>
             </HBox>
         </VBox>
@@ -33,18 +31,17 @@
         <VBox alignment="CENTER" spacing="20">
             <padding><Insets top="60" right="80" bottom="60" left="80"/></padding>
 
-            <Label text="¿Qué deseas hacer hoy?" style="-fx-text-fill: #424242;">
-                <font><Font size="18"/></font>
+            <Label text="¿Qué deseas hacer hoy?">
+                
             </Label>
 
             <Button text="Gestión de Citas"
                     onAction="#irAGestionCitas"
                     prefWidth="320" prefHeight="50"
-                    style="-fx-background-color: #1565C0; -fx-text-fill: white;
-                           -fx-font-size: 14px; -fx-cursor: hand;"/>
+                   />
 
             <Label text="Consultar agenda, registrar, modificar y cancelar citas"
-                   style="-fx-text-fill: #757575; -fx-font-size: 12px;"/>
+                  />
 
         </VBox>
     </center>
@@ -53,7 +50,7 @@
         <HBox alignment="CENTER_RIGHT">
             <padding><Insets top="10" right="30" bottom="20" left="30"/></padding>
             <Button text="Cerrar sesión" onAction="#cerrarSesion"
-                    style="-fx-cursor: hand;"/>
+                   />
         </HBox>
     </bottom>
 
