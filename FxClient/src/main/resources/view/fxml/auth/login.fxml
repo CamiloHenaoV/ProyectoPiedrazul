@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <VBox alignment="CENTER" spacing="16.0"
       prefHeight="300.0" prefWidth="400.0"
       xmlns="http://javafx.com/javafx/21"
@@ -15,7 +14,6 @@
     </padding>
 
     <Label text="PiedraAzul" alignment="CENTER">
-        <font><Font name="System Bold" size="24.0"/></font>
     </Label>
 
     <Label text="Piedrazul" alignment="CENTER"/>

@@ -44,6 +44,6 @@ public class RegistroProfesionalService extends RegistroTemplate {
      */
     @Override
     protected void vincularPerfil(Usuario usuario, RegistroContexto contexto) {
-        profesionalService.crearProfesional(usuario, contexto.getProfesionalDTO());
+        profesionalService.crearProfesional(usuario, contexto.profesionalDTO());
     }
 }

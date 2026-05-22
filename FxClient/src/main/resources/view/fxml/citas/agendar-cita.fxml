@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.piedrazul.frontend.controller.AgendarCitaController"
@@ -13,7 +12,6 @@
         <VBox>
             <padding><Insets top="20" right="30" bottom="16" left="30"/></padding>
             <Label text="Agendar Cita">
-                <font><Font size="20"/></font>
             </Label>
         </VBox>
     </top>

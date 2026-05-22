@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.frontend.controller.DashboardAgendadorController"
+            prefWidth="900" prefHeight="600">
+
+    <top>
+        <VBox>
+            <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <Label text="Piedrazul">
+
+                </Label>
+                <Label text="—"/>
+                <Label text="Panel del Agendador">
+
+                </Label>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblUsuario">
+
+                </Label>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <padding><Insets top="60" right="80" bottom="60" left="80"/></padding>
+
+            <Label text="¿Qué deseas hacer hoy?">
+
+            </Label>
+
+            <Button text="Gestión de Citas"
+                    onAction="#irAGestionCitas"
+                    prefWidth="320" prefHeight="50"/>
+
+            <Label text="Consultar agenda, registrar, modificar y cancelar citas"/>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT">
+            <padding><Insets top="10" right="30" bottom="20" left="30"/></padding>
+            <Button text="Cerrar sesión" onAction="#cerrarSesion"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

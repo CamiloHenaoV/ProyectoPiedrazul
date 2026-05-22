@@ -15,11 +15,9 @@ import javafx.scene.control.*;
 /**
  * Controlador de la vista de login.
  *
- * CAMBIOS RESPECTO AL MONOLITO:
- * - Eliminado: @Component, @Autowired, IAuthService, IUsuarioService
- * - Añadido:   AuthClient (HTTP), SessionManager (guarda el JWT)
- * - El token JWT se guarda en SessionManager tras login exitoso.
- * - Los errores ahora son HttpException con códigos HTTP (401, 503, etc.)
+ * CAMBIOS RESPECTO A LA ITERACIÓN ANTERIOR:
+ * - Añadido case {@code agendador} en el switch de routing post-login
+ *   → navega a dashboard-agendador.fxml (HU-6.1 a HU-6.4).
  */
 public class LoginController {
 
@@ -30,7 +28,7 @@ public class LoginController {
     @FXML private Button        btnIngresar;
     @FXML private Label         lblError;
 
-    private final AuthClient     authClient;
+    private final AuthClient       authClient;
     private final StageInitializer stageInitializer;
     private final SessionManager   session;
 
@@ -70,8 +68,6 @@ public class LoginController {
             try {
                 LoginResponseDTO respuesta = authClient.login(login, password);
 
-                // Guardar JWT en SessionManager para que ApiClient lo añada
-                // automáticamente a todas las peticiones siguientes
                 session.setToken(respuesta.getAccessToken());
 
                 UsuarioDTO usuario = new UsuarioDTO();
@@ -82,43 +78,24 @@ public class LoginController {
                 usuario.setActivo(true);
                 session.setUsuarioActual(usuario);
 
-                Platform.runLater(() -> navegarSegunRol(usuario));
+                Platform.runLater(() -> redirigirSegunRol(usuario));
 
             } catch (HttpException ex) {
                 Platform.runLater(() -> {
-                    if (ex.isUnauthorized())
-                        mostrarError("Usuario o contraseña incorrectos.");
-                    else if (ex.isUnavailable())
-                        mostrarError("Servicio no disponible. Intenta más tarde.");
-                    else
-                        mostrarError("Error inesperado (" + ex.getStatusCode() + "). Intenta de nuevo.");
+                    if (ex.getStatusCode() == 401) {
+                        mostrarError("Credenciales incorrectas. Verifica tu usuario y contraseña.");
+                    } else {
+                        mostrarError("Error al conectar con el servidor (" + ex.getStatusCode() + ").");
+                    }
+                    btnIngresar.setDisable(false);
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> mostrarError("No se pudo conectar con el servidor."));
-            } finally {
-                Platform.runLater(() -> btnIngresar.setDisable(false));
+                Platform.runLater(() -> {
+                    mostrarError("No se pudo conectar. Verifica que los servicios estén en línea.");
+                    btnIngresar.setDisable(false);
+                });
             }
         }).start();
-    }
-
-    private void navegarSegunRol(UsuarioDTO usuario) {
-        switch (usuario.getRol()) {
-            case administrador -> {
-                FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
-                        "/view/fxml/dashboard/dashboard-admin.fxml",
-                        "Piedrazul - Dashboard", 900, 600);
-                DashboardAdminController ctrl = loader.getController();
-                ctrl.setUsuarioActual(usuario);
-            }
-            case paciente -> {
-                FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
-                        "/view/fxml/dashboard/dashboard-paciente.fxml",
-                        "Piedrazul - Mi Portal", 900, 600);
-                DashboardPacienteController ctrl = loader.getController();
-                ctrl.setUsuarioActual(usuario);
-            }
-            default -> mostrarError("Rol no soportado en esta versión.");
-        }
     }
 
     @FXML
@@ -136,6 +113,40 @@ public class LoginController {
             txtPassword.setManaged(true);
             txtPasswordVisible.setVisible(false);
             txtPasswordVisible.setManaged(false);
+        }
+    }
+
+    // ── Routing por rol ───────────────────────────────────────────────────────
+
+    private void redirigirSegunRol(UsuarioDTO usuario) {
+        switch (usuario.getRol()) {
+
+            case administrador -> {
+                FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                        "/view/fxml/dashboard/dashboard-admin.fxml",
+                        "Piedrazul - Dashboard", 900, 600);
+                DashboardAdminController ctrl = loader.getController();
+                ctrl.setUsuarioActual(usuario);
+            }
+
+            case paciente -> {
+                FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                        "/view/fxml/dashboard/dashboard-paciente.fxml",
+                        "Piedrazul - Mi Portal", 900, 600);
+                DashboardPacienteController ctrl = loader.getController();
+                ctrl.setUsuarioActual(usuario);
+            }
+
+            // HU-6.x: el rol agendador accede al panel de gestión de citas
+            case agendador -> {
+                FXMLLoader loader = stageInitializer.cambiarVistaConLoader(
+                        "/view/fxml/dashboard/dashboard-agendador.fxml",
+                        "Piedrazul - Panel Agendador", 900, 600);
+                DashboardAgendadorController ctrl = loader.getController();
+                ctrl.setUsuarioActual(usuario);
+            }
+
+            default -> mostrarError("Rol no soportado en esta versión.");
         }
     }
 

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.frontend.controller.DiasNoDisponiblesController">
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-padding: 12 20 12 20">
+            <Button text="← Volver" onAction="#onVolver"/>
+            <Label text="Gestión de Días No Disponibles y Festivos"/>
+            <Label text="HU-1.8"/>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.38" orientation="VERTICAL">
+
+            <!-- PANEL SUPERIOR: Formulario de registro (SC-1) -->
+            <VBox spacing="14" style="-fx-padding: 20 24 16 24">
+                <Label text="Registrar fecha no disponible"/>
+
+                <!-- Fecha (SC-1) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Fecha:" prefWidth="120"/>
+                    <DatePicker fx:id="dpFecha" prefWidth="180"/>
+                </HBox>
+
+                <!-- Tipo (SC-2: FESTIVO visible diferente) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Tipo:" prefWidth="120"/>
+                    <ComboBox fx:id="cbTipo" prefWidth="200"/>
+                </HBox>
+
+                <!-- Motivo (opcional) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Motivo (opcional):" prefWidth="120"/>
+                    <TextField fx:id="txtMotivo" prefWidth="320"
+                               promptText="Ej.: Día de la Independencia, cierre por mantenimiento..."/>
+                </HBox>
+
+                <!-- Mensaje -->
+                <Label fx:id="lblMensaje" wrapText="true" maxWidth="600"/>
+
+                <!-- Botones -->
+                <HBox spacing="10">
+                    <Button fx:id="btnRegistrar" text="🔒 Registrar fecha bloqueada"
+                            onAction="#onRegistrar"
+                            style="-fx-padding: 6 18 6 18"/>
+                    <Button fx:id="btnEliminar" text="🔓 Habilitar fecha seleccionada"
+                            onAction="#onEliminar"
+                            style="-fx-padding: 6 18 6 18"/>
+                </HBox>
+            </VBox>
+
+            <!-- PANEL INFERIOR: Tabla de días bloqueados (SC-2, SC-3) -->
+            <VBox spacing="8" style="-fx-padding: 10 24 20 24">
+                <Label text="Días no disponibles registrados"/>
+                <Label text="Seleccione una fila y pulse 'Habilitar fecha' para eliminar la restricción (SC-3)"/>
+                <TableView fx:id="tblDias" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colFecha"  text="Fecha"  prefWidth="140"/>
+                        <TableColumn fx:id="colMotivo" text="Motivo" prefWidth="300"/>
+                        <TableColumn fx:id="colTipo"   text="Tipo"   prefWidth="140"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="No hay días no disponibles registrados"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+
+        </SplitPane>
+    </center>
+
+</BorderPane>

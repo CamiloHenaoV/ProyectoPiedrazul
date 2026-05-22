@@ -51,7 +51,7 @@ public abstract class RegistroTemplate {
     public final UsuarioDTO registrar(RegistroContexto contexto) {
 
         // Paso 1 — invariante: crear el registro de autenticación/identificación
-        Usuario usuario = usuarioService.crearUsuarioBase(contexto.getUsuarioDTO());
+        Usuario usuario = usuarioService.crearUsuarioBase(contexto.usuarioDTO());
 
         // Paso 2 — variante: vincular el perfil clínico o administrativo
         vincularPerfil(usuario, contexto);

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.frontend.controller.RegistroCitaManualController"
+            prefWidth="900" prefHeight="620">
+
+    <top>
+        <VBox>
+            <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
+            <Label text="Registrar Cita Manual">
+
+            </Label>
+            <Label text="Ingresa los datos del paciente y selecciona el horario disponible"/>
+        </VBox>
+    </top>
+
+    <center>
+        <GridPane hgap="20" vgap="18" alignment="TOP_CENTER">
+            <padding><Insets top="28" right="50" bottom="20" left="50"/></padding>
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="160" prefWidth="175"/>
+                <ColumnConstraints minWidth="260" prefWidth="340" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Paciente -->
+            <Label text="Paciente: *"
+
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <ComboBox fx:id="cbPaciente"
+                      promptText="Seleccionar paciente"
+                      maxWidth="Infinity"
+                      GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <!-- Especialidad -->
+            <Label text="Especialidad: *"
+
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <ComboBox fx:id="cbEspecialidad"
+                      promptText="Seleccionar especialidad"
+                      maxWidth="Infinity"
+                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <!-- Profesional -->
+            <Label text="Profesional: *"
+
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <ComboBox fx:id="cbProfesional"
+                      promptText="Seleccionar profesional"
+                      maxWidth="Infinity"
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <!-- Fecha -->
+            <Label text="Fecha: *"
+
+                   GridPane.rowIndex="3" GridPane.columnIndex="0"
+                   GridPane.valignment="CENTER"/>
+            <DatePicker fx:id="dpFecha"
+                        promptText="Seleccionar fecha"
+                        maxWidth="Infinity"
+                        GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <!-- Horarios disponibles -->
+            <Label text="Horario disponible: *"
+
+                   GridPane.rowIndex="4" GridPane.columnIndex="0"
+                   GridPane.valignment="TOP"/>
+            <ListView fx:id="lvHorarios"
+                      prefHeight="130"
+                      GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <!-- Nota campos opcionales (HU-6.2 CA-4) -->
+            <Label text="* Campos obligatorios. Los datos adicionales del paciente (fecha de nacimiento,\ncorreo) son opcionales y no bloquean el registro."
+
+                   wrapText="true"
+                   GridPane.rowIndex="5" GridPane.columnIndex="0"
+                   GridPane.columnSpan="2"/>
+
+            <!-- Mensaje de estado -->
+            <Label fx:id="lblMensaje" text="" wrapText="true"
+                   GridPane.rowIndex="6" GridPane.columnIndex="0"
+                   GridPane.columnSpan="2"/>
+
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <padding><Insets top="10" right="50" bottom="24" left="50"/></padding>
+            <Button text="Cancelar" onAction="#handleCancelar"/>
+            <Button fx:id="btnGuardar"
+                    text="GUARDAR"
+                    onAction="#handleGuardar"
+                    defaultButton="true"
+                    disable="true"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

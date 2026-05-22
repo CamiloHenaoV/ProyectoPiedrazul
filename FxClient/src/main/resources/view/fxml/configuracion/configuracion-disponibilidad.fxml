@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.frontend.controller.ConfiguracionDisponibilidadController">
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 12 20 12 20">
+            <Button text="← Volver" onAction="#onVolver"/>
+            <Label text="Configuración de Disponibilidad"/>
+            <Label text="HU-1.5 / HU-1.6"/>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.4" orientation="VERTICAL">
+            <padding><Insets top="0"/></padding>
+
+            <!-- PANEL SUPERIOR: formulario -->
+            <VBox spacing="14" style="-fx-padding: 20 24 16 24">
+
+                <!-- Profesional -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Profesional:" prefWidth="130"/>
+                    <ComboBox fx:id="cbProfesional" prefWidth="280"
+                              onAction="#onProfesionalSeleccionado"
+                              promptText="Seleccionar profesional..."/>
+                </HBox>
+
+                <Separator/>
+
+                <!-- Día de semana (HU-1.5 SC-3) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Día de atención:" prefWidth="130"/>
+                    <ComboBox fx:id="cbDia" prefWidth="180"/>
+                </HBox>
+
+                <!-- Franja horaria (HU-1.5 SC-4) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Hora inicio (HH:mm):" prefWidth="130"/>
+                    <TextField fx:id="txtHoraInicio" prefWidth="100" promptText="08:00"/>
+                    <Label text="Hora fin (HH:mm):" style="-fx-padding: 0 0 0 20"/>
+                    <TextField fx:id="txtHoraFin" prefWidth="100" promptText="17:00"/>
+                </HBox>
+
+                <!-- Intervalo entre citas (HU-1.6 SC-1) -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Intervalo (minutos):" prefWidth="130"/>
+                    <Spinner fx:id="spnIntervalo" prefWidth="100"/>
+                    <Label text="Tiempo entre citas consecutivas"/>
+                </HBox>
+
+                <!-- Mensaje de validación (HU-1.5 SC-2 / HU-1.6 SC-2) -->
+                <Label fx:id="lblMensaje" wrapText="true" maxWidth="600"/>
+
+                <!-- Botones de acción -->
+                <HBox spacing="10">
+                    <Button fx:id="btnGuardar" text="Guardar" onAction="#onGuardar"
+                            style="-fx-padding: 6 20 6 20"/>
+                    <Button fx:id="btnEliminar" text="Eliminar seleccionada" onAction="#onEliminar"
+                            style="-fx-padding: 6 20 6 20"/>
+                    <Button fx:id="btnLimpiar" text="Limpiar" onAction="#onLimpiar"
+                            style="-fx-padding: 6 20 6 20"/>
+                </HBox>
+            </VBox>
+
+            <!-- PANEL INFERIOR: tabla de disponibilidades -->
+            <VBox spacing="8" style="-fx-padding: 10 24 20 24">
+                <Label text="Disponibilidades configuradas"/>
+                <Label text="Doble clic en una fila para editar"/>
+                <TableView fx:id="tblDisponibilidad" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colDia"       text="Día"       prefWidth="120"/>
+                        <TableColumn fx:id="colInicio"    text="Hora inicio" prefWidth="110"/>
+                        <TableColumn fx:id="colFin"       text="Hora fin"   prefWidth="110"/>
+                        <TableColumn fx:id="colIntervalo" text="Intervalo (min)" prefWidth="130"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Seleccione un profesional para ver su configuración"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </SplitPane>
+    </center>
+
+</BorderPane>

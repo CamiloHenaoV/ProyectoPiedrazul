@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.piedrazul.frontend.controller.ConfiguracionAgendamientoController">
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-padding: 12 20 12 20">
+            <Button text="← Volver" onAction="#onVolver"/>
+            <Label text="Ventana de Tiempo para Agendamiento"/>
+            <Label text="HU-1.7"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 40 60 40 60">
+
+            <!-- Descripción -->
+            <Label wrapText="true" maxWidth="500"
+                   text="Configure cuántas semanas hacia adelante pueden los pacientes reservar citas. Fechas fuera de este rango serán bloqueadas automáticamente."/>
+
+            <Separator/>
+
+            <!-- Control principal -->
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Label text="Semanas habilitadas:"/>
+                <Spinner fx:id="spnSemanas" prefWidth="100"/>
+                <Label text="semanas (1 – 52)"/>
+            </HBox>
+
+            <!-- Fecha máxima resultante (HU-1.7 SC-2) -->
+            <HBox spacing="10" alignment="CENTER_LEFT"
+                  style="-fx-padding: 12 16 12 16">
+                <Label text="📅"/>
+                <Label fx:id="lblFechaMaxima"
+                       text="Fecha máxima actual: calculando..."/>
+            </HBox>
+
+            <!-- Mensaje de resultado (SC-1 / SC-3) -->
+            <Label fx:id="lblMensaje" wrapText="true" maxWidth="500"/>
+
+            <!-- Botón guardar -->
+            <HBox>
+                <Button fx:id="btnGuardar" text="Guardar configuración" onAction="#onGuardar"
+                        style="-fx-padding: 8 28 8 28"/>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Nota informativa -->
+            <VBox spacing="6" style="-fx-padding: 12 16 12 16">
+                <Label text="ℹ️  Información"/>
+                <Label wrapText="true" maxWidth="460"
+                       text="Al reducir el número de semanas, las citas ya agendadas fuera del nuevo rango NO se cancelarán automáticamente. Solo se impedirán nuevas reservas en esas fechas."/>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -42,6 +42,6 @@ public class RegistroPacienteService extends RegistroTemplate {
      */
     @Override
     protected void vincularPerfil(Usuario usuario, RegistroContexto contexto) {
-        pacienteService.crearPaciente(usuario, contexto.getPacienteDTO());
+        pacienteService.crearPaciente(usuario, contexto.pacienteDTO());
     }
 }
