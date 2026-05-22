@@ -7,10 +7,8 @@ import java.time.LocalTime;
 
 /**
  * DTO para configurar la disponibilidad semanal de un profesional.
- *
  * HU-1.5: configuración de días habilitados y franjas horarias.
  * HU-1.6: intervalo de atención entre citas (duracionCitaMinutos).
- *
  * Validaciones:
  *   - profesionalId: obligatorio
  *   - diaSemana: 0 (domingo) a 6 (sábado)

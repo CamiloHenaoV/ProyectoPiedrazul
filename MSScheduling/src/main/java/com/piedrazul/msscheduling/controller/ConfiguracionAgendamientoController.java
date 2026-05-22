@@ -10,10 +10,8 @@ import java.time.LocalDate;
 
 /**
  * REST controller para la configuración de la ventana de tiempo de agendamiento.
- *
  * HU-1.7: el administrador define cuántas semanas hacia adelante pueden
  *         reservarse citas.
- *
  * Rutas:
  *   GET  /api/scheduling/configuracion          → obtener configuración actual
  *   PUT  /api/scheduling/configuracion          → actualizar semanas habilitadas

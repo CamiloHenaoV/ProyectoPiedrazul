@@ -13,9 +13,7 @@ import java.util.List;
 
 /**
  * REST controller para la gestión de días no disponibles y festivos.
- *
  * HU-1.8: el administrador gestiona fechas que impiden el agendamiento global.
- *
  * Rutas:
  *   POST   /api/scheduling/dias-no-disponibles             → registrar fecha bloqueada (SC-1)
  *   GET    /api/scheduling/dias-no-disponibles             → listar todos

@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 
 /**
  * Controlador del dashboard del administrador.
- *
  * Métodos añadidos para HU-1.5 / HU-1.6 / HU-1.7 / HU-1.8:
  *   - irADisponibilidad()           → ConfiguracionDisponibilidadController
  *   - irAConfiguracionAgendamiento() → ConfiguracionAgendamientoController

@@ -4,7 +4,6 @@ import com.piedrazul.msscheduling.domain.model.dto.ConfiguracionAgendamientoDTO;
 
 /**
  * Contrato del servicio de configuración global de agendamiento.
- *
  * HU-1.7: ventana de tiempo disponible para agendamiento.
  */
 public interface IConfiguracionAgendamientoService {

@@ -18,10 +18,8 @@ import java.util.List;
 
 /**
  * Controlador para la pantalla de configuración de disponibilidad de profesionales.
- *
  * HU-1.5: configurar días habilitados y franjas horarias.
  * HU-1.6: definir intervalos de atención entre citas.
- *
  * Flujo:
  *   1. El admin selecciona un profesional del ComboBox.
  *   2. La tabla muestra sus disponibilidades actuales.

@@ -5,10 +5,8 @@ import lombok.*;
 
 /**
  * Configuración global del sistema de agendamiento.
- *
  * Singleton de base de datos (id = 1). Guarda:
  *   - semanasHabilitadas : ventana de tiempo hacia adelante (HU-1.7)
- *
  * Uso: el administrador define cuántas semanas a futuro pueden reservarse citas.
  * El sistema bloquea automáticamente cualquier fecha fuera de ese rango.
  */

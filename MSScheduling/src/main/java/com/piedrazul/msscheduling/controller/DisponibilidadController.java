@@ -11,10 +11,8 @@ import java.util.List;
 
 /**
  * REST controller para la gestión de disponibilidad semanal de profesionales.
- *
  * HU-1.5: configurar días habilitados y franjas horarias.
  * HU-1.6: definir intervalos de atención entre citas.
- *
  * Rutas:
  *   POST   /api/scheduling/disponibilidad                    → crear
  *   PUT    /api/scheduling/disponibilidad/{id}               → actualizar (HU-1.6 SC-3)

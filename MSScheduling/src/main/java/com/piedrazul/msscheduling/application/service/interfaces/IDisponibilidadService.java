@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * Contrato del servicio de disponibilidad semanal de profesionales.
- *
  * HU-1.5: configurar días habilitados y franjas horarias.
  * HU-1.6: definir intervalos de atención entre citas.
  */

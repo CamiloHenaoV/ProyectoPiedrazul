@@ -12,10 +12,8 @@ import com.piedrazul.frontend.observer.EventBus;
 
 /**
  * Contenedor manual de dependencias.
- *
  * Reemplaza el ApplicationContext de Spring. Instancia y cablea
  * todos los componentes una sola vez (singleton por convención).
- *
  * Orden de inicialización:
  *   1. AppConfig (lee application.properties)
  *   2. SessionManager (estado de sesión JWT)
@@ -23,7 +21,6 @@ import com.piedrazul.frontend.observer.EventBus;
  *   4. Clients de cada microservicio
  *   5. EventBus (observer)
  *   6. StageInitializer (navegación JavaFX)
- *
  * Clientes añadidos:
  *   - DisponibilidadClient (HU-1.5, HU-1.6, HU-1.7, HU-1.8)
  */

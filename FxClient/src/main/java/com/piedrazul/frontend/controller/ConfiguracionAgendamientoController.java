@@ -10,10 +10,8 @@ import javafx.scene.control.*;
 
 /**
  * Controlador para la pantalla de configuración de la ventana de agendamiento.
- *
  * HU-1.7: el administrador define cuántas semanas hacia adelante pueden
  *         reservarse citas.
- *
  * Escenarios cubiertos:
  *   SC-1: guardar la configuración de semanas habilitadas.
  *   SC-2: el sistema bloquea fechas fuera del rango (validación en backend).

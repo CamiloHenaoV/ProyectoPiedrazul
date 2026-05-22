@@ -13,7 +13,6 @@ import java.util.List;
 
 /**
  * Cliente HTTP para los endpoints de configuración de disponibilidad.
- *
  * Cubre:
  *   HU-1.5 / HU-1.6 → /api/scheduling/disponibilidad
  *   HU-1.7           → /api/scheduling/configuracion

@@ -15,7 +15,6 @@ import java.util.List;
 
 /**
  * Controlador para la pantalla de gestión de días no disponibles y festivos.
- *
  * HU-1.8:
  *   SC-1: registrar un día no disponible → bloquea agendamiento en esa fecha.
  *   SC-2: al consultar disponibilidad, el backend valida festivos registrados.

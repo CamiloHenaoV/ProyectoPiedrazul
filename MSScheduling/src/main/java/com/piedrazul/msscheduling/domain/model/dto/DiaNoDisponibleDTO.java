@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 /**
  * DTO para registrar y consultar días no disponibles (festivos y bloqueos manuales).
- *
  * HU-1.8: el administrador selecciona una fecha y la bloquea globalmente.
  */
 @Getter

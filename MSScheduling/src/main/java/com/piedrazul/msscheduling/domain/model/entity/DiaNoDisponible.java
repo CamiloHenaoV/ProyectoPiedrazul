@@ -8,11 +8,9 @@ import java.time.LocalDate;
 
 /**
  * Día no disponible a nivel global: festivos y días bloqueados por el administrador.
- *
  * HU-1.8: el administrador puede registrar fechas que bloquean el agendamiento
  * para TODOS los profesionales en ese día. Diferente a {@link BloqueoDisponibilidad}
  * que bloquea solo a un profesional específico.
- *
  * Escenarios cubiertos:
  *   1. Registro de día no disponible (SC-1): fecha restringida → agendamiento bloqueado.
  *   2. Validación de festivos (SC-2): la fecha está marcada como FESTIVO.

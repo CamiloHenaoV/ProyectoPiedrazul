@@ -12,12 +12,10 @@ import java.time.LocalDate;
 
 /**
  * Implementación del servicio de configuración global de agendamiento.
- *
  * HU-1.7: ventana de tiempo disponible para agendamiento.
  *   SC-1: el administrador define semanas habilitadas → se aplica el rango.
  *   SC-2: al consultar disponibilidad, CitaService usa obtenerFechaMaximaAgendamiento().
  *   SC-3: actualizar() persiste el nuevo rango.
- *
  * Patrón singleton en BD: siempre id = 1.
  * Si no existe el registro se crea con valor por defecto (4 semanas).
  */

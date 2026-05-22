@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 /**
  * Cliente HTTP para el user-service (gestión de usuarios).
- *
  * Rutas esperadas en el API-Gateway:
  *   GET    /api/users/usuarios              → lista todos
  *   GET    /api/users/usuarios/{id}         → busca por id
@@ -45,10 +44,8 @@ public class UsuarioClient {
 
     /**
      * Lista todos los profesionales activos.
-     *
      * Usado por ConfiguracionDisponibilidadController (HU-1.5 / HU-1.6)
      * para poblar el ComboBox de selección de profesional.
-     *
      * El backend expone GET /api/users/usuarios/profesionales que devuelve
      * los registros con tipo MEDICO o TERAPISTA. Si ese endpoint no existe,
      * hace fallback filtrando el listado completo por rol.

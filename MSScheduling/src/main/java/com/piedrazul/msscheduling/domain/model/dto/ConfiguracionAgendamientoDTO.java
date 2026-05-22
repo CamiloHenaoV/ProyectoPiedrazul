@@ -7,7 +7,6 @@ import lombok.*;
 
 /**
  * DTO para leer y actualizar la configuración global de agendamiento.
- *
  * HU-1.7: el administrador configura cuántas semanas adelante
  *          se puede reservar una cita.
  */

@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Contrato del servicio de días no disponibles (festivos y bloqueos manuales).
- *
  * HU-1.8: gestión de fechas no laborales que impiden el agendamiento.
  */
 public interface IDiaNoDisponibleService {

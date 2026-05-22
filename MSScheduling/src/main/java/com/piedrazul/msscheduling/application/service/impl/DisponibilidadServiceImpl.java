@@ -19,13 +19,11 @@ import java.util.stream.Collectors;
 
 /**
  * Implementación del servicio de disponibilidad semanal.
- *
  * HU-1.5:
  *   SC-1: guardar configuración válida.
  *   SC-2: validar campos obligatorios (via @Valid en controller + validaciones de negocio aquí).
  *   SC-3: habilitar días específicos de atención.
  *   SC-4: configurar franjas horarias (horaInicio – horaFin).
- *
  * HU-1.6:
  *   SC-1: persistir la duración de cita = intervalo entre citas.
  *   SC-2: validar que el intervalo sea consistente con la franja horaria.

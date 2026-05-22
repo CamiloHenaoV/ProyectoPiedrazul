@@ -10,7 +10,6 @@ import java.util.Optional;
 
 /**
  * Repositorio para días no disponibles (festivos y bloqueos manuales).
- *
  * HU-1.8: gestión de fechas que impiden el agendamiento a nivel global.
  */
 public interface DiaNoDisponibleRepository extends JpaRepository<DiaNoDisponible, Long> {

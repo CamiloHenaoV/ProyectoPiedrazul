@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 /**
  * Implementación del servicio de días no disponibles.
- *
  * HU-1.8:
  *   SC-1: registrar() bloquea el agendamiento en la fecha seleccionada.
  *   SC-2: esFechaNoDisponible() es consultado por CitaService antes de agendar.
