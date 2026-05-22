@@ -13,7 +13,7 @@
         <VBox>
             <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
             <Label text="Gestión de Citas">
-                
+
             </Label>
         </VBox>
     </top>
@@ -24,8 +24,7 @@
             <padding><Insets top="20" right="30" bottom="10" left="30"/></padding>
 
             <!-- Filtros de búsqueda (HU-6.1) -->
-            <TitledPane text="Buscar citas por profesional y fecha" collapsible="false"
-                       >
+            <TitledPane text="Buscar citas por profesional y fecha" collapsible="false">
                 <GridPane hgap="16" vgap="12">
                     <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
 
@@ -61,7 +60,7 @@
                     <Button fx:id="btnBuscar" text="BUSCAR"
                             onAction="#handleBuscar"
                             defaultButton="true"
-                           
+
                             GridPane.rowIndex="1" GridPane.columnIndex="3"/>
                 </GridPane>
             </TitledPane>
@@ -98,22 +97,19 @@
             <!-- HU-6.2: Registrar nueva cita manual -->
             <Button fx:id="btnRegistrarNueva"
                     text="+ Registrar cita"
-                    onAction="#handleRegistrarNueva"
-                   />
+                    onAction="#handleRegistrarNueva"/>
 
             <!-- HU-6.3: Modificar / reprogramar -->
             <Button fx:id="btnModificar"
                     text="Reprogramar"
                     onAction="#handleModificar"
-                    disable="true"
-                   />
+                    disable="true"/>
 
             <!-- HU-6.4: Cancelar cita -->
             <Button fx:id="btnCancelar"
                     text="Cancelar cita"
                     onAction="#handleCancelar"
-                    disable="true"
-                   />
+                    disable="true"/>
         </HBox>
     </bottom>
 

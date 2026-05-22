@@ -51,7 +51,7 @@ public class UsuarioClient {
      * hace fallback filtrando el listado completo por rol.
      */
     public List<ProfesionalDTO> listarProfesionales() throws Exception {
-        HttpResponse<String> r = api.get("/api/users/usuarios/profesionales");
+        HttpResponse<String> r = api.get("/api/users/profesionales");
         if (r.statusCode() == 404) {
             // Fallback: filtrar desde el listado general
             return listarTodos().stream()

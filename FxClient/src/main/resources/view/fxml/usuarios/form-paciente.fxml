@@ -10,7 +10,7 @@
 
     <padding><Insets top="24" right="30" bottom="20" left="30"/></padding>
 
-    <Label text="Datos del Paciente" style="-fx-font-size: 16;"/>
+    <Label text="Datos del Paciente"/>
 
     <GridPane hgap="16" vgap="10">
         <columnConstraints>
@@ -44,7 +44,7 @@
                    GridPane.rowIndex="5" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Label fx:id="lblError" text="" wrapText="true" style="-fx-text-fill: red;"/>
+    <Label fx:id="lblError" text="" wrapText="true"/>
 
     <HBox spacing="10" alignment="CENTER_RIGHT">
         <Button text="Cancelar" onAction="#handleCancelar"/>

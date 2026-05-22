@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -11,13 +10,11 @@
             prefWidth="900" prefHeight="580">
 
     <top>
-        <VBox style="-fx-background-color: #E65100;">
+        <VBox>
             <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
-            <Label text="Reprogramar Cita" style="-fx-text-fill: white; -fx-font-weight: bold;">
-                <font><Font size="20"/></font>
+            <Label text="Reprogramar Cita">
             </Label>
-            <Label text="Selecciona la nueva fecha y horario para la cita"
-                   style="-fx-text-fill: #FFE0B2; -fx-font-size: 12px;"/>
+            <Label text="Selecciona la nueva fecha y horario para la cita"/>
         </VBox>
     </top>
 
@@ -26,8 +23,7 @@
             <padding><Insets top="28" right="50" bottom="20" left="50"/></padding>
 
             <!-- Información actual de la cita (solo lectura) -->
-            <TitledPane text="Información actual de la cita" collapsible="false"
-                        style="-fx-font-size: 13px;">
+            <TitledPane text="Información actual de la cita" collapsible="false">
                 <GridPane hgap="16" vgap="12">
                     <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
                     <columnConstraints>
@@ -35,24 +31,23 @@
                         <ColumnConstraints minWidth="200" prefWidth="300" hgrow="ALWAYS"/>
                     </columnConstraints>
 
-                    <Label text="Paciente:"     style="-fx-font-weight: bold;"
+                    <Label text="Paciente:"
                            GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                     <Label fx:id="lblPaciente"  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                    <Label text="Profesional:"  style="-fx-font-weight: bold;"
+                    <Label text="Profesional:"
                            GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                     <Label fx:id="lblProfesional" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                    <Label text="Fecha y hora actual:" style="-fx-font-weight: bold;"
+                    <Label text="Fecha y hora actual:"
                            GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <Label fx:id="lblFechaActual" style="-fx-text-fill: #C62828;"
+                    <Label fx:id="lblFechaActual"
                            GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                 </GridPane>
             </TitledPane>
 
             <!-- Selección de nueva fecha y horario -->
-            <TitledPane text="Nueva programación" collapsible="false"
-                        style="-fx-font-size: 13px;">
+            <TitledPane text="Nueva programación" collapsible="false">
                 <GridPane hgap="16" vgap="14">
                     <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
                     <columnConstraints>
@@ -60,7 +55,7 @@
                         <ColumnConstraints minWidth="200" prefWidth="300" hgrow="ALWAYS"/>
                     </columnConstraints>
 
-                    <Label text="Nueva fecha:" style="-fx-font-weight: bold;"
+                    <Label text="Nueva fecha:"
                            GridPane.rowIndex="0" GridPane.columnIndex="0"
                            GridPane.valignment="CENTER"/>
                     <DatePicker fx:id="dpNuevaFecha"
@@ -68,7 +63,7 @@
                                 maxWidth="Infinity"
                                 GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                    <Label text="Nuevo horario:" style="-fx-font-weight: bold;"
+                    <Label text="Nuevo horario:"
                            GridPane.rowIndex="1" GridPane.columnIndex="0"
                            GridPane.valignment="TOP"/>
                     <ListView fx:id="lvNuevosHorarios"
@@ -85,13 +80,12 @@
     <bottom>
         <HBox spacing="12" alignment="CENTER_RIGHT">
             <padding><Insets top="10" right="50" bottom="24" left="50"/></padding>
-            <Button text="Cancelar" onAction="#handleCancelar" style="-fx-cursor: hand;"/>
+            <Button text="Cancelar" onAction="#handleCancelar"/>
             <Button fx:id="btnActualizar"
                     text="ACTUALIZAR"
                     onAction="#handleActualizar"
                     defaultButton="true"
-                    disable="true"
-                    style="-fx-background-color: #E65100; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    disable="true"/>
         </HBox>
     </bottom>
 

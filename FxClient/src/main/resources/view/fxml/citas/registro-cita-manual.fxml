@@ -12,10 +12,9 @@
         <VBox>
             <padding><Insets top="16" right="30" bottom="16" left="30"/></padding>
             <Label text="Registrar Cita Manual">
-                
+
             </Label>
-            <Label text="Ingresa los datos del paciente y selecciona el horario disponible"
-                  />
+            <Label text="Ingresa los datos del paciente y selecciona el horario disponible"/>
         </VBox>
     </top>
 
@@ -30,7 +29,7 @@
 
             <!-- Paciente -->
             <Label text="Paciente: *"
-                  
+
                    GridPane.rowIndex="0" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbPaciente"
@@ -40,7 +39,7 @@
 
             <!-- Especialidad -->
             <Label text="Especialidad: *"
-                  
+
                    GridPane.rowIndex="1" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbEspecialidad"
@@ -50,7 +49,7 @@
 
             <!-- Profesional -->
             <Label text="Profesional: *"
-                  
+
                    GridPane.rowIndex="2" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <ComboBox fx:id="cbProfesional"
@@ -60,7 +59,7 @@
 
             <!-- Fecha -->
             <Label text="Fecha: *"
-                  
+
                    GridPane.rowIndex="3" GridPane.columnIndex="0"
                    GridPane.valignment="CENTER"/>
             <DatePicker fx:id="dpFecha"
@@ -70,7 +69,7 @@
 
             <!-- Horarios disponibles -->
             <Label text="Horario disponible: *"
-                  
+
                    GridPane.rowIndex="4" GridPane.columnIndex="0"
                    GridPane.valignment="TOP"/>
             <ListView fx:id="lvHorarios"
@@ -79,7 +78,7 @@
 
             <!-- Nota campos opcionales (HU-6.2 CA-4) -->
             <Label text="* Campos obligatorios. Los datos adicionales del paciente (fecha de nacimiento,\ncorreo) son opcionales y no bloquean el registro."
-                  
+
                    wrapText="true"
                    GridPane.rowIndex="5" GridPane.columnIndex="0"
                    GridPane.columnSpan="2"/>
@@ -100,8 +99,7 @@
                     text="GUARDAR"
                     onAction="#handleGuardar"
                     defaultButton="true"
-                    disable="true"
-                   />
+                    disable="true"/>
         </HBox>
     </bottom>
 
