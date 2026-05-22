@@ -8,23 +8,23 @@ import com.piedrazul.frontend.model.dto.*;
 
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Cliente HTTP para el user-service (gestión de usuarios).
  *
- * Rutas esperadas en el APi-Gateway:
- *   GET    /usuarios              → lista todos
- *   GET    /usuarios/{id}         → busca por id
- *   GET    /usuarios/{id}/paciente-id → devuelve el Long del paciente asociado
- *   POST   /usuarios              → crea usuario base (admin)
- *   POST   /usuarios/pacientes    → crea usuario + paciente
- *   POST   /usuarios/profesionales→ crea usuario + profesional
- *   PUT    /usuarios/{id}         → actualiza
- *   PATCH  /usuarios/{id}/activar
- *   PATCH  /usuarios/{id}/desactivar
- *   GET    /usuarios/count/activos
- *
- * Reemplaza IUsuarioService + IRegistroService del monolito.
+ * Rutas esperadas en el API-Gateway:
+ *   GET    /api/users/usuarios              → lista todos
+ *   GET    /api/users/usuarios/{id}         → busca por id
+ *   GET    /api/users/usuarios/{id}/paciente-id
+ *   GET    /api/users/usuarios/profesionales → lista profesionales activos  ← NUEVO
+ *   POST   /api/users/registro/usuario
+ *   POST   /api/users/registro/paciente
+ *   POST   /api/users/registro/profesional
+ *   PUT    /api/users/usuarios/{id}
+ *   PATCH  /api/users/usuarios/{id}/activar
+ *   PATCH  /api/users/usuarios/{id}/desactivar
+ *   GET    /api/users/usuarios/activos/count
  */
 public class UsuarioClient {
 
@@ -42,8 +42,39 @@ public class UsuarioClient {
         return api.mapper.readValue(r.body(), new TypeReference<>() {});
     }
 
+    /**
+     * Lista todos los profesionales activos.
+     *
+     * Usado por ConfiguracionDisponibilidadController (HU-1.5 / HU-1.6)
+     * para poblar el ComboBox de selección de profesional.
+     *
+     * El backend expone GET /api/users/usuarios/profesionales que devuelve
+     * los registros con tipo MEDICO o TERAPISTA. Si ese endpoint no existe,
+     * hace fallback filtrando el listado completo por rol.
+     */
+    public List<ProfesionalDTO> listarProfesionales() throws Exception {
+        HttpResponse<String> r = api.get("/api/users/usuarios/profesionales");
+        if (r.statusCode() == 404) {
+            // Fallback: filtrar desde el listado general
+            return listarTodos().stream()
+                    .filter(u -> "PROFESIONAL".equalsIgnoreCase(u.getRol())
+                              || "MEDICO".equalsIgnoreCase(u.getRol())
+                              || "TERAPISTA".equalsIgnoreCase(u.getRol()))
+                    .map(u -> {
+                        ProfesionalDTO p = new ProfesionalDTO();
+                        p.setId(u.getId());
+                        p.setNombreCompleto(u.getNombreCompleto());
+                        p.setActivo(u.getActivo());
+                        return p;
+                    })
+                    .collect(Collectors.toList());
+        }
+        validar(r);
+        return api.mapper.readValue(r.body(), new TypeReference<>() {});
+    }
+
     public long contarActivos() throws Exception {
-        HttpResponse<String> r = api.get("/api/users/usuarios/activos/count"); // path correcto
+        HttpResponse<String> r = api.get("/api/users/usuarios/activos/count");
         validar(r);
         JsonNode node = api.mapper.readTree(r.body());
         return node.get("total").asLong();
@@ -57,10 +88,6 @@ public class UsuarioClient {
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
-    /**
-     * Devuelve el Long del Paciente asociado a un usuario.
-     * Necesario para agendar/listar citas.
-     */
     public Long buscarPacienteIdPorUsuarioId(Long usuarioId) throws Exception {
         HttpResponse<String> r = api.get("/api/users/usuarios/" + usuarioId + "/paciente-id");
         validar(r);
@@ -70,7 +97,6 @@ public class UsuarioClient {
 
     // ── Creación ─────────────────────────────────────────────────
 
-    /** Crea un usuario con rol administrador (sin perfil adicional). */
     public UsuarioDTO crearUsuario(UsuarioDTO dto) throws Exception {
         HttpResponse<String> r = api.post("/api/users/registro/usuario", dto);
         if (r.statusCode() == 409)
@@ -79,7 +105,6 @@ public class UsuarioClient {
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
-    /** Crea usuario + datos de paciente en una sola petición. */
     public UsuarioDTO registrarPaciente(UsuarioDTO usuario, PacienteDTO paciente) throws Exception {
         RegistroPacienteRequestDTO body = new RegistroPacienteRequestDTO(usuario, paciente);
         HttpResponse<String> r = api.post("/api/users/registro/paciente", body);
@@ -89,8 +114,8 @@ public class UsuarioClient {
         return api.mapper.readValue(r.body(), UsuarioDTO.class);
     }
 
-    /** Crea usuario + datos de profesional en una sola petición. */
-    public UsuarioDTO registrarProfesional(UsuarioDTO usuario, ProfesionalDTO profesional) throws Exception {
+    public UsuarioDTO registrarProfesional(UsuarioDTO usuario, ProfesionalDTO profesional)
+            throws Exception {
         RegistroProfesionalRequestDTO body = new RegistroProfesionalRequestDTO(usuario, profesional);
         HttpResponse<String> r = api.post("/api/users/registro/profesional", body);
         if (r.statusCode() == 409)

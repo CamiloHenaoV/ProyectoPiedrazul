@@ -13,18 +13,17 @@ import javafx.scene.control.Label;
 /**
  * Controlador del dashboard del administrador.
  *
- * CAMBIOS RESPECTO AL MONOLITO:
- * - Eliminado: @Component, IUsuarioService (local)
- * - Añadido:   UsuarioClient (HTTP a user-service)
- * - actualizarContador() ahora hace GET /usuarios/count/activos
- * - Los errores de red se manejan silenciosamente (muestra "—")
+ * Métodos añadidos para HU-1.5 / HU-1.6 / HU-1.7 / HU-1.8:
+ *   - irADisponibilidad()           → ConfiguracionDisponibilidadController
+ *   - irAConfiguracionAgendamiento() → ConfiguracionAgendamientoController
+ *   - irADiasNoDisponibles()        → DiasNoDisponiblesController
  */
 public class DashboardAdminController implements Observer<UsuarioDTO> {
 
     @FXML private Label lblUsuario;
     @FXML private Label lblTotalUsuarios;
 
-    private final UsuarioClient  usuarioClient;
+    private final UsuarioClient   usuarioClient;
     private final StageInitializer stageInitializer;
     private final EventBus         eventBus;
 
@@ -50,13 +49,13 @@ public class DashboardAdminController implements Observer<UsuarioDTO> {
 
     @Override
     public void onEvent(AppEvent event, UsuarioDTO data) {
-        // El EventBus puede publicar desde cualquier hilo; asegurar hilo UI
         Platform.runLater(this::actualizarContador);
     }
 
+    // ── Navegación ────────────────────────────────────────────────────────────
+
     @FXML
     private void cerrarSesion() {
-        // Desuscribir antes de salir para evitar referencias colgantes
         eventBus.unsubscribe(AppEvent.USUARIO_CREADO,      this);
         eventBus.unsubscribe(AppEvent.USUARIO_ACTUALIZADO, this);
         eventBus.unsubscribe(AppEvent.USUARIO_DESACTIVADO, this);
@@ -74,10 +73,39 @@ public class DashboardAdminController implements Observer<UsuarioDTO> {
     }
 
     /**
-     * Llama al user-service vía HTTP.
-     * Antes: usuarioService.contarUsuariosActivos() (llamada local)
-     * Ahora: GET /usuarios/count/activos al API Gateway
+     * HU-1.5 / HU-1.6: navega a la pantalla de configuración de
+     * disponibilidad semanal de médicos y terapistas.
      */
+    @FXML
+    private void irADisponibilidad() {
+        stageInitializer.cambiarVista(
+                "/view/fxml/configuracion/configuracion-disponibilidad.fxml",
+                "Piedrazul - Disponibilidad de Profesionales", 900, 620);
+    }
+
+    /**
+     * HU-1.7: navega a la pantalla de configuración de la ventana
+     * de tiempo habilitada para agendamiento.
+     */
+    @FXML
+    private void irAConfiguracionAgendamiento() {
+        stageInitializer.cambiarVista(
+                "/view/fxml/configuracion/configuracion-agendamiento.fxml",
+                "Piedrazul - Ventana de Agendamiento", 700, 460);
+    }
+
+    /**
+     * HU-1.8: navega a la pantalla de gestión de días no disponibles y festivos.
+     */
+    @FXML
+    private void irADiasNoDisponibles() {
+        stageInitializer.cambiarVista(
+                "/view/fxml/configuracion/dias-no-disponibles.fxml",
+                "Piedrazul - Días No Disponibles y Festivos", 900, 580);
+    }
+
+    // ── Contador de usuarios ──────────────────────────────────────────────────
+
     private void actualizarContador() {
         new Thread(() -> {
             try {

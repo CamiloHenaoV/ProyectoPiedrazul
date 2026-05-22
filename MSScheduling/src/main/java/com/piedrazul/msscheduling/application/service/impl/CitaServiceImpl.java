@@ -1,6 +1,8 @@
 package com.piedrazul.msscheduling.application.service.impl;
 
 import com.piedrazul.msscheduling.application.service.interfaces.ICitaService;
+import com.piedrazul.msscheduling.application.service.interfaces.IConfiguracionAgendamientoService;
+import com.piedrazul.msscheduling.application.service.interfaces.IDiaNoDisponibleService;
 import com.piedrazul.msscheduling.domain.model.builder.CitaProgramadaBuilder;
 import com.piedrazul.msscheduling.domain.model.builder.DirectorCita;
 import com.piedrazul.msscheduling.domain.model.dto.CitaDTO;
@@ -8,6 +10,8 @@ import com.piedrazul.msscheduling.domain.model.entity.Cita;
 import com.piedrazul.msscheduling.domain.model.entity.UsuarioLocal;
 import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import com.piedrazul.msscheduling.domain.model.exceptions.CitaNoEncontradaException;
+import com.piedrazul.msscheduling.domain.model.exceptions.FechaNoDisponibleException;
+import com.piedrazul.msscheduling.domain.model.exceptions.FueraDeVentanaAgendamientoException;
 import com.piedrazul.msscheduling.domain.model.exceptions.HorarioOcupadoException;
 import com.piedrazul.msscheduling.domain.model.exceptions.TransicionEstadoInvalidaException;
 import com.piedrazul.msscheduling.domain.model.exceptions.UsuarioNoEncontradoException;
@@ -33,25 +37,31 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CitaServiceImpl implements ICitaService {
 
-    private final CitaRepository                  citaRepository;
-    private final DisponibilidadSemanalRepository disponibilidadRepository;
-    private final BloqueoDisponibilidadRepository bloqueoRepository;
-    private final UsuarioLocalRepository          usuarioLocalRepository;
-    private final CitaEventPublisher              citaEventPublisher;
-    private final CitaEstadoResolver              estadoResolver;
+    private final CitaRepository                      citaRepository;
+    private final DisponibilidadSemanalRepository     disponibilidadRepository;
+    private final BloqueoDisponibilidadRepository     bloqueoRepository;
+    private final UsuarioLocalRepository              usuarioLocalRepository;
+    private final CitaEventPublisher                  citaEventPublisher;
+    private final CitaEstadoResolver                  estadoResolver;
+    private final IConfiguracionAgendamientoService   configuracionService;
+    private final IDiaNoDisponibleService             diaNoDisponibleService;
 
     public CitaServiceImpl(CitaRepository citaRepository,
                            DisponibilidadSemanalRepository disponibilidadRepository,
                            BloqueoDisponibilidadRepository bloqueoRepository,
                            UsuarioLocalRepository usuarioLocalRepository,
                            CitaEventPublisher citaEventPublisher,
-                           CitaEstadoResolver estadoResolver) {
-        this.citaRepository           = citaRepository;
+                           CitaEstadoResolver estadoResolver,
+                           IConfiguracionAgendamientoService configuracionService,
+                           IDiaNoDisponibleService diaNoDisponibleService) {
+        this.citaRepository        = citaRepository;
         this.disponibilidadRepository = disponibilidadRepository;
-        this.bloqueoRepository        = bloqueoRepository;
-        this.usuarioLocalRepository   = usuarioLocalRepository;
-        this.citaEventPublisher       = citaEventPublisher;
-        this.estadoResolver           = estadoResolver;
+        this.bloqueoRepository     = bloqueoRepository;
+        this.usuarioLocalRepository = usuarioLocalRepository;
+        this.citaEventPublisher    = citaEventPublisher;
+        this.estadoResolver        = estadoResolver;
+        this.configuracionService  = configuracionService;
+        this.diaNoDisponibleService = diaNoDisponibleService;
     }
 
     // ── Agendar ──────────────────────────────────────────────────────────────
@@ -59,7 +69,15 @@ public class CitaServiceImpl implements ICitaService {
     @Override
     @Transactional
     public CitaDTO agendarCita(CitaDTO dto) {
-        if (!isProfesionalDisponible(dto.getProfesionalId(), dto.getFechaHora())) {
+        ZonedDateTime fechaHora = dto.getFechaHora();
+
+        // HU-1.7 SC-2: verificar que la fecha esté dentro de la ventana de agendamiento
+        validarVentanaAgendamiento(fechaHora.toLocalDate());
+
+        // HU-1.8 SC-1/SC-2: verificar que la fecha no sea un día no disponible o festivo
+        validarDiaNoDisponible(fechaHora.toLocalDate());
+
+        if (!isProfesionalDisponible(dto.getProfesionalId(), fechaHora)) {
             throw new HorarioOcupadoException();
         }
 
@@ -70,13 +88,13 @@ public class CitaServiceImpl implements ICitaService {
 
         DirectorCita director = new DirectorCita();
         director.setCitaBuilder(new CitaProgramadaBuilder());
-        director.construirCita(paciente, profesional, dto.getFechaHora());
+        director.construirCita(paciente, profesional, fechaHora);
         Cita cita = director.getCita();
 
         CitaDTO guardada = toDTO(citaRepository.save(cita));
         citaEventPublisher.publicarCitaAgendada(guardada);
         log.info("Cita agendada: paciente={} profesional={} fecha={}",
-                paciente.getId(), profesional.getId(), dto.getFechaHora());
+                paciente.getId(), profesional.getId(), fechaHora);
         return guardada;
     }
 
@@ -92,39 +110,35 @@ public class CitaServiceImpl implements ICitaService {
     @Override
     public List<CitaDTO> listarPorPaciente(Long pacienteId) {
         return citaRepository.findByPacienteId(pacienteId)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<CitaDTO> listarPorProfesional(Long profesionalId) {
         return citaRepository.findByProfesionalId(profesionalId)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    /**
-     * HU-6.1 – Devuelve todas las citas de un profesional en una fecha concreta.
-     * Utiliza el query existente findByProfesionalIdAndFechaHoraBetween acotando
-     * el rango al inicio y fin del día.
-     */
     @Override
     public List<CitaDTO> listarPorProfesionalYFecha(Long profesionalId, LocalDate fecha) {
-        ZoneId zona  = ZoneId.systemDefault();
+        ZoneId zona = ZoneId.systemDefault();
         ZonedDateTime inicio = fecha.atStartOfDay(zona);
         ZonedDateTime fin    = fecha.atTime(LocalTime.MAX).atZone(zona);
-
-        return citaRepository
-                .findByProfesionalIdAndFechaHoraBetween(profesionalId, inicio, fin)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return citaRepository.findByProfesionalIdAndFechaHoraBetween(profesionalId, inicio, fin)
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<ZonedDateTime> obtenerHorariosDisponibles(Long profesionalId, LocalDate fecha) {
+        // HU-1.7 SC-2: fuera de ventana → lista vacía (no lanzar excepción en consulta)
+        if (fecha.isAfter(configuracionService.obtenerFechaMaximaAgendamiento())) {
+            return List.of();
+        }
+        // HU-1.8 SC-2: día no disponible → lista vacía
+        if (diaNoDisponibleService.esFechaNoDisponible(fecha)) {
+            return List.of();
+        }
+
         int diaSemana = fecha.getDayOfWeek().getValue() % 7;
 
         return disponibilidadRepository
@@ -150,22 +164,18 @@ public class CitaServiceImpl implements ICitaService {
 
     @Override
     public long contarCitasPorEstado(EstadoCita estado) {
-        return citaRepository.findAll()
-                .stream()
-                .filter(c -> c.getEstado() == estado)
-                .count();
+        return citaRepository.findAll().stream()
+                .filter(c -> c.getEstado() == estado).count();
     }
 
-    // ── Transiciones de estado (patrón State) ────────────────────────────────
+    // ── Transiciones de estado ────────────────────────────────────────────────
 
     @Override
     @Transactional
     public CitaDTO cancelarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
-
         estadoResolver.resolve(cita.getEstado()).cancelar(cita);
-
         CitaDTO cancelada = toDTO(citaRepository.save(cita));
         citaEventPublisher.publicarCitaCancelada(cancelada);
         log.info("Cita cancelada: id={}", id);
@@ -177,27 +187,19 @@ public class CitaServiceImpl implements ICitaService {
     public CitaDTO completarCita(Long id) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
-
         estadoResolver.resolve(cita.getEstado()).completar(cita);
-
         CitaDTO completada = toDTO(citaRepository.save(cita));
         citaEventPublisher.publicarCitaCompletada(completada);
         log.info("Cita completada: id={}", id);
         return completada;
     }
 
-    /**
-     * HU-6.3 – Reprograma el horario de una cita existente.
-     * Solo se permite si la cita está en estado {@code programada}.
-     * El nuevo horario debe estar disponible dentro de la agenda del profesional.
-     */
     @Override
     @Transactional
     public CitaDTO actualizarCita(Long id, CitaDTO dto) {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
 
-        // HU-6.3 – Restricción: solo citas programadas pueden ser reprogramadas
         if (cita.getEstado() != EstadoCita.programada) {
             throw new TransicionEstadoInvalidaException(
                     cita.getEstado(),
@@ -207,11 +209,12 @@ public class CitaServiceImpl implements ICitaService {
 
         ZonedDateTime nuevaFechaHora = dto.getFechaHora();
 
-        // Solo validar disponibilidad si la fecha/hora cambia
         if (!nuevaFechaHora.equals(cita.getFechaHora())) {
-            // isProfesionalDisponible también chequea existsByProfesionalIdAndFechaHora;
-            // como la cita actual aún conserva su fechaHora antigua en DB, la consulta
-            // sobre la nueva fechaHora no la encontrará → sin falso positivo.
+            // HU-1.7 SC-2 al reprogramar
+            validarVentanaAgendamiento(nuevaFechaHora.toLocalDate());
+            // HU-1.8 SC-2 al reprogramar
+            validarDiaNoDisponible(nuevaFechaHora.toLocalDate());
+
             if (!isProfesionalDisponible(cita.getProfesionalId(), nuevaFechaHora)) {
                 throw new HorarioOcupadoException();
             }
@@ -223,7 +226,32 @@ public class CitaServiceImpl implements ICitaService {
         return actualizada;
     }
 
-    // ── Utilidades privadas ───────────────────────────────────────────────────
+    // ── Validaciones de política de agendamiento ─────────────────────────────
+
+    /**
+     * HU-1.7 SC-2: bloquea reservas fuera de la ventana de tiempo configurada.
+     */
+    private void validarVentanaAgendamiento(LocalDate fecha) {
+        LocalDate fechaMaxima = configuracionService.obtenerFechaMaximaAgendamiento();
+        if (fecha.isAfter(fechaMaxima)) {
+            int semanas = configuracionService.obtener().getSemanasHabilitadas();
+            throw new FueraDeVentanaAgendamientoException(semanas);
+        }
+        if (fecha.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("No se pueden agendar citas en fechas pasadas.");
+        }
+    }
+
+    /**
+     * HU-1.8 SC-1/SC-2: bloquea el agendamiento en días no disponibles o festivos.
+     */
+    private void validarDiaNoDisponible(LocalDate fecha) {
+        if (diaNoDisponibleService.esFechaNoDisponible(fecha)) {
+            throw new FechaNoDisponibleException(fecha.toString());
+        }
+    }
+
+    // ── Disponibilidad del profesional ────────────────────────────────────────
 
     private boolean isProfesionalDisponible(Long profesionalId, ZonedDateTime fechaHora) {
         if (fechaHora.isBefore(ZonedDateTime.now())) return false;
