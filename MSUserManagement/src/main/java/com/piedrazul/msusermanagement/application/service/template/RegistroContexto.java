@@ -3,8 +3,6 @@ package com.piedrazul.msusermanagement.application.service.template;
 import com.piedrazul.msusermanagement.domain.model.dto.PacienteDTO;
 import com.piedrazul.msusermanagement.domain.model.dto.ProfesionalDTO;
 import com.piedrazul.msusermanagement.domain.model.dto.UsuarioDTO;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Objeto de contexto que agrupa todos los datos posibles de una solicitud
@@ -16,15 +14,13 @@ import lombok.RequiredArgsConstructor;
  *   <li>{@code pacienteDTO}     — presente solo en registro de paciente.</li>
  *   <li>{@code profesionalDTO}  — presente solo en registro de profesional.</li>
  * </ul>
- *
+ * <p>
  * Al centralizar los datos aquí, el template method puede tener una firma
  * uniforme independientemente del tipo de registro.
+ *
+ * @param pacienteDTO    null si no aplica
+ * @param profesionalDTO null si no aplica
  */
-@Getter
-@RequiredArgsConstructor
-public class RegistroContexto {
+public record RegistroContexto(UsuarioDTO usuarioDTO, PacienteDTO pacienteDTO, ProfesionalDTO profesionalDTO) {
 
-    private final UsuarioDTO     usuarioDTO;
-    private final PacienteDTO    pacienteDTO;      // null si no aplica
-    private final ProfesionalDTO profesionalDTO;   // null si no aplica
 }

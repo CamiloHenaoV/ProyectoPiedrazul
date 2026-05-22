@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.piedrazul.frontend.http.ApiClient;
 import com.piedrazul.frontend.http.HttpException;
 import com.piedrazul.frontend.model.dto.*;
+import com.piedrazul.frontend.model.enums.RolUsuario;
 
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -57,9 +58,7 @@ public class UsuarioClient {
         if (r.statusCode() == 404) {
             // Fallback: filtrar desde el listado general
             return listarTodos().stream()
-                    .filter(u -> "PROFESIONAL".equalsIgnoreCase(u.getRol())
-                              || "MEDICO".equalsIgnoreCase(u.getRol())
-                              || "TERAPISTA".equalsIgnoreCase(u.getRol()))
+                    .filter(u -> u.getRol() == RolUsuario.profesional)
                     .map(u -> {
                         ProfesionalDTO p = new ProfesionalDTO();
                         p.setId(u.getId());
