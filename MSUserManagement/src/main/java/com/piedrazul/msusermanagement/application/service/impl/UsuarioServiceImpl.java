@@ -11,6 +11,8 @@ import com.piedrazul.msusermanagement.domain.model.repository.PacienteRepository
 import com.piedrazul.msusermanagement.domain.model.repository.UsuarioRepository;
 import com.piedrazul.msusermanagement.infra.messaging.UserEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,11 +52,21 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .rol(dto.getRol())
                 .activo(true)
                 .build());
-        try {
-            userEventPublisher.publishUserRegistered(usuario);
-        } catch (Exception e) {
-            System.err.println("RabbitMQ no disponible, evento no publicado.");
-        }
+
+        // ⚠️ FIX Bug 3: publicar el evento SOLO después del commit de la transacción.
+        // Si vincularPerfil() falla y el DB hace rollback, el mensaje Rabbit
+        // nunca sale — eliminando los "ghost events" en MSScheduling.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    userEventPublisher.publishUserRegistered(usuario);
+                } catch (Exception e) {
+                    System.err.println("RabbitMQ no disponible, evento user.registered no publicado.");
+                }
+            }
+        });
+
         return usuario;
     }
 

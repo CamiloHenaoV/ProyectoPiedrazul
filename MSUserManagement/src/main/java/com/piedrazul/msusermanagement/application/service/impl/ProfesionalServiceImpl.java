@@ -10,6 +10,8 @@ import com.piedrazul.msusermanagement.domain.model.repository.ProfesionalReposit
 import com.piedrazul.msusermanagement.infra.messaging.UserEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,11 +50,19 @@ public class ProfesionalServiceImpl implements IProfesionalService {
                         .build()
         );
 
-        try {
-            userEventPublisher.publishProfesionalCreado(profesional);
-        } catch (Exception e) {
-            System.err.println("RabbitMQ no disponible, evento profesional.creado no publicado.");
-        }
+        // ⚠️ FIX Bug 3: publicar el evento SOLO después del commit.
+        // Si la transacción padre falla (e.g., crearUsuarioBase lanzó excepción
+        // antes de llegar aquí), el evento nunca sale al broker.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    userEventPublisher.publishProfesionalCreado(profesional);
+                } catch (Exception e) {
+                    System.err.println("RabbitMQ no disponible, evento profesional.creado no publicado.");
+                }
+            }
+        });
 
         return profesional;
     }

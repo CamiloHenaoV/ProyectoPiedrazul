@@ -81,7 +81,7 @@ class CitaBuilderTest {
     void directorConCitaProgramadaBuilderDebeProducirCitaCompleta() {
         DirectorCita director = new DirectorCita();
         director.setCitaBuilder(new CitaProgramadaBuilder());
-        director.construirCita(paciente, profesional, fechaHora);
+        director.construirCita(paciente, profesional, fechaHora,5);
 
         Cita cita = director.getCita();
 
@@ -99,7 +99,7 @@ class CitaBuilderTest {
     void directorConCitaUrgenteBuilderDebeProducirCitaCompleta() {
         DirectorCita director = new DirectorCita();
         director.setCitaBuilder(new CitaUrgenteBuilder());
-        director.construirCita(paciente, profesional, fechaHora);
+        director.construirCita(paciente, profesional, fechaHora,5);
 
         Cita cita = director.getCita();
 
@@ -115,11 +115,11 @@ class CitaBuilderTest {
         DirectorCita director = new DirectorCita();
 
         director.setCitaBuilder(new CitaProgramadaBuilder());
-        director.construirCita(paciente, profesional, fechaHora);
+        director.construirCita(paciente, profesional, fechaHora,5);
         Cita citaProgramada = director.getCita();
 
         director.setCitaBuilder(new CitaUrgenteBuilder());
-        director.construirCita(paciente, profesional, fechaHora);
+        director.construirCita(paciente, profesional, fechaHora,5);
         Cita citaUrgente = director.getCita();
 
         assertNotSame(citaProgramada, citaUrgente);

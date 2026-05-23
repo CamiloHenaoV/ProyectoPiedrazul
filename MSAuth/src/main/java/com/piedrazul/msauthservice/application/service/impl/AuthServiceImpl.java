@@ -10,21 +10,16 @@ import com.piedrazul.msauthservice.domain.model.dto.response.AuthResponse;
 import com.piedrazul.msauthservice.domain.model.dto.response.TokenValidationResponse;
 import com.piedrazul.msauthservice.domain.model.dto.response.UsuarioClientResponse;
 import com.piedrazul.msauthservice.domain.model.entity.Credencial;
-import com.piedrazul.msauthservice.domain.model.entity.RefreshToken;
 import com.piedrazul.msauthservice.domain.model.repository.CredencialRepository;
 import com.piedrazul.msauthservice.domain.model.repository.RefreshTokenRepository;
 import com.piedrazul.msauthservice.infra.client.UsuarioClient;
 import com.piedrazul.msauthservice.infra.exception.CredencialDuplicadaException;
 import com.piedrazul.msauthservice.infra.exception.CredencialesInvalidasException;
-import com.piedrazul.msauthservice.infra.exception.RefreshTokenInvalidoException;
 import com.piedrazul.msauthservice.infra.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,39 +31,43 @@ public class AuthServiceImpl implements IAuthService {
     private final JwtUtil jwtUtil;
     private final UsuarioClient usuarioClient;
 
+    // FIX: AuthTransactionHelper owns the @Transactional DB boundaries for login
+    // and refresh, so we can call Feign *between* transactions instead of inside one.
+    private final AuthTransactionHelper txHelper;
+
     @Value("${jwt.access-expiration}")
     private long accessExpiration;
 
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
+    // -------------------------------------------------------------------------
+    // LOGIN
+    // No longer @Transactional at this level. The two DB units of work are
+    // delegated to AuthTransactionHelper, each in its own short transaction.
+    // The Feign call executes between them, holding zero DB connections.
+    //
+    // Flow:
+    //   TX-1 (read-only)  : validate credentials          → connection released
+    //   [network]         : fetch role from user-service  → no connection held
+    //   TX-2 (write)      : persist refresh token         → connection released
+    // -------------------------------------------------------------------------
     @Override
-    @Transactional
     public AuthResponse login(LoginRequest request) {
-        // 1. Buscar credenciales por login
-        Credencial credencial = credencialRepository.findByLogin(request.getLogin())
-                .orElseThrow(CredencialesInvalidasException::new);
+        // TX-1: pure DB work, connection freed on return
+        Credencial credencial = txHelper.verificarCredencialLogin(request);
 
-        // 2. Verificar que la cuenta esté activa
-        if (!credencial.getActivo()) {
-            throw new CredencialesInvalidasException();
-        }
-
-        // 3. Verificar contraseña
-        if (!passwordService.verificar(request.getPassword(), credencial.getPasswordHash())) {
-            throw new CredencialesInvalidasException();
-        }
-
-        // 4. Obtener rol desde usuario-service (solo en login, no en cada request)
+        // Network call – no transaction / no DB connection open
         UsuarioClientResponse usuario = usuarioClient.buscarPorId(credencial.getUsuarioId());
 
-        // 5. Generar tokens
+        // TX-2: pure DB write, connection freed on return
+        String refreshTokenValor = txHelper.persistirRefreshToken(credencial.getUsuarioId());
+
         String accessToken = jwtUtil.generarAccessToken(
                 credencial.getUsuarioId(),
                 credencial.getLogin(),
                 usuario.getRol().name()
         );
-        String refreshTokenValor = generarYPersistirRefreshToken(credencial.getUsuarioId());
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -82,36 +81,31 @@ public class AuthServiceImpl implements IAuthService {
                 .build();
     }
 
+    // -------------------------------------------------------------------------
+    // REFRESH
+    // Same pattern: short DB transactions around the Feign call.
+    //
+    // Flow:
+    //   TX-1 (read-write) : validate + rotate old token   → connection released
+    //   [network]         : fetch updated role             → no connection held
+    //   TX-2 (write)      : persist new refresh token     → connection released
+    // -------------------------------------------------------------------------
     @Override
-    @Transactional
     public AuthResponse refresh(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(RefreshTokenInvalidoException::new);
+        // TX-1: validate old token, mark it used, return the associated Credencial
+        Credencial credencial = txHelper.rotarRefreshToken(request.getRefreshToken());
 
-        if (!refreshToken.esValido()) {
-            throw new RefreshTokenInvalidoException();
-        }
-
-        // Rotación: marcar el token actual como usado
-        refreshToken.setUsado(true);
-        refreshTokenRepository.save(refreshToken);
-
-        // Obtener credencial y rol actualizado
-        Credencial credencial = credencialRepository.findByUsuarioId(refreshToken.getUsuarioId())
-                .orElseThrow(CredencialesInvalidasException::new);
-
-        if (!credencial.getActivo()) {
-            throw new CredencialesInvalidasException();
-        }
-
+        // Network call – no transaction / no DB connection open
         UsuarioClientResponse usuario = usuarioClient.buscarPorId(credencial.getUsuarioId());
+
+        // TX-2: persist the new refresh token
+        String nuevoRefreshToken = txHelper.persistirRefreshToken(credencial.getUsuarioId());
 
         String nuevoAccessToken = jwtUtil.generarAccessToken(
                 credencial.getUsuarioId(),
                 credencial.getLogin(),
                 usuario.getRol().name()
         );
-        String nuevoRefreshToken = generarYPersistirRefreshToken(credencial.getUsuarioId());
 
         return AuthResponse.builder()
                 .accessToken(nuevoAccessToken)
@@ -123,6 +117,11 @@ public class AuthServiceImpl implements IAuthService {
                 .rol(usuario.getRol().name())
                 .build();
     }
+
+    // -------------------------------------------------------------------------
+    // The methods below are purely DB operations with no external calls,
+    // so a single @Transactional per method is correct and safe.
+    // -------------------------------------------------------------------------
 
     @Override
     @Transactional
@@ -139,7 +138,6 @@ public class AuthServiceImpl implements IAuthService {
     public void logoutAll(Long usuarioId) {
         refreshTokenRepository.revocarTodosPorUsuarioId(usuarioId);
     }
-
 
     @Override
     @Transactional
@@ -165,7 +163,6 @@ public class AuthServiceImpl implements IAuthService {
         credencialRepository.save(credencial);
     }
 
-
     @Override
     @Transactional
     public void cambiarPassword(Long usuarioId, CambioPasswordRequest request) {
@@ -181,10 +178,8 @@ public class AuthServiceImpl implements IAuthService {
         credencial.setPasswordHash(passwordService.encriptar(request.getPasswordNuevo()));
         credencialRepository.save(credencial);
 
-        // Revocar todos los tokens activos para forzar re-login en otros dispositivos
         refreshTokenRepository.revocarTodosPorUsuarioId(usuarioId);
     }
-
 
     @Override
     public TokenValidationResponse validarToken(String token) {
@@ -197,17 +192,5 @@ public class AuthServiceImpl implements IAuthService {
                 .login(jwtUtil.extraerLogin(token))
                 .rol(jwtUtil.extraerRol(token))
                 .build();
-    }
-
-
-    private String generarYPersistirRefreshToken(Long usuarioId) {
-        String valor = UUID.randomUUID().toString();
-        RefreshToken rt = RefreshToken.builder()
-                .usuarioId(usuarioId)
-                .token(valor)
-                .expiraEn(ZonedDateTime.now().plusSeconds(refreshExpiration / 1000))
-                .build();
-        refreshTokenRepository.save(rt);
-        return valor;
     }
 }
