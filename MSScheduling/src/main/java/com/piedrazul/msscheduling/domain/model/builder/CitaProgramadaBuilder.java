@@ -25,6 +25,11 @@ public class CitaProgramadaBuilder extends CitaBuilder {
     }
 
     @Override
+    public void buildDuracion(int duracionMinutos) {
+        cita.setDuracionMinutos(duracionMinutos);
+    }
+
+    @Override
     public void buildEstado(EstadoCita estado) {
         cita.setEstado(EstadoCita.programada);
     }

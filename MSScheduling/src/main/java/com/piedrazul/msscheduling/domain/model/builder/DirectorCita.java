@@ -18,11 +18,13 @@ public class DirectorCita {
         return citaBuilder.getCita();
     }
 
-    public void construirCita(UsuarioLocal paciente, UsuarioLocal profesional, ZonedDateTime fechaHora) {
+    public void construirCita(UsuarioLocal paciente, UsuarioLocal profesional,
+                              ZonedDateTime fechaHora, int duracionMinutos) {
         citaBuilder.iniciarNuevaCita();
         citaBuilder.buildPaciente(paciente);
         citaBuilder.buildProfesional(profesional);
         citaBuilder.buildFechaHora(fechaHora);
+        citaBuilder.buildDuracion(duracionMinutos);
         citaBuilder.buildEstado(EstadoCita.programada);
         citaBuilder.buildFechaCreacion();
     }

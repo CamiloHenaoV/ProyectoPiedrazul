@@ -8,13 +8,11 @@ import java.time.ZonedDateTime;
 
 
 @Entity
-@Table(
-        name = "citas",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uc_profesional_horario",
-                columnNames = {"profesional_id", "fecha_hora"}
-        )
-)
+@Table(name = "citas")
+// Removed @UniqueConstraint on (profesional_id, fecha_hora).
+// A DB-level unique index prevented cancelled/completed rows from ever being
+// reused, permanently destroying slots. Uniqueness for *active* bookings is
+// now enforced at the service layer via existsSolapamientoProgramado().
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,6 +39,11 @@ public class Cita {
 
     @Column(name = "fecha_hora", nullable = false)
     private ZonedDateTime fechaHora;
+
+    // Stored so the overlap query can reason about the end of this appointment
+    // without joining back to disponibilidad_semanal.
+    @Column(name = "duracion_minutos", nullable = false)
+    private Integer duracionMinutos;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", columnDefinition = "varchar(50)")
