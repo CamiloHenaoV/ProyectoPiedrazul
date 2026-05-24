@@ -2,17 +2,17 @@ package com.piedrazul.msauthservice.application.service.impl;
 
 import com.piedrazul.msauthservice.application.service.IAuthService;
 import com.piedrazul.msauthservice.application.service.IPasswordService;
+import com.piedrazul.msauthservice.application.service.IUsuarioService;                   // NUEVO
+import com.piedrazul.msauthservice.application.service.IUsuarioService.UsuarioInfo;      // NUEVO
 import com.piedrazul.msauthservice.domain.model.dto.request.CambioPasswordRequest;
 import com.piedrazul.msauthservice.domain.model.dto.request.LoginRequest;
 import com.piedrazul.msauthservice.domain.model.dto.request.RefreshTokenRequest;
 import com.piedrazul.msauthservice.domain.model.dto.request.RegistroCredencialRequest;
 import com.piedrazul.msauthservice.domain.model.dto.response.AuthResponse;
 import com.piedrazul.msauthservice.domain.model.dto.response.TokenValidationResponse;
-import com.piedrazul.msauthservice.domain.model.dto.response.UsuarioClientResponse;
 import com.piedrazul.msauthservice.domain.model.entity.Credencial;
 import com.piedrazul.msauthservice.domain.model.repository.CredencialRepository;
 import com.piedrazul.msauthservice.domain.model.repository.RefreshTokenRepository;
-import com.piedrazul.msauthservice.infra.client.UsuarioClient;
 import com.piedrazul.msauthservice.infra.exception.CredencialDuplicadaException;
 import com.piedrazul.msauthservice.infra.exception.CredencialesInvalidasException;
 import com.piedrazul.msauthservice.infra.security.JwtUtil;
@@ -21,19 +21,25 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Patrón Adapter — «Client»
+ *
+ * CAMBIOS respecto al original:
+ *   - Se elimina la dependencia directa de UsuarioClient (Feign)
+ *   - Se inyecta IUsuarioService en su lugar
+ *   - Los dos métodos que llamaban a usuarioClient ahora llaman a usuarioService
+ *   - El resto del archivo es idéntico al original
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
 
-    private final CredencialRepository credencialRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final IPasswordService passwordService;
-    private final JwtUtil jwtUtil;
-    private final UsuarioClient usuarioClient;
-
-    // FIX: AuthTransactionHelper owns the @Transactional DB boundaries for login
-    // and refresh, so we can call Feign *between* transactions instead of inside one.
-    private final AuthTransactionHelper txHelper;
+    private final CredencialRepository      credencialRepository;
+    private final RefreshTokenRepository    refreshTokenRepository;
+    private final IPasswordService          passwordService;
+    private final JwtUtil                   jwtUtil;
+    private final IUsuarioService           usuarioService;   // ← CAMBIADO: era UsuarioClient
+    private final AuthTransactionHelper     txHelper;
 
     @Value("${jwt.access-expiration}")
     private long accessExpiration;
@@ -43,30 +49,22 @@ public class AuthServiceImpl implements IAuthService {
 
     // -------------------------------------------------------------------------
     // LOGIN
-    // No longer @Transactional at this level. The two DB units of work are
-    // delegated to AuthTransactionHelper, each in its own short transaction.
-    // The Feign call executes between them, holding zero DB connections.
-    //
-    // Flow:
-    //   TX-1 (read-only)  : validate credentials          → connection released
-    //   [network]         : fetch role from user-service  → no connection held
-    //   TX-2 (write)      : persist refresh token         → connection released
     // -------------------------------------------------------------------------
     @Override
     public AuthResponse login(LoginRequest request) {
-        // TX-1: pure DB work, connection freed on return
         Credencial credencial = txHelper.verificarCredencialLogin(request);
 
-        // Network call – no transaction / no DB connection open
-        UsuarioClientResponse usuario = usuarioClient.buscarPorId(credencial.getUsuarioId());
+        // CAMBIADO: antes era usuarioClient.buscarPorId(...)
+        // Ahora habla con la abstracción; no sabe que existe Feign
+        UsuarioInfo usuario = usuarioService.buscarPorId(credencial.getUsuarioId());
 
-        // TX-2: pure DB write, connection freed on return
         String refreshTokenValor = txHelper.persistirRefreshToken(credencial.getUsuarioId());
 
+        // CAMBIADO: antes era usuario.getRol().name() — ahora usuario.rol() (record)
         String accessToken = jwtUtil.generarAccessToken(
                 credencial.getUsuarioId(),
                 credencial.getLogin(),
-                usuario.getRol().name()
+                usuario.rol()
         );
 
         return AuthResponse.builder()
@@ -76,35 +74,27 @@ public class AuthServiceImpl implements IAuthService {
                 .expiresIn(accessExpiration)
                 .usuarioId(credencial.getUsuarioId())
                 .login(credencial.getLogin())
-                .nombreCompleto(usuario.getNombreCompleto())
-                .rol(usuario.getRol().name())
+                .nombreCompleto(usuario.nombreCompleto())  // CAMBIADO: era .getNombreCompleto()
+                .rol(usuario.rol())                        // CAMBIADO: era .getRol().name()
                 .build();
     }
 
     // -------------------------------------------------------------------------
     // REFRESH
-    // Same pattern: short DB transactions around the Feign call.
-    //
-    // Flow:
-    //   TX-1 (read-write) : validate + rotate old token   → connection released
-    //   [network]         : fetch updated role             → no connection held
-    //   TX-2 (write)      : persist new refresh token     → connection released
     // -------------------------------------------------------------------------
     @Override
     public AuthResponse refresh(RefreshTokenRequest request) {
-        // TX-1: validate old token, mark it used, return the associated Credencial
         Credencial credencial = txHelper.rotarRefreshToken(request.getRefreshToken());
 
-        // Network call – no transaction / no DB connection open
-        UsuarioClientResponse usuario = usuarioClient.buscarPorId(credencial.getUsuarioId());
+        // CAMBIADO: antes era usuarioClient.buscarPorId(...)
+        UsuarioInfo usuario = usuarioService.buscarPorId(credencial.getUsuarioId());
 
-        // TX-2: persist the new refresh token
         String nuevoRefreshToken = txHelper.persistirRefreshToken(credencial.getUsuarioId());
 
         String nuevoAccessToken = jwtUtil.generarAccessToken(
                 credencial.getUsuarioId(),
                 credencial.getLogin(),
-                usuario.getRol().name()
+                usuario.rol()                              // CAMBIADO
         );
 
         return AuthResponse.builder()
@@ -114,13 +104,12 @@ public class AuthServiceImpl implements IAuthService {
                 .expiresIn(accessExpiration)
                 .usuarioId(credencial.getUsuarioId())
                 .login(credencial.getLogin())
-                .rol(usuario.getRol().name())
+                .rol(usuario.rol())                        // CAMBIADO
                 .build();
     }
 
     // -------------------------------------------------------------------------
-    // The methods below are purely DB operations with no external calls,
-    // so a single @Transactional per method is correct and safe.
+    // Los métodos de abajo no cambian en absoluto — se copian del original
     // -------------------------------------------------------------------------
 
     @Override
