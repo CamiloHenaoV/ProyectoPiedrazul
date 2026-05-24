@@ -28,8 +28,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
         // 🔹 Rutas públicas (no validar token)
         if (path.contains("/api/auth/login")
-                || path.contains("/api/auth/registro")   // registro de credenciales (interno)
-                || path.contains("/api/auth/refresh")) {
+                || path.contains("/api/auth/registro")   // registro de credenciales en MSAuth
+                || path.contains("/api/auth/refresh")
+                || path.startsWith("/api/users/registro")) { // registro de perfil (paciente/profesional)
             return chain.filter(exchange);
         }
 

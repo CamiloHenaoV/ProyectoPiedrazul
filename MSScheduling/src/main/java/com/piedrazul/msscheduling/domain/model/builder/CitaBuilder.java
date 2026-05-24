@@ -19,12 +19,11 @@ public abstract class CitaBuilder {
     }
 
     public abstract void buildPaciente(UsuarioLocal paciente);
-
     public abstract void buildProfesional(UsuarioLocal profesional);
-
     public abstract void buildFechaHora(ZonedDateTime fechaHora);
-
+    // Added to carry slot duration into the persisted row so overlap queries
+    // can compute appointment end-times without re-joining disponibilidad.
+    public abstract void buildDuracion(int duracionMinutos);
     public abstract void buildEstado(EstadoCita estado);
-
     public abstract void buildFechaCreacion();
 }

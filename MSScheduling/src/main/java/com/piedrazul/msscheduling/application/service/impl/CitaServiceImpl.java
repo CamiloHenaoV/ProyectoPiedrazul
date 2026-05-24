@@ -7,6 +7,7 @@ import com.piedrazul.msscheduling.domain.model.builder.CitaProgramadaBuilder;
 import com.piedrazul.msscheduling.domain.model.builder.DirectorCita;
 import com.piedrazul.msscheduling.domain.model.dto.CitaDTO;
 import com.piedrazul.msscheduling.domain.model.entity.Cita;
+import com.piedrazul.msscheduling.domain.model.entity.DisponibilidadSemanal;
 import com.piedrazul.msscheduling.domain.model.entity.UsuarioLocal;
 import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import com.piedrazul.msscheduling.domain.model.exceptions.CitaNoEncontradaException;
@@ -37,6 +38,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CitaServiceImpl implements ICitaService {
 
+    // Maximum slot duration used to widen the candidate window when querying
+    // for overlap. 480 minutes (8 hours) is safely larger than any real slot.
+    private static final int MAX_DURACION_MINUTOS = 480;
+
     private final CitaRepository                      citaRepository;
     private final DisponibilidadSemanalRepository     disponibilidadRepository;
     private final BloqueoDisponibilidadRepository     bloqueoRepository;
@@ -54,14 +59,14 @@ public class CitaServiceImpl implements ICitaService {
                            CitaEstadoResolver estadoResolver,
                            IConfiguracionAgendamientoService configuracionService,
                            IDiaNoDisponibleService diaNoDisponibleService) {
-        this.citaRepository        = citaRepository;
+        this.citaRepository           = citaRepository;
         this.disponibilidadRepository = disponibilidadRepository;
-        this.bloqueoRepository     = bloqueoRepository;
-        this.usuarioLocalRepository = usuarioLocalRepository;
-        this.citaEventPublisher    = citaEventPublisher;
-        this.estadoResolver        = estadoResolver;
-        this.configuracionService  = configuracionService;
-        this.diaNoDisponibleService = diaNoDisponibleService;
+        this.bloqueoRepository        = bloqueoRepository;
+        this.usuarioLocalRepository   = usuarioLocalRepository;
+        this.citaEventPublisher       = citaEventPublisher;
+        this.estadoResolver           = estadoResolver;
+        this.configuracionService     = configuracionService;
+        this.diaNoDisponibleService   = diaNoDisponibleService;
     }
 
     // ── Agendar ──────────────────────────────────────────────────────────────
@@ -71,13 +76,14 @@ public class CitaServiceImpl implements ICitaService {
     public CitaDTO agendarCita(CitaDTO dto) {
         ZonedDateTime fechaHora = dto.getFechaHora();
 
-        // HU-1.7 SC-2: verificar que la fecha esté dentro de la ventana de agendamiento
         validarVentanaAgendamiento(fechaHora.toLocalDate());
-
-        // HU-1.8 SC-1/SC-2: verificar que la fecha no sea un día no disponible o festivo
         validarDiaNoDisponible(fechaHora.toLocalDate());
 
-        if (!isProfesionalDisponible(dto.getProfesionalId(), fechaHora)) {
+        // Resolve the slot duration from the professional's weekly availability
+        // so it can be stored on the Cita and used in future overlap queries.
+        int duracion = resolverDuracion(dto.getProfesionalId(), fechaHora);
+
+        if (!isProfesionalDisponible(dto.getProfesionalId(), fechaHora, duracion)) {
             throw new HorarioOcupadoException();
         }
 
@@ -88,7 +94,7 @@ public class CitaServiceImpl implements ICitaService {
 
         DirectorCita director = new DirectorCita();
         director.setCitaBuilder(new CitaProgramadaBuilder());
-        director.construirCita(paciente, profesional, fechaHora);
+        director.construirCita(paciente, profesional, fechaHora, duracion);
         Cita cita = director.getCita();
 
         CitaDTO guardada = toDTO(citaRepository.save(cita));
@@ -130,11 +136,9 @@ public class CitaServiceImpl implements ICitaService {
 
     @Override
     public List<ZonedDateTime> obtenerHorariosDisponibles(Long profesionalId, LocalDate fecha) {
-        // HU-1.7 SC-2: fuera de ventana → lista vacía (no lanzar excepción en consulta)
         if (fecha.isAfter(configuracionService.obtenerFechaMaximaAgendamiento())) {
             return List.of();
         }
-        // HU-1.8 SC-2: día no disponible → lista vacía
         if (diaNoDisponibleService.esFechaNoDisponible(fecha)) {
             return List.of();
         }
@@ -156,7 +160,12 @@ public class CitaServiceImpl implements ICitaService {
                 })
                 .filter(slot ->
                         slot.isAfter(ZonedDateTime.now()) &&
-                        !citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, slot) &&
+                        // Bug-fix: use the duration-aware overlap check so that a slot
+                        // mid-way through an active appointment is correctly hidden.
+                        // Bug-fix: cancelled/completed rows are now excluded because
+                        // isProfesionalDisponible only queries PROGRAMADA rows.
+                        isProfesionalDisponible(profesionalId, slot,
+                                resolverDuracion(profesionalId, slot)) &&
                         !bloqueoRepository.existeBloqueoEnFecha(profesionalId, slot)
                 )
                 .collect(Collectors.toList());
@@ -210,15 +219,20 @@ public class CitaServiceImpl implements ICitaService {
         ZonedDateTime nuevaFechaHora = dto.getFechaHora();
 
         if (!nuevaFechaHora.equals(cita.getFechaHora())) {
-            // HU-1.7 SC-2 al reprogramar
             validarVentanaAgendamiento(nuevaFechaHora.toLocalDate());
-            // HU-1.8 SC-2 al reprogramar
             validarDiaNoDisponible(nuevaFechaHora.toLocalDate());
 
-            if (!isProfesionalDisponible(cita.getProfesionalId(), nuevaFechaHora)) {
+            int duracion = resolverDuracion(cita.getProfesionalId(), nuevaFechaHora);
+
+            // Exclude the appointment being rescheduled from the overlap check
+            // by temporarily treating it as cancelled; we re-check against all
+            // OTHER programada rows.
+            if (!isProfesionalDisponibleExcluyendo(
+                    cita.getProfesionalId(), nuevaFechaHora, duracion, id)) {
                 throw new HorarioOcupadoException();
             }
             cita.setFechaHora(nuevaFechaHora);
+            cita.setDuracionMinutos(duracion);
         }
 
         CitaDTO actualizada = toDTO(citaRepository.save(cita));
@@ -228,9 +242,6 @@ public class CitaServiceImpl implements ICitaService {
 
     // ── Validaciones de política de agendamiento ─────────────────────────────
 
-    /**
-     * HU-1.7 SC-2: bloquea reservas fuera de la ventana de tiempo configurada.
-     */
     private void validarVentanaAgendamiento(LocalDate fecha) {
         LocalDate fechaMaxima = configuracionService.obtenerFechaMaximaAgendamiento();
         if (fecha.isAfter(fechaMaxima)) {
@@ -242,9 +253,6 @@ public class CitaServiceImpl implements ICitaService {
         }
     }
 
-    /**
-     * HU-1.8 SC-1/SC-2: bloquea el agendamiento en días no disponibles o festivos.
-     */
     private void validarDiaNoDisponible(LocalDate fecha) {
         if (diaNoDisponibleService.esFechaNoDisponible(fecha)) {
             throw new FechaNoDisponibleException(fecha.toString());
@@ -253,11 +261,79 @@ public class CitaServiceImpl implements ICitaService {
 
     // ── Disponibilidad del profesional ────────────────────────────────────────
 
-    private boolean isProfesionalDisponible(Long profesionalId, ZonedDateTime fechaHora) {
+    /**
+     * Returns true when the professional is free for the entire slot
+     * [fechaHora, fechaHora + duracionMinutos).
+     *
+     * Bug-fix (cancelled slots): candidates are fetched with estado = PROGRAMADA
+     * only, so cancelled/completed rows never block a slot.
+     *
+     * Bug-fix (duration blindness): overlap is tested with the standard
+     * interval condition — two appointments overlap when startA < endB AND
+     * startB < endA — so a 09:30 request is correctly blocked by a 09:00/60-min
+     * appointment.
+     */
+    private boolean isProfesionalDisponible(Long profesionalId,
+                                             ZonedDateTime fechaHora,
+                                             int duracionMinutos) {
         if (fechaHora.isBefore(ZonedDateTime.now())) return false;
-        if (citaRepository.existsByProfesionalIdAndFechaHora(profesionalId, fechaHora)) return false;
         if (bloqueoRepository.existeBloqueoEnFecha(profesionalId, fechaHora)) return false;
+        if (!estaEnVentanaDisponibilidad(profesionalId, fechaHora)) return false;
 
+        return !hayConflictoConProgramadas(profesionalId, fechaHora, duracionMinutos, null);
+    }
+
+    /**
+     * Same as isProfesionalDisponible but ignores the appointment identified by
+     * {@code excludeId}. Used when rescheduling so the appointment being moved
+     * does not block its own target slot.
+     */
+    private boolean isProfesionalDisponibleExcluyendo(Long profesionalId,
+                                                       ZonedDateTime fechaHora,
+                                                       int duracionMinutos,
+                                                       Long excludeId) {
+        if (fechaHora.isBefore(ZonedDateTime.now())) return false;
+        if (bloqueoRepository.existeBloqueoEnFecha(profesionalId, fechaHora)) return false;
+        if (!estaEnVentanaDisponibilidad(profesionalId, fechaHora)) return false;
+
+        return !hayConflictoConProgramadas(profesionalId, fechaHora, duracionMinutos, excludeId);
+    }
+
+    /**
+     * Loads all PROGRAMADA appointments for the professional in a window wide
+     * enough to catch any appointment that might overlap with [inicio, fin), then
+     * checks the interval overlap condition in Java.
+     *
+     * Window: [inicio - MAX_DURACION, fin]
+     *   – subtracting MAX_DURACION_MINUTOS ensures an appointment that started
+     *     before "inicio" but extends into it is not missed.
+     */
+    private boolean hayConflictoConProgramadas(Long profesionalId,
+                                                ZonedDateTime inicio,
+                                                int duracionMinutos,
+                                                Long excludeId) {
+        ZonedDateTime fin           = inicio.plusMinutes(duracionMinutos);
+        ZonedDateTime ventanaInicio = inicio.minusMinutes(MAX_DURACION_MINUTOS);
+
+        List<Cita> candidatas = citaRepository
+                .findByProfesionalIdAndEstadoAndFechaHoraBetween(
+                        profesionalId, EstadoCita.programada, ventanaInicio, fin);
+
+        return candidatas.stream()
+                .filter(c -> excludeId == null || !excludeId.equals(c.getId()))
+                .anyMatch(c -> {
+                    ZonedDateTime existingStart = c.getFechaHora();
+                    ZonedDateTime existingEnd   = existingStart.plusMinutes(c.getDuracionMinutos());
+                    // Standard interval-overlap test: [A,B) ∩ [C,D) ≠ ∅  ⟺  A < D && C < B
+                    return existingStart.isBefore(fin) && inicio.isBefore(existingEnd);
+                });
+    }
+
+    /**
+     * Verifies that fechaHora falls within the professional's configured weekly
+     * availability window (not in the past, and within horaInicio..horaFin).
+     */
+    private boolean estaEnVentanaDisponibilidad(Long profesionalId, ZonedDateTime fechaHora) {
         int diaSemana = fechaHora.getDayOfWeek().getValue() % 7;
         LocalTime hora = fechaHora.toLocalTime();
 
@@ -268,6 +344,21 @@ public class CitaServiceImpl implements ICitaService {
                         !hora.isBefore(d.getHoraInicio()) &&
                         !hora.isAfter(d.getHoraFin().minusMinutes(d.getDuracionCitaMinutos()))
                 );
+    }
+
+    /**
+     * Looks up the slot duration (in minutes) for the professional on the day
+     * of fechaHora.  Falls back to DisponibilidadSemanal.duracionCitaMinutos
+     * default (30) when no schedule is found.
+     */
+    private int resolverDuracion(Long profesionalId, ZonedDateTime fechaHora) {
+        int diaSemana = fechaHora.getDayOfWeek().getValue() % 7;
+        return disponibilidadRepository
+                .findByProfesionalIdAndDiaSemana(profesionalId, diaSemana)
+                .stream()
+                .findFirst()
+                .map(DisponibilidadSemanal::getDuracionCitaMinutos)
+                .orElse(30);
     }
 
     private CitaDTO toDTO(Cita c) {
