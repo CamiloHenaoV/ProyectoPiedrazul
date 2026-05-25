@@ -1,6 +1,6 @@
 package com.piedrazul.msscheduling.controller;
 
-import com.piedrazul.msscheduling.application.service.interfaces.ICitaService;
+import com.piedrazul.msscheduling.application.service.facade.IAgendamientoFacade;
 import com.piedrazul.msscheduling.domain.model.dto.CitaDTO;
 import com.piedrazul.msscheduling.domain.model.entity.enums.EstadoCita;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,53 +11,58 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+/**
+ * Patrón Facade — «Client»
+ *
+ * CAMBIOS respecto al original:
+ *   - Se elimina la dependencia directa de ICitaService
+ *   - Se inyecta IAgendamientoFacade en su lugar
+ *   - Todos los endpoints delegan a la Facade con el mismo resultado
+ *   - Las URLs y respuestas HTTP son exactamente iguales al original
+ *
+ * El controller ahora tiene UNA sola dependencia en lugar de cuatro.
+ */
 @RestController
 @RequestMapping("/api/scheduling/citas")
 public class CitaController {
 
-    private final ICitaService citaService;
+    // CAMBIADO: antes era ICitaService — ahora la Facade agrupa todo el subsistema
+    private final IAgendamientoFacade agendamientoFacade;
 
-    public CitaController(ICitaService citaService) {
-        this.citaService = citaService;
+    public CitaController(IAgendamientoFacade agendamientoFacade) {
+        this.agendamientoFacade = agendamientoFacade;
     }
 
     // ── Agendar ──────────────────────────────────────────────────────────────
 
     @PostMapping
     public ResponseEntity<CitaDTO> agendar(@RequestBody CitaDTO dto) {
-        return ResponseEntity.ok(citaService.agendarCita(dto));
+        return ResponseEntity.ok(agendamientoFacade.agendarCita(dto));
     }
 
     // ── Consultas ─────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
     public ResponseEntity<CitaDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(citaService.buscarPorId(id));
+        return ResponseEntity.ok(agendamientoFacade.buscarCitaPorId(id));
     }
 
     @GetMapping("/paciente/{pacienteId}")
     public ResponseEntity<List<CitaDTO>> listarPorPaciente(@PathVariable Long pacienteId) {
-        return ResponseEntity.ok(citaService.listarPorPaciente(pacienteId));
+        return ResponseEntity.ok(agendamientoFacade.listarCitasPorPaciente(pacienteId));
     }
 
     @GetMapping("/profesional/{profesionalId}")
     public ResponseEntity<List<CitaDTO>> listarPorProfesional(@PathVariable Long profesionalId) {
-        return ResponseEntity.ok(citaService.listarPorProfesional(profesionalId));
+        return ResponseEntity.ok(agendamientoFacade.listarCitasPorProfesional(profesionalId));
     }
 
-    /**
-     * HU-6.1 – Citas de un profesional filtradas por fecha.
-     * GET /api/scheduling/citas/profesional/{profesionalId}/fecha?fecha=YYYY-MM-DD
-     *
-     * Devuelve el listado de citas y, en el header X-Total-Count, la cantidad total.
-     * El cliente puede leer ese header para mostrar el contador de citas del día.
-     */
     @GetMapping("/profesional/{profesionalId}/fecha")
     public ResponseEntity<List<CitaDTO>> listarPorProfesionalYFecha(
             @PathVariable Long profesionalId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
-        List<CitaDTO> citas = citaService.listarPorProfesionalYFecha(profesionalId, fecha);
+        List<CitaDTO> citas = agendamientoFacade.listarCitasPorProfesionalYFecha(profesionalId, fecha);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(citas.size()))
                 .body(citas);
@@ -67,40 +72,32 @@ public class CitaController {
     public ResponseEntity<List<ZonedDateTime>> obtenerHorariosDisponibles(
             @PathVariable Long profesionalId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
-        return ResponseEntity.ok(citaService.obtenerHorariosDisponibles(profesionalId, fecha));
+        return ResponseEntity.ok(agendamientoFacade.obtenerHorariosDisponibles(profesionalId, fecha));
     }
 
     // ── Transiciones de estado ────────────────────────────────────────────────
 
     @PatchMapping("/{id}/cancelar")
     public ResponseEntity<CitaDTO> cancelar(@PathVariable Long id) {
-        return ResponseEntity.ok(citaService.cancelarCita(id));
+        return ResponseEntity.ok(agendamientoFacade.cancelarCita(id));
     }
 
     @PatchMapping("/{id}/completar")
     public ResponseEntity<CitaDTO> completar(@PathVariable Long id) {
-        return ResponseEntity.ok(citaService.completarCita(id));
+        return ResponseEntity.ok(agendamientoFacade.completarCita(id));
     }
 
-    /**
-     * HU-6.3 – Reprogramar una cita.
-     * PUT /api/scheduling/citas/{id}
-     *
-     * Solo acepta cambio de fechaHora. El cuerpo debe contener el CitaDTO
-     * con el campo fechaHora actualizado. Devuelve 409 si el horario está ocupado
-     * y 422 si la cita no está en estado programada.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<CitaDTO> actualizar(
             @PathVariable Long id,
             @RequestBody CitaDTO dto) {
-        return ResponseEntity.ok(citaService.actualizarCita(id, dto));
+        return ResponseEntity.ok(agendamientoFacade.actualizarCita(id, dto));
     }
 
     // ── Conteo ────────────────────────────────────────────────────────────────
 
     @GetMapping("/contar")
     public ResponseEntity<Long> contarPorEstado(@RequestParam EstadoCita estado) {
-        return ResponseEntity.ok(citaService.contarCitasPorEstado(estado));
+        return ResponseEntity.ok(agendamientoFacade.contarCitasPorEstado(estado));
     }
 }
