@@ -60,6 +60,8 @@ public class FormPacienteController {
     private void handleGuardar() {
         if (!validarCampos()) return;
 
+        // ── Paso 1: crear perfil en MSUserManagement ──────────────────────
+        UsuarioDTO creado = null;
         try {
             PacienteDTO pacienteDTO = PacienteDTO.builder()
                     .nombreCompleto(txtNombre.getText().trim())
@@ -76,24 +78,50 @@ public class FormPacienteController {
                     .activo(true)
                     .build();
 
-            UsuarioDTO creado = usuarioClient.registrarPaciente(usuarioDTO, pacienteDTO);
-
-            authClient.registrarCredencial(
-                    creado.getId(),
-                    usuarioNuevo.getLogin(),
-                    usuarioNuevo.getPassword()
-            );
-            eventBus.publish(AppEvent.USUARIO_CREADO, creado);
-            cerrarModal();
+            creado = usuarioClient.registrarPaciente(usuarioDTO, pacienteDTO);
 
         } catch (HttpException ex) {
             if (ex.isConflict())
                 mostrarError("El login ya está en uso.");
             else
-                mostrarError("Error al guardar: " + ex.getMessage());
+                mostrarError("Error al crear el perfil del paciente (paso 1): " + ex.getMessage());
+            return;
         } catch (Exception e) {
-            mostrarError("Error al guardar los datos del paciente.");
+            mostrarError("Error inesperado al crear el perfil del paciente.");
+            return;
         }
+
+        // ── Paso 2: registrar credenciales en MSAuth ───────────────────────
+        // FIX ALTO: si este paso falla, el usuario queda en BD sin credenciales.
+        // Mitigación: se intenta desactivar el usuario creado (transacción
+        // compensatoria) para que no quede en un estado silencioso.
+        // La solución definitiva es un endpoint atómico en MSUserManagement que
+        // ejecute ambos pasos dentro de una única transacción coordinada.
+        try {
+            authClient.registrarCredencial(
+                    creado.getId(),
+                    usuarioNuevo.getLogin(),
+                    usuarioNuevo.getPassword()
+            );
+        } catch (Exception credEx) {
+            // Compensación: marcar el usuario como inactivo para evitar un registro
+            // huérfano que nunca podrá iniciar sesión.
+            try {
+                usuarioClient.desactivarUsuario(creado.getId());
+            } catch (Exception rollbackEx) {
+                // Si la compensación también falla, al menos dejamos registro claro.
+                mostrarError("Error crítico: perfil creado (id=" + creado.getId()
+                        + ") pero sin credenciales y sin poder desactivarlo. "
+                        + "Contacte al administrador.");
+                return;
+            }
+            mostrarError("No se pudieron registrar las credenciales (MSAuth no disponible). "
+                    + "El perfil fue revertido. Intente nuevamente.");
+            return;
+        }
+
+        eventBus.publish(AppEvent.USUARIO_CREADO, creado);
+        cerrarModal();
     }
 
     @FXML

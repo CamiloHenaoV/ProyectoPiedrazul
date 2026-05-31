@@ -13,9 +13,6 @@
         <Insets top="40.0" right="60.0" bottom="40.0" left="60.0"/>
     </padding>
 
-    <Label text="PiedraAzul" alignment="CENTER">
-    </Label>
-
     <Label text="Piedrazul" alignment="CENTER"/>
 
     <VBox spacing="6.0">

@@ -30,6 +30,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
         if (path.contains("/api/auth/login")
                 || path.contains("/api/auth/registro")   // registro de credenciales en MSAuth
                 || path.contains("/api/auth/refresh")
+                // FIX ALTO: logout debe ser público en el gateway.
+                // Con el access token expirado el gateway devolvía 401 antes de
+                // llegar a MSAuth, dejando el refresh token (válido 7 días) sin
+                // revocar. MSAuth valida el refresh token internamente; no
+                // necesita un JWT válido para procesar el logout.
+                || path.contains("/api/auth/logout")
+                || path.contains("/api/auth/logout-all")
                 || path.startsWith("/api/users/registro")) { // registro de perfil (paciente/profesional)
             return chain.filter(exchange);
         }
