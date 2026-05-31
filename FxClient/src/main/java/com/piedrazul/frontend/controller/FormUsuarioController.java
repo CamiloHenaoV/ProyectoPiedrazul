@@ -125,6 +125,7 @@ public class FormUsuarioController {
             cerrarModal();
         } else {
             // Administrador: POST /usuarios directo
+            // ── Paso 1 ────────────────────────────────────────────────────
             UsuarioDTO usuarioDTO = UsuarioDTO.builder()
                     .nombreCompleto(nuevo.getNombreCompleto())
                     .login(nuevo.getLogin())
@@ -132,8 +133,23 @@ public class FormUsuarioController {
                     .activo(true)
                     .build();
             UsuarioDTO creado = usuarioClient.crearUsuario(usuarioDTO);
-            authClient.registrarCredencial(creado.getId(), nuevo.getLogin(), nuevo.getPassword());
-            // Publicar evento para que ListaUsuarios y Dashboard se actualicen
+
+            // ── Paso 2 (con compensación) ─────────────────────────────────
+            // FIX ALTO: si MSAuth está caído el usuario queda sin credenciales.
+            // Se intenta desactivar el registro como transacción compensatoria.
+            try {
+                authClient.registrarCredencial(creado.getId(), nuevo.getLogin(), nuevo.getPassword());
+            } catch (Exception credEx) {
+                try {
+                    usuarioClient.desactivarUsuario(creado.getId());
+                } catch (Exception rollbackEx) {
+                    throw new Exception("Error crítico: usuario id=" + creado.getId()
+                            + " sin credenciales y sin poder revertir. Contacte al administrador.");
+                }
+                throw new Exception("No se pudieron registrar las credenciales. "
+                        + "El usuario fue desactivado. Intente nuevamente.");
+            }
+
             eventBus.publish(AppEvent.USUARIO_CREADO, creado);
             cerrarModal();
         }

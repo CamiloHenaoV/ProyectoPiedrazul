@@ -25,6 +25,8 @@ import com.piedrazul.msscheduling.infra.messaging.publisher.CitaEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -98,7 +100,25 @@ public class CitaServiceImpl implements ICitaService {
         Cita cita = director.getCita();
 
         CitaDTO guardada = toDTO(citaRepository.save(cita));
-        citaEventPublisher.publicarCitaAgendada(guardada);
+
+        // FIX ALTO: mover la publicación RabbitMQ fuera del bloque @Transactional.
+        // Antes: si el broker estaba caído, la excepción hacía rollback y la cita
+        // no se guardaba en BD aunque la transacción hubiera sido exitosa.
+        // Ahora: el evento sale SOLO si el commit fue exitoso; si el broker falla,
+        // se loguea como advertencia sin afectar la persistencia de la cita.
+        final CitaDTO citaGuardada = guardada;
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    citaEventPublisher.publicarCitaAgendada(citaGuardada);
+                } catch (Exception e) {
+                    log.warn("Evento cita.agendada no publicado (citaId={}): {}",
+                            citaGuardada.getId(), e.getMessage());
+                }
+            }
+        });
+
         log.info("Cita agendada: paciente={} profesional={} fecha={}",
                 paciente.getId(), profesional.getId(), fechaHora);
         return guardada;
@@ -173,8 +193,11 @@ public class CitaServiceImpl implements ICitaService {
 
     @Override
     public long contarCitasPorEstado(EstadoCita estado) {
-        return citaRepository.findAll().stream()
-                .filter(c -> c.getEstado() == estado).count();
+        // FIX CRÍTICO: delegamos el COUNT al motor SQL.
+        // El patrón anterior (findAll + stream + filter) descargaba la tabla
+        // completa en heap, provocando OOM o latencias inaceptables en producción.
+        // Spring Data genera: SELECT COUNT(*) FROM cita WHERE estado = ?
+        return citaRepository.countByEstado(estado);
     }
 
     // ── Transiciones de estado ────────────────────────────────────────────────
@@ -186,7 +209,18 @@ public class CitaServiceImpl implements ICitaService {
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
         estadoResolver.resolve(cita.getEstado()).cancelar(cita);
         CitaDTO cancelada = toDTO(citaRepository.save(cita));
-        citaEventPublisher.publicarCitaCancelada(cancelada);
+        final CitaDTO citaCancelada = cancelada;
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    citaEventPublisher.publicarCitaCancelada(citaCancelada);
+                } catch (Exception e) {
+                    log.warn("Evento cita.cancelada no publicado (citaId={}): {}",
+                            citaCancelada.getId(), e.getMessage());
+                }
+            }
+        });
         log.info("Cita cancelada: id={}", id);
         return cancelada;
     }
@@ -198,7 +232,18 @@ public class CitaServiceImpl implements ICitaService {
                 .orElseThrow(() -> new CitaNoEncontradaException(id.toString()));
         estadoResolver.resolve(cita.getEstado()).completar(cita);
         CitaDTO completada = toDTO(citaRepository.save(cita));
-        citaEventPublisher.publicarCitaCompletada(completada);
+        final CitaDTO citaCompletada = completada;
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    citaEventPublisher.publicarCitaCompletada(citaCompletada);
+                } catch (Exception e) {
+                    log.warn("Evento cita.completada no publicado (citaId={}): {}",
+                            citaCompletada.getId(), e.getMessage());
+                }
+            }
+        });
         log.info("Cita completada: id={}", id);
         return completada;
     }

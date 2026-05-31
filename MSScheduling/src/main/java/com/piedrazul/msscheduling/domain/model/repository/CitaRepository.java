@@ -27,4 +27,13 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
             EstadoCita estado,
             ZonedDateTime inicio,
             ZonedDateTime fin);
+
+    // -----------------------------------------------------------------------
+    // FIX CRÍTICO: reemplaza findAll().stream().filter().count() en
+    // CitaServiceImpl.contarCitasPorEstado().
+    // Spring Data genera un COUNT(*) WHERE estado = ? — una sola query SQL,
+    // sin carga de entidades en heap, O(1) en memoria independientemente del
+    // tamaño de la tabla.
+    // -----------------------------------------------------------------------
+    long countByEstado(EstadoCita estado);
 }

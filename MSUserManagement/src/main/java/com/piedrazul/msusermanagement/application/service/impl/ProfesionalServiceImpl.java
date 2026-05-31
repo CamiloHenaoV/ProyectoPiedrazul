@@ -5,6 +5,7 @@ import com.piedrazul.msusermanagement.application.service.interfaces.IProfesiona
 import com.piedrazul.msusermanagement.domain.model.dto.ProfesionalDTO;
 import com.piedrazul.msusermanagement.domain.model.entity.Profesional;
 import com.piedrazul.msusermanagement.domain.model.entity.Usuario;
+import com.piedrazul.msusermanagement.domain.model.exceptions.UsuarioNoEncontradoException;
 import com.piedrazul.msusermanagement.domain.model.repository.EspecialidadRepository;
 import com.piedrazul.msusermanagement.domain.model.repository.ProfesionalRepository;
 import com.piedrazul.msusermanagement.infra.messaging.UserEventPublisher;
@@ -35,9 +36,14 @@ public class ProfesionalServiceImpl implements IProfesionalService {
     @Transactional
     public Profesional crearProfesional(Usuario usuario, ProfesionalDTO dto) {
 
+        // FIX ALTO: orElseThrow() sin argumento lanzaba NoSuchElementException (sin
+        // mensaje), que el GlobalExceptionHandler capturaba en el handler genérico
+        // Exception.class → HTTP 500.  Con IllegalArgumentException el handler
+        // dedicado devuelve 400 con un mensaje legible para el cliente.
         var especialidad = especialidadRepository
                 .findByNombre(dto.getEspecialidadNombre())
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Especialidad no encontrada: " + dto.getEspecialidadNombre()));
 
         Profesional profesional = profesionalRepository.save(
                 Profesional.builder()
@@ -77,9 +83,13 @@ public class ProfesionalServiceImpl implements IProfesionalService {
 
     @Override
     public ProfesionalDTO buscarPorId(Long id) {
+        // FIX ALTO: orElseThrow() sin argumento → NoSuchElementException sin mensaje
+        // → HTTP 500 por el handler genérico.  UsuarioNoEncontradoException tiene su
+        // propio handler en GlobalExceptionHandler que devuelve HTTP 404.
         return profesionalRepository.findById(id)
                 .map(this::toDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new UsuarioNoEncontradoException(
+                        "Profesional no encontrado: " + id));
     }
 
     @Override

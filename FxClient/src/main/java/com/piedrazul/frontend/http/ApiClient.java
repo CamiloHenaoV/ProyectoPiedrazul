@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.piedrazul.frontend.config.AppConfig;
+import lombok.Getter;
 
 import java.net.URI;
 import java.net.http.HttpClient;
