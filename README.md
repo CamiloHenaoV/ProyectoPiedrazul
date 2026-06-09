@@ -173,14 +173,3 @@ El proyecto está diseñado para ser extendido:
 - **Nuevos eventos asíncronos**: publicar en RabbitMQ desde cualquier microservicio usando el `EventBus`.
 - **Nuevos microservicios**: agregarlos como módulos Maven al `pom.xml` padre y registrar rutas en el API Gateway.
 
----
-
-##  Contribuciones
-
-Las contribuciones son bienvenidas. Por favor abre un *issue* primero para discutir los cambios que deseas realizar.
-
----
-
-##  Licencia
-
-Este proyecto se distribuye bajo los términos acordados por el equipo de desarrollo. Consulta el archivo `LICENSE` para más detalles.
